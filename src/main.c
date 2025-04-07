@@ -10,7 +10,7 @@ int main() {
     char acao, col;
 
     while (1) {
-        printf("\nDigite ação (g = gravar, l = ler o estado do jogo, b = branca, r = riscar, v = verificar o estado de jogo, a = ajuda, A = ???, R = cheater, d = desfazer, s = sair): ");
+        printf("\nDigite ação (g = gravar, l = ler jogo, b = branca, r = riscar, v = verificar estado, a = ajuda, A = ???, R = cheater, d = desfazer, s = sair): ");
         if (!scanf(" %c", &acao)) {
             printf("Entrada inválida! Tente novamente.\n");
             while (getchar() != '\n'); // Limpar o buffer
@@ -40,9 +40,9 @@ int main() {
             int coluna = col - 'a'; // Converter letra para índice
 
             if (acao == 'b')
-                branco(tab, lin - 1, coluna, verifica);
+                branco(tab, lin - 1, coluna, &verifica);
             else if (acao == 'r')
-                riscar(tab, lin - 1, coluna, verifica);
+                riscar(tab, lin - 1, coluna, &verifica);
         } 
         else printf("Ação inválida! Tente novamente.\n");
     }
