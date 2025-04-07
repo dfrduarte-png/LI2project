@@ -46,7 +46,7 @@ void ler(Tabuleiro* tab) {
     }
 }
 
-void branco(Tabuleiro* tab, int lin, int col) {
+void branco(Tabuleiro* tab, int lin, int col, int verifica) { // implementar a parte da verificação
     if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
         tab->grelha[lin][col] = toupper(tab->grelha[lin][col]);
     } else {
@@ -54,7 +54,7 @@ void branco(Tabuleiro* tab, int lin, int col) {
     }
 }
 
-void riscar(Tabuleiro* tab, int lin, int col) {
+void riscar(Tabuleiro* tab, int lin, int col, int verifica) { // implementar a parte da verificação
     if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
         tab->grelha[lin][col] = '#';
     } else {

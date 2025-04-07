@@ -6,7 +6,7 @@ int main() {
     Tabuleiro* tab = carregar("tabuleiro.txt");
     if (!tab) return 1;
 
-    int lin;
+    int lin, verifica = 1; // Inicializa verifica como 1 (jogo válido)
     char acao, col;
 
     while (1) {
@@ -19,7 +19,13 @@ int main() {
         else if (acao == 's') break;
         else if (acao == 'g') ;// Implementar a função de gravar o estado do jogo
         else if (acao == 'l') ler(tab);
-        else if (acao == 'v') ;// Implementar a função de verificar o estado do jogo
+        else if (acao == 'v') {
+            if (!verifica) { //verifica == 0
+                printf("O jogo nao esta valido\n");
+            } else {
+                printf("O jogo esta válido\n");
+            }
+        }
         else if (acao == 'a') ;// Implementar a função de ajuda
         else if (acao == 'A') ;// Implementar a função A
         else if (acao == 'R') ;// Implementar a função R
@@ -34,9 +40,9 @@ int main() {
             int coluna = col - 'a'; // Converter letra para índice
 
             if (acao == 'b')
-                branco(tab, lin - 1, coluna);
+                branco(tab, lin - 1, coluna, verifica);
             else if (acao == 'r')
-                riscar(tab, lin - 1, coluna);
+                riscar(tab, lin - 1, coluna, verifica);
         } 
         else printf("Ação inválida! Tente novamente.\n");
     }
