@@ -10,7 +10,7 @@ int main() {
     char acao, col;
 
     while (1) {
-        printf("\nDigite ação (g = gravar, l = ler jogo, b = branca, r = riscar, v = verificar estado, a = ajuda, A = ???, R = cheater, d = desfazer, s = sair): ");
+        printf("\nDigite ação(g = gravar, l = ler, b = branca, r = riscar, v = verificar estado, a = ajuda, A = ajuda contínua, R = resolver, d = desfazer, s = sair): ");
         if (!scanf(" %c", &acao)) {
             printf("Entrada inválida! Tente novamente.\n");
             while (getchar() != '\n'); // Limpar o buffer
@@ -21,14 +21,14 @@ int main() {
         else if (acao == 'l') ler(tab);
         else if (acao == 'v') {
             if (!verifica) { //verifica == 0
-                printf("O jogo nao esta valido\n");
+                printf("Inválido\n");
             } else {
-                printf("O jogo esta válido\n");
+                printf("Válido\n");
             }
         }
         else if (acao == 'a') ;// Implementar a função de ajuda
         else if (acao == 'A') ;// Implementar a função A
-        else if (acao == 'R') ;// Implementar a função R
+        else if (acao == 'R') ;// Implementar a função resolver
         else if (acao == 'd') ;// Implementar a função desfazer
         else if (acao == 'b' || acao == 'r') {
             printf("Digite coluna (letra) e linha (numero): ");
