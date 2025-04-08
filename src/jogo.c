@@ -5,7 +5,7 @@
 
 Tabuleiro* carregar(const char* ficheiro) {
     FILE* f = fopen(ficheiro, "r");
-    printf("Carregando tabuleiro de %s...\n", ficheiro);
+    printf("A carregar o tabuleiro em %s...\n", ficheiro);
     if (!f) {
         perror("Erro ao abrir ficheiro");
         return NULL;
@@ -46,17 +46,97 @@ void ler(Tabuleiro* tab) {
     }
 }
 
-void branco(Tabuleiro* tab, int lin, int col, int verifica) { // implementar a parte da verificação
+int verificarBranco(Tabuleiro* tab, int lin, int col) {
+    for (int i = lin + 1; i < tab->linhas; i++) {
+        if (tab->grelha[i][col] == tab->grelha[lin][col]) return 0;
+    }
+    for (int j = col + 1; j < tab->colunas; j++) {
+        if (tab->grelha[lin][j] == tab->grelha[lin][col]) return 0;
+    }
+    for (int i = lin - 1; i >= 0; i--) {
+        if (tab->grelha[i][col] == tab->grelha[lin][col]) return 0;
+    }
+    for (int j = col - 1; j >= 0; j--) {
+        if (tab->grelha[lin][j] == tab->grelha[lin][col]) return 0;
+    }
+    if (lin == 0 && col == 0) {
+        if (tab->grelha[lin + 1][col] == '#' && tab->grelha[lin][col + 1] == '#') return 0;
+    }
+    else if (lin == 0 && col == tab->colunas - 1) {
+        if (tab->grelha[lin + 1][col] == '#' && tab->grelha[lin][col - 1] == '#') return 0;
+    }
+    else if (lin == tab->linhas - 1 && col == 0) {
+        if (tab->grelha[lin - 1][col] == '#' && tab->grelha[lin][col + 1] == '#') return 0;
+    }
+    else if (lin == tab->linhas - 1 && col == tab->colunas - 1) {
+        if (tab->grelha[lin - 1][col] == '#' && tab->grelha[lin][col - 1] == '#') return 0;
+    }
+    else if (lin == 0) {
+        if (tab->grelha[lin + 1][col] == '#' && tab->grelha[lin][col - 1] == '#' && tab->grelha[lin][col + 1] == '#') return 0;
+    }
+    else if (lin == tab->linhas - 1) {
+        if (tab->grelha[lin - 1][col] == '#' && tab->grelha[lin][col - 1] == '#' && tab->grelha[lin][col + 1] == '#') return 0;
+    }
+    else if (col == 0) {
+        if (tab->grelha[lin - 1][col] == '#' && tab->grelha[lin + 1][col] == '#' && tab->grelha[lin][col + 1] == '#') return 0;
+    }
+    else if (col == tab->colunas - 1) {
+        if (tab->grelha[lin - 1][col] == '#' && tab->grelha[lin + 1][col] == '#' && tab->grelha[lin][col - 1] == '#') return 0;
+    }
+    else {
+        if (tab->grelha[lin - 1][col] == '#' && tab->grelha[lin + 1][col] == '#' && tab->grelha[lin][col - 1] == '#' && tab->grelha[lin][col + 1] == '#') return 0;
+    }
+    return 1; // Não existe linha ou coluna que seja ingual e branca
+}
+
+void branco(Tabuleiro* tab, int lin, int col, int *verifica) { // implementar a parte da verificação
     if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
+        if (tab->grelha[lin][col] == '#') {
+            printf("Posição já riscada! Tente de novo.\n");
+            return;
+        }
         tab->grelha[lin][col] = toupper(tab->grelha[lin][col]);
+        if (*verifica == 1) *verifica = verificarBranco(tab, lin, col); // So verifica se o jogo estava válido
     } else {
         printf("Posição inválida! Tente de novo.\n");
     }
 }
 
-void riscar(Tabuleiro* tab, int lin, int col, int verifica) { // implementar a parte da verificação
+int verificarRisca(Tabuleiro* tab, int lin, int col) {
+    if (lin == 0 && col == 0) {
+        if (tab->grelha[lin + 1][col] == '#' || tab->grelha[lin][col + 1] == '#') return 0;
+    }
+    else if (lin == 0 && col == tab->colunas - 1) {
+        if (tab->grelha[lin + 1][col] == '#' || tab->grelha[lin][col - 1] == '#') return 0;
+    }
+    else if (lin == tab->linhas - 1 && col == 0) {
+        if (tab->grelha[lin - 1][col] == '#' || tab->grelha[lin][col + 1] == '#') return 0;
+    }
+    else if (lin == tab->linhas - 1 && col == tab->colunas - 1) {
+        if (tab->grelha[lin - 1][col] == '#' || tab->grelha[lin][col - 1] == '#') return 0;
+    }
+    else if (lin == 0) {
+        if (tab->grelha[lin + 1][col] == '#' || tab->grelha[lin][col - 1] == '#' || tab->grelha[lin][col + 1] == '#') return 0;
+    }
+    else if (lin == tab->linhas - 1) {
+        if (tab->grelha[lin - 1][col] == '#' || tab->grelha[lin][col - 1] == '#' || tab->grelha[lin][col + 1] == '#') return 0;
+    }
+    else if (col == 0) {
+        if (tab->grelha[lin - 1][col] == '#' || tab->grelha[lin + 1][col] == '#' || tab->grelha[lin][col + 1] == '#') return 0;
+    }
+    else if (col == tab->colunas - 1) {
+        if (tab->grelha[lin - 1][col] == '#' || tab->grelha[lin + 1][col] == '#' || tab->grelha[lin][col - 1] == '#') return 0;
+    }
+    else {
+        if (tab->grelha[lin - 1][col] == '#' || tab->grelha[lin + 1][col] == '#' || tab->grelha[lin][col - 1] == '#' || tab->grelha[lin][col + 1] == '#') return 0;
+    }
+    return 1; // Jogo válido
+}
+
+void riscar(Tabuleiro* tab, int lin, int col, int *verifica) {
     if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
         tab->grelha[lin][col] = '#';
+        if (*verifica == 1) *verifica = verificarRisca(tab, lin, col); // So verifica se o jogo estava válido
     } else {
         printf("Posição inválida! Tente de novo.\n");
     }
