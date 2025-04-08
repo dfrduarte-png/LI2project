@@ -6,8 +6,12 @@ int main() {
     Tabuleiro* tab = carregar("tabuleiro.txt");
     if (!tab) return 1;
 
-    int lin, verifica = 1; // Inicializa verifica como 1 (jogo válido)
+    int lin, verifica = 1;
     char acao, col;
+
+    // Inicializando a pilha para armazenar as jogadas
+    Pilha pilha;
+    inicializarPilha(&pilha, 100);  // Capacidade da pilha (ajuste conforme necessário)
 
     while (1) {
         printf("\nDigite ação (g = gravar, l = ler o estado do jogo, b = branca, r = riscar, v = verificar o estado de jogo, a = ajuda, A = ???, R = cheater, d = desfazer, s = sair): ");
@@ -17,7 +21,9 @@ int main() {
             continue;
         }
         else if (acao == 's') break;
-        else if (acao == 'g') ;// Implementar a função de gravar o estado do jogo
+        else if (acao == 'g') {
+            guardar(tab, &pilha);  // Chama a função para salvar o progresso do jogo
+        }        
         else if (acao == 'l') ler(tab);
         else if (acao == 'v') {
             if (!verifica) { //verifica == 0
@@ -26,10 +32,12 @@ int main() {
                 printf("O jogo esta válido\n");
             }
         }
-        else if (acao == 'a') ;// Implementar a função de ajuda
-        else if (acao == 'A') ;// Implementar a função A
-        else if (acao == 'R') ;// Implementar a função R
-        else if (acao == 'd') ;// Implementar a função desfazer
+        else if (acao == 'a') ; // Implementar a função de ajuda
+        else if (acao == 'A') ; // Implementar a função A
+        else if (acao == 'R') ; // Implementar a função R
+        else if (acao == 'd') {
+            desfazer(tab, &pilha, &verifica);  // Desfaz a última jogada
+        }
         else if (acao == 'b' || acao == 'r') {
             printf("Digite coluna (letra) e linha (numero): ");
             if (!scanf(" %c %d", &col, &lin)) {
@@ -40,13 +48,14 @@ int main() {
             int coluna = col - 'a'; // Converter letra para índice
 
             if (acao == 'b')
-                branco(tab, lin - 1, coluna, verifica);
+                branco(tab, lin - 1, coluna, &verifica, &pilha);
             else if (acao == 'r')
-                riscar(tab, lin - 1, coluna, verifica);
+                riscar(tab, lin - 1, coluna, &verifica, &pilha);
         } 
         else printf("Ação inválida! Tente novamente.\n");
     }
 
+    liberarPilha(&pilha);  // Liberar a pilha antes de finalizar o programa
     freeTabuleiro(tab); 
     return 0;
 }
