@@ -46,97 +46,21 @@ void ler(Tabuleiro* tab) {
     }
 }
 
-int verificarBranco(Tabuleiro* tab, int lin, int col) {
-    for (int i = lin + 1; i < tab->linhas; i++) {
-        if (tab->grelha[i][col] == tab->grelha[lin][col]) return 0;
-    }
-    for (int j = col + 1; j < tab->colunas; j++) {
-        if (tab->grelha[lin][j] == tab->grelha[lin][col]) return 0;
-    }
-    for (int i = lin - 1; i >= 0; i--) {
-        if (tab->grelha[i][col] == tab->grelha[lin][col]) return 0;
-    }
-    for (int j = col - 1; j >= 0; j--) {
-        if (tab->grelha[lin][j] == tab->grelha[lin][col]) return 0;
-    }
-    if (lin == 0 && col == 0) {
-        if (tab->grelha[lin + 1][col] == '#' && tab->grelha[lin][col + 1] == '#') return 0;
-    }
-    else if (lin == 0 && col == tab->colunas - 1) {
-        if (tab->grelha[lin + 1][col] == '#' && tab->grelha[lin][col - 1] == '#') return 0;
-    }
-    else if (lin == tab->linhas - 1 && col == 0) {
-        if (tab->grelha[lin - 1][col] == '#' && tab->grelha[lin][col + 1] == '#') return 0;
-    }
-    else if (lin == tab->linhas - 1 && col == tab->colunas - 1) {
-        if (tab->grelha[lin - 1][col] == '#' && tab->grelha[lin][col - 1] == '#') return 0;
-    }
-    else if (lin == 0) {
-        if (tab->grelha[lin + 1][col] == '#' && tab->grelha[lin][col - 1] == '#' && tab->grelha[lin][col + 1] == '#') return 0;
-    }
-    else if (lin == tab->linhas - 1) {
-        if (tab->grelha[lin - 1][col] == '#' && tab->grelha[lin][col - 1] == '#' && tab->grelha[lin][col + 1] == '#') return 0;
-    }
-    else if (col == 0) {
-        if (tab->grelha[lin - 1][col] == '#' && tab->grelha[lin + 1][col] == '#' && tab->grelha[lin][col + 1] == '#') return 0;
-    }
-    else if (col == tab->colunas - 1) {
-        if (tab->grelha[lin - 1][col] == '#' && tab->grelha[lin + 1][col] == '#' && tab->grelha[lin][col - 1] == '#') return 0;
-    }
-    else {
-        if (tab->grelha[lin - 1][col] == '#' && tab->grelha[lin + 1][col] == '#' && tab->grelha[lin][col - 1] == '#' && tab->grelha[lin][col + 1] == '#') return 0;
-    }
-    return 1; // Não existe linha ou coluna que seja ingual e branca
-}
-
-void branco(Tabuleiro* tab, int lin, int col, int *verifica) { // implementar a parte da verificação
+void branco(Tabuleiro* tab, int lin, int col) { 
     if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
         if (tab->grelha[lin][col] == '#') {
             printf("Posição já riscada! Tente de novo.\n");
             return;
         }
         tab->grelha[lin][col] = toupper(tab->grelha[lin][col]);
-        if (*verifica == 1) *verifica = verificarBranco(tab, lin, col); // So verifica se o jogo estava válido
     } else {
         printf("Posição inválida! Tente de novo.\n");
     }
 }
 
-int verificarRisca(Tabuleiro* tab, int lin, int col) {
-    if (lin == 0 && col == 0) {
-        if (tab->grelha[lin + 1][col] == '#' || tab->grelha[lin][col + 1] == '#') return 0;
-    }
-    else if (lin == 0 && col == tab->colunas - 1) {
-        if (tab->grelha[lin + 1][col] == '#' || tab->grelha[lin][col - 1] == '#') return 0;
-    }
-    else if (lin == tab->linhas - 1 && col == 0) {
-        if (tab->grelha[lin - 1][col] == '#' || tab->grelha[lin][col + 1] == '#') return 0;
-    }
-    else if (lin == tab->linhas - 1 && col == tab->colunas - 1) {
-        if (tab->grelha[lin - 1][col] == '#' || tab->grelha[lin][col - 1] == '#') return 0;
-    }
-    else if (lin == 0) {
-        if (tab->grelha[lin + 1][col] == '#' || tab->grelha[lin][col - 1] == '#' || tab->grelha[lin][col + 1] == '#') return 0;
-    }
-    else if (lin == tab->linhas - 1) {
-        if (tab->grelha[lin - 1][col] == '#' || tab->grelha[lin][col - 1] == '#' || tab->grelha[lin][col + 1] == '#') return 0;
-    }
-    else if (col == 0) {
-        if (tab->grelha[lin - 1][col] == '#' || tab->grelha[lin + 1][col] == '#' || tab->grelha[lin][col + 1] == '#') return 0;
-    }
-    else if (col == tab->colunas - 1) {
-        if (tab->grelha[lin - 1][col] == '#' || tab->grelha[lin + 1][col] == '#' || tab->grelha[lin][col - 1] == '#') return 0;
-    }
-    else {
-        if (tab->grelha[lin - 1][col] == '#' || tab->grelha[lin + 1][col] == '#' || tab->grelha[lin][col - 1] == '#' || tab->grelha[lin][col + 1] == '#') return 0;
-    }
-    return 1; // Jogo válido
-}
-
-void riscar(Tabuleiro* tab, int lin, int col, int *verifica) {
+void riscar(Tabuleiro* tab, int lin, int col) {
     if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
         tab->grelha[lin][col] = '#';
-        if (*verifica == 1) *verifica = verificarRisca(tab, lin, col); // So verifica se o jogo estava válido
     } else {
         printf("Posição inválida! Tente de novo.\n");
     }
@@ -147,4 +71,60 @@ void freeTabuleiro(Tabuleiro* tab) {
         free(tab->grelha[i]);
     free(tab->grelha);
     free(tab);
+}
+
+int verificarBranco(Tabuleiro* tab, int lin, int col) {
+    char current = tab->grelha[lin][col];
+
+    // Check vertically (up and down)
+    for (int i = 0; i < tab->linhas; i++) {
+        if (i != lin && tab->grelha[i][col] == current) return 0;
+    }
+
+    // Check horizontally (left and right)
+    for (int j = 0; j < tab->colunas; j++) {
+        if (j != col && tab->grelha[lin][j] == current) return 0;
+    }
+
+    // Check surrounding '#' conditions
+    int up = (lin > 0) ? tab->grelha[lin - 1][col] == '#' : 0;
+    int down = (lin < tab->linhas - 1) ? tab->grelha[lin + 1][col] == '#' : 0;
+    int left = (col > 0) ? tab->grelha[lin][col - 1] == '#' : 0;
+    int right = (col < tab->colunas - 1) ? tab->grelha[lin][col + 1] == '#' : 0;
+
+    if (up && down && left && right) return 0;
+
+    return 1; // Valid move
+}
+
+int verificarRisca(Tabuleiro* tab, int lin, int col) {
+    int directions[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // Up, Down, Left, Right
+
+    for (int i = 0; i < 4; i++) {
+        int newLin = lin + directions[i][0];
+        int newCol = col + directions[i][1];
+
+        if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
+            if (tab->grelha[newLin][newCol] < 'A' || tab->grelha[newLin][newCol] > 'Z') return 0;
+        }
+    }
+    return 1; // Jogo válido
+}
+
+int verifica (Tabuleiro* tab) {
+    for (int i = 0; i < tab->linhas; i++) {
+        for (int j = 0; j < tab->colunas; j++) {
+            if (tab->grelha[i][j] == '#') {
+                if (!verificarRisca(tab, i, j)) {
+                    return 0;
+                }
+            }
+            else if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') {
+                if (!verificarBranco(tab, i, j)) {
+                    return 0;
+                }
+            }
+        }
+    }
+    return 1;
 }

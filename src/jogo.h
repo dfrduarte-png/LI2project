@@ -10,10 +10,11 @@ typedef struct {
 
 Tabuleiro* carregar(const char* ficheiro);
 void ler(Tabuleiro* tab);
-int verificarBranco(Tabuleiro* tab, int lin, int col);
-void branco(Tabuleiro* tab, int lin, int col, int *verifica);
-int verificarRisca(Tabuleiro* tab, int lin, int col);
-void riscar(Tabuleiro* tab, int lin, int col, int *verifica);
+void branco(Tabuleiro* tab, int lin, int col);
+void riscar(Tabuleiro* tab, int lin, int col);
 void freeTabuleiro(Tabuleiro* tab);
+int verificarBranco(Tabuleiro* tab, int lin, int col);
+int verificarRisca(Tabuleiro* tab, int lin, int col);
+int verifica (Tabuleiro* tab);
 
 #endif
