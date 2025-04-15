@@ -3,18 +3,13 @@
 #include "jogo.h"
 
 int main() {
-    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
-    if (!tab) {
-        printf("Erro ao alocar memória para o tabuleiro!\n");
-        return 1;
-    }
-    int le = 0;
+    Tabuleiro* tab = NULL;
 
     int lin;
     char acao, col;
 
     while (1) {
-        if (le) ler(tab);
+        if (tab) ler(tab);
         printf("\nDigite ação(g = gravar, l = ler, b = branca, r = riscar, v = verificar estado, a = ajuda, A = ajuda contínua, R = resolver, d = desfazer, s = sair): ");
         if (!scanf(" %c", &acao)) {
             printf("Entrada inválida! Tente novamente.\n");
@@ -23,24 +18,32 @@ int main() {
         }
         else if (acao == 's') break;
         else if (acao == 'g') {
-            if (!le) {
+            if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
         }// Implementar a função de gravar o estado do jogo
         else if (acao == 'l') {
-            char ficheiro[100];
+            char ficheiro[25];
             printf("Digite o nome do ficheiro: ");
             if (!scanf("%s", ficheiro)) {
                 printf("Entrada inválida! Tente novamente.\n");
-                while (getchar() != '\n'); // Limpar o buffer
+                while (getchar() != '\n');
                 continue;
             }
-            if (!(tab = carregar(ficheiro))) continue;
-            le = 1;
+            // Free the existing tabuleiro before loading a new one
+            if (tab) {
+                freeTabuleiro(tab);
+            }
+            Tabuleiro* new_tab = carregar(ficheiro);
+            if (!new_tab) {
+                continue;
+            }
+            
+            tab = new_tab;
         }
         else if (acao == 'v') {
-            if (!le) {
+            if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
@@ -51,31 +54,31 @@ int main() {
             }
         }
         else if (acao == 'a') {
-            if (!le) {
+            if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
         }// Implementar a função de ajuda
         else if (acao == 'A') {
-            if (!le) {
+            if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
         }// Implementar a função A
         else if (acao == 'R') {
-            if (!le) {
+            if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
         }// Implementar a função resolver
         else if (acao == 'd') {
-            if (!le) {
+            if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
         }// Implementar a função desfazer
         else if (acao == 'b') {
-            if (!le) {
+            if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
@@ -89,7 +92,7 @@ int main() {
             branco(tab, lin - 1, coluna);
         } 
         else if (acao == 'r') {
-            if (!le) {
+            if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
@@ -105,7 +108,6 @@ int main() {
         }
         else printf("Ação inválida! Tente novamente.\n");
     }
-
     if (tab) {
         freeTabuleiro(tab);
     }

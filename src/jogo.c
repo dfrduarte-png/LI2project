@@ -39,6 +39,10 @@ Tabuleiro* carregar(const char* ficheiro) {
 
 void ler(Tabuleiro* tab) {
     for (int i = 0; i < tab->linhas; i++) {
+        printf("%d ", i);
+    }
+    printf("\n");
+    for (int i = 0; i < tab->linhas; i++) {
         for (int j = 0; j < tab->colunas; j++) {
             printf("%c ", tab->grelha[i][j]);
         }
@@ -67,8 +71,7 @@ void riscar(Tabuleiro* tab, int lin, int col) {
 }
 
 void freeTabuleiro(Tabuleiro* tab) {
-    for (int i = 0; i < tab->linhas; i++)
-        free(tab->grelha[i]);
+    for (int i = 0; i < tab->linhas; i++) free(tab->grelha[i]);
     free(tab->grelha);
     free(tab);
 }
