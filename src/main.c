@@ -10,7 +10,7 @@ int main() {
 
     while (1) {
         if (tab) ler(tab);
-        printf("\nDigite ação(g = gravar, l = ler, b = branca, r = riscar, v = verificar estado, a = ajuda, A = ajuda contínua, R = resolver, d = desfazer, s = sair): ");
+        printf("\nDigite ação(g = gravar, l = ler, b = branca, r = riscar, v = verificar, a = ajuda, A = ajuda contínua, R = resolver, d = desfazer, s = sair): ");
         if (!scanf(" %c", &acao)) {
             printf("Entrada inválida! Tente novamente.\n");
             while (getchar() != '\n'); // Limpar o buffer
@@ -47,11 +47,7 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            else if (verifica(tab)) {
-                printf("Válido!\n");
-            } else {
-                printf("Inválido\n");
-            }
+            else if (!verifica(tab)) printf("O jogo está válido!\n");
         }
         else if (acao == 'a') {
             if (!tab) {
@@ -103,8 +99,7 @@ int main() {
                 continue;
             }
             int coluna = col - 'a'; // Converter letra para índice
-            if (verificarRisca(tab, lin - 1, coluna))riscar(tab, lin - 1, coluna);
-            else printf("Ação inválida! Tente novamente.\n");
+            riscar(tab, lin - 1, coluna);
         }
         else printf("Ação inválida! Tente novamente.\n");
     }
