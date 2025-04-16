@@ -26,7 +26,7 @@ int main() {
                 printf("O jogo esta válido\n");
             }
         }
-        else if (acao == 'a') ;// Implementar a função de ajuda
+        else if (acao == 'a') ajudar(tab, &verifica);
         else if (acao == 'A') ;// Implementar a função A
         else if (acao == 'R') ;// Implementar a função R
         else if (acao == 'd') ;// Implementar a função desfazer

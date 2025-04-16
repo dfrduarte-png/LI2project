@@ -148,3 +148,47 @@ void freeTabuleiro(Tabuleiro* tab) {
     free(tab->grelha);
     free(tab);
 }
+
+
+void ajudar(Tabuleiro* tab, int *verifica) {
+ // Primeiro, riscar todas as letras iguais na mesma linha e coluna
+ for (int i = 0; i < tab->linhas; i++) {
+        for (int j = 0; j < tab->colunas; j++) {
+            if (islower(tab->grelha[i][j])) { // Se a casa contém uma letra minúscula
+                // Verifica se a letra pode ser riscada
+                if (verificarRisca(tab, i, j)) {
+                    riscar(tab, i, j, verifica);
+                }
+            }
+        }
+    }
+
+
+ // Verificar se existem casas que podem ser pintadas de branco e pinta as de branco 
+    for (int i = 0; i < tab->linhas; i++) {
+        for (int j = 0; j < tab->colunas; j++) {
+            if (islower(tab->grelha[i][j])) { // Se a casa contém uma letra minúscula
+                // Verifica se a letra pode ser pintada de branco
+                if (verificarBranco(tab, i, j)) {
+                    branco(tab, i, j, verifica);
+                }
+            }
+        }
+    }
+
+    // Verifica se o jogo está válido
+    if (*verifica == 1) {
+        printf("O jogo está válido.\n");
+    } else {
+        printf("O jogo não está válido.\n");
+    }
+    // Imprime o tabuleiro atualizado
+    for (int i = 0; i < tab->linhas; i++) {
+        for (int j = 0; j < tab->colunas; j++) {
+            printf("%c ", tab->grelha[i][j]);
+        }
+        printf("\n");
+    }
+
+}
+

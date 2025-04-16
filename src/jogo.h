@@ -15,5 +15,7 @@ void branco(Tabuleiro* tab, int lin, int col, int *verifica);
 int verificarRisca(Tabuleiro* tab, int lin, int col);
 void riscar(Tabuleiro* tab, int lin, int col, int *verifica);
 void freeTabuleiro(Tabuleiro* tab);
+void ajudar(Tabuleiro* tab, int *verifica);
+
 
 #endif

@@ -1,36 +1,38 @@
+#include <CUnit/CUnit.h>
+#include <CUnit/Basic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include "jogo.h"
 
-// Função para criar um arquivo de teste
 void criar_ficheiro_teste(const char* nome_ficheiro) {
     FILE* f = fopen(nome_ficheiro, "w");
-    fprintf(f, "3 3\n");
-    fprintf(f, "a b c\n");
-    fprintf(f, "d e f\n");
-    fprintf(f, "g h i\n");
+    fprintf(f, "5 5\n");
+    fprintf(f, "ecadc\n");
+    fprintf(f, "dcdec\n");
+    fprintf(f, "bddce\n");
+    fprintf(f, "cdeeb\n");
+    fprintf(f, "accbb\n");
     fclose(f);
 }
 
-// Teste da função carregar
-void testar_carregar() {
+void test_carregar(void) {
     criar_ficheiro_teste("tabuleiro.txt");
     Tabuleiro* tab = carregar("tabuleiro.txt");
-    
-    assert(tab != NULL);
-    assert(tab->linhas == 3);
-    assert(tab->colunas == 3);
-    assert(tab->grelha[0][0] == 'a');
-    assert(tab->grelha[1][1] == 'e');
-    assert(tab->grelha[2][2] == 'i');
+
+    CU_ASSERT_PTR_NOT_NULL(tab);
+    CU_ASSERT_EQUAL(tab->linhas, 5);
+    CU_ASSERT_EQUAL(tab->colunas, 5);
+    CU_ASSERT_EQUAL(tab->grelha[0][0], 'e');
+    CU_ASSERT_EQUAL(tab->grelha[1][1], 'c');
+    CU_ASSERT_EQUAL(tab->grelha[2][2], 'd');
+    CU_ASSERT_EQUAL(tab->grelha[3][3], 'e');
+    CU_ASSERT_EQUAL(tab->grelha[4][4], 'b');
 
     freeTabuleiro(tab);
 }
 
-// Teste da função ler
-void testar_ler() {
+void test_ler(void) {
     Tabuleiro* tab = malloc(sizeof(Tabuleiro));
     tab->linhas = 2;
     tab->colunas = 2;
@@ -42,34 +44,26 @@ void testar_ler() {
     tab->grelha[1][0] = 'z';
     tab->grelha[1][1] = 'w';
 
-    // Redirecionar a saída para um buffer
-    FILE* buffer = fopen("output.txt", "w");
-    if (buffer) {
-        // Substituir stdout temporariamente
-        FILE* original_stdout = stdout;
-        stdout = buffer;
+    FILE* buffer = freopen("output.txt", "w", stdout);
+    CU_ASSERT_PTR_NOT_NULL(buffer);
+    ler(tab);
+    fflush(stdout);
+    freopen("/dev/tty", "w", stdout);
 
-        ler(tab);
+    FILE* f = fopen("output.txt", "r");
+    CU_ASSERT_PTR_NOT_NULL(f);
 
-        // Restaurar stdout
-        stdout = original_stdout;
-        fclose(buffer);
-    }
-
-    // Ler o conteúdo do arquivo de saída
-    buffer = fopen("output.txt", "r");
     char linha[100];
-    fgets(linha, sizeof(linha), buffer);
-    assert(strcmp(linha, "x y \n") == 0);
-    fgets(linha, sizeof(linha), buffer);
-    assert(strcmp(linha, "z w \n") == 0);
-    fclose(buffer);
+    fgets(linha, sizeof(linha), f);
+    CU_ASSERT_STRING_EQUAL(linha, "x y \n");
+    fgets(linha, sizeof(linha), f);
+    CU_ASSERT_STRING_EQUAL(linha, "z w \n");
 
+    fclose(f);
     freeTabuleiro(tab);
 }
 
-// Teste da função branco
-void testar_branco() {
+void test_branco(void) {
     Tabuleiro* tab = malloc(sizeof(Tabuleiro));
     tab->linhas = 1;
     tab->colunas = 1;
@@ -78,15 +72,14 @@ void testar_branco() {
     tab->grelha[0][0] = 'a';
 
     branco(tab, 0, 0, 0);
-    assert(tab->grelha[0][0] == 'A'); // Verifica se a letra foi transformada em maiúscula
+    CU_ASSERT_EQUAL(tab->grelha[0][0], 'A');
 
-    branco(tab, 1, 1, 0); // Testa posição inválida
+    branco(tab, 1, 1, 0); // Posição inválida
 
     freeTabuleiro(tab);
 }
 
-// Teste da função riscar
-void testar_riscar() {
+void test_riscar(void) {
     Tabuleiro* tab = malloc(sizeof(Tabuleiro));
     tab->linhas = 1;
     tab->colunas = 1;
@@ -94,23 +87,48 @@ void testar_riscar() {
     tab->grelha[0] = malloc(sizeof(char));
     tab->grelha[0][0] = 'a';
 
-    // Testa a função riscar
     riscar(tab, 0, 0, 0);
-    assert(tab->grelha[0][0] == '#'); // Verifica se o caractere foi riscado
+    CU_ASSERT_EQUAL(tab->grelha[0][0], '#');
 
-    riscar(tab, 1, 1, 0); // Testa posição inválida
+    riscar(tab, 1, 1, 0); // Posição inválida
 
     freeTabuleiro(tab);
 }
 
-// Função principal para executar os testes
-int main() {
-    // Testes das funções
-    testar_carregar();
-    testar_ler();
-    testar_branco();
-    testar_riscar();
+void test_ajuda(void) {
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    tab->linhas = 1;
+    tab->colunas = 1;
+    tab->grelha = malloc(sizeof(char*));
+    tab->grelha[0] = malloc(sizeof(char));
+    tab->grelha[0][0] = 'a';
 
-    printf("Todos os testes passaram!\n");
-    return 0;
+    int verifica = 1;
+    ajudar(tab, &verifica);
+    CU_ASSERT_EQUAL(verifica, 1);
+
+    freeTabuleiro(tab);
 }
+
+int main() {
+    if (CUE_SUCCESS != CU_initialize_registry())
+        return CU_get_error();
+
+    CU_pSuite suite = CU_add_suite("Teste do jogo", NULL, NULL);
+    if (suite == NULL) {
+        CU_cleanup_registry();
+        return CU_get_error();
+    }
+
+    CU_add_test(suite, "test_carregar", test_carregar);
+    CU_add_test(suite, "test_ler", test_ler);
+    CU_add_test(suite, "test_branco", test_branco);
+    CU_add_test(suite, "test_riscar", test_riscar);
+    CU_add_test(suite, "test_ajuda", test_ajuda);
+
+    CU_basic_set_mode(CU_BRM_VERBOSE);
+    CU_basic_run_tests();
+    CU_cleanup_registry();
+    return CU_get_error();
+}
+
