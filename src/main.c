@@ -4,10 +4,8 @@
 
 int main() {
     Tabuleiro* tab = NULL;
-
     int lin;
     char acao, col;
-
     while (1) {
         if (tab) ler(tab);
         printf("\nDigite ação(g = gravar, l = ler, b = branca, r = riscar, v = verificar, a = ajuda, A = ajuda contínua, R = resolver, d = desfazer, s = sair): ");
@@ -31,7 +29,6 @@ int main() {
                 while (getchar() != '\n');
                 continue;
             }
-            // Free the existing tabuleiro before loading a new one
             if (tab) {
                 freeTabuleiro(tab);
             }
@@ -47,32 +44,32 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            else if (!verifica(tab)) printf("O jogo está válido!\n");
+            else if (!verifica(tab)) printf("O jogo está válido!\n"); //se a função verifica == 0, o jogo está valido
         }
-        else if (acao == 'a') {
+        else if (acao == 'a') {// Implementar a função de ajuda
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-        }// Implementar a função de ajuda
-        else if (acao == 'A') {
+        }
+        else if (acao == 'A') {// Implementar a função A
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-        }// Implementar a função A
-        else if (acao == 'R') {
+        }
+        else if (acao == 'R') {// Implementar a função resolver
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-        }// Implementar a função resolver
-        else if (acao == 'd') {
+        }
+        else if (acao == 'd') {// Implementar a função desfazer
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-        }// Implementar a função desfazer
+        }
         else if (acao == 'b') {
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
@@ -85,6 +82,10 @@ int main() {
                 continue;
             }
             int coluna = col - 'a'; // Converter letra para índice
+            if (coluna < 0 || coluna >= tab->colunas || lin - 1 < 0 || lin - 1 >= tab->linhas) {
+                printf("Posição inválida! Tente novamente.\n");
+                continue;
+            }
             branco(tab, lin - 1, coluna);
         } 
         else if (acao == 'r') {
@@ -99,6 +100,10 @@ int main() {
                 continue;
             }
             int coluna = col - 'a'; // Converter letra para índice
+            if (coluna < 0 || coluna >= tab->colunas || lin - 1 < 0 || lin - 1 >= tab->linhas) {
+                printf("Posição inválida! Tente novamente.\n");
+                continue;
+            }
             riscar(tab, lin - 1, coluna);
         }
         else printf("Ação inválida! Tente novamente.\n");
