@@ -1,6 +1,7 @@
 #ifndef JOGO_H
 #define JOGO_H
 
+// Estrutura para guardar o tabuleiro e o seu tamanho
 typedef struct {
     int linhas;
     int colunas;
@@ -8,9 +9,9 @@ typedef struct {
 } Tabuleiro;
 
 typedef struct {
-    int lin;
-    int col;
-    char anterior;  // O estado anterior da célula (pode ser '#', 'B', ou 'R')
+    int lin, col;
+    char anterior; // letra anterior antes de mudar
+    char tipo; // 'b' ou 'r'
 } Jogada;
 
 typedef struct {
@@ -19,15 +20,17 @@ typedef struct {
     int capacidade;
 } Pilha;
 
-Tabuleiro* carregar(const char* ficheiro);
+Tabuleiro* carregar(const char* ficheiro, Pilha* pilha);
 void ler(Tabuleiro* tab);
-int verificarBranco(Tabuleiro* tab, int lin, int col);
-void branco(Tabuleiro* tab, int lin, int col, int *verifica, Pilha* pilha);
-int verificarRisca(Tabuleiro* tab, int lin, int col);
-void riscar(Tabuleiro* tab, int lin, int col, int *verifica, Pilha* pilha);
-void desfazer(Tabuleiro* tab, Pilha* pilha, int* verifica);
+void branco(Tabuleiro* tab, int lin, int col, Pilha* pilha);
+void riscar(Tabuleiro* tab, int lin, int col, Pilha* pilha);
 void freeTabuleiro(Tabuleiro* tab);
+int verificarBranco(Tabuleiro* tab, int lin, int col);
+int verificarRisca(Tabuleiro* tab, int lin, int col);
+int verifica (Tabuleiro* tab);
 void inicializarPilha(Pilha* pilha, int capacidade);
-void liberarPilha(Pilha* pilha);
+void empurrarPilha(Pilha* pilha, int lin, int col, char anterior, char tipo);
+void freePilha(Pilha* pilha);
+void desfazer(Tabuleiro* tab, Pilha* pilha);
 
 #endif

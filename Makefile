@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -O2 -Wunused-result -std=c11
+CFLAGS = -Wall -Wextra -Wconversion -Wshadow -Wundef -Wformat=2 -pedantic -O1 -g -fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer -std=c11
 SRC = src
 BIN = bin
 OBJS = $(SRC)/main.o $(SRC)/jogo.o

@@ -3,18 +3,18 @@
 #include "jogo.h"
 
 int main() {
-    Tabuleiro* tab = carregar("tabuleiro.txt");
-    if (!tab) return 1;
-
-    int lin, verifica = 1;
+    Tabuleiro* tab = NULL;
+    int lin;
     char acao, col;
+    char ficheiro[25];
 
     // Inicializando a pilha para armazenar as jogadas
     Pilha pilha;
-    inicializarPilha(&pilha, 100);  // Capacidade da pilha (ajuste conforme necessário)
+    inicializarPilha(&pilha, 10);
 
     while (1) {
-        printf("\nDigite ação (g = gravar, l = ler o estado do jogo, b = branca, r = riscar, v = verificar o estado de jogo, a = ajuda, A = ???, R = cheater, d = desfazer, s = sair): ");
+        if (tab) ler(tab);
+        printf("\nDigite ação(g = gravar, l = ler, b = branca, r = riscar, v = verificar, a = ajuda, A = ajuda contínua, R = resolver, d = desfazer, s = sair): ");
         if (!scanf(" %c", &acao)) {
             printf("Entrada inválida! Tente novamente.\n");
             while (getchar() != '\n'); // Limpar o buffer
@@ -22,23 +22,66 @@ int main() {
         }
         else if (acao == 's') break;
         else if (acao == 'g') {
-            guardar(tab, &pilha);  // Chama a função para salvar o progresso do jogo
-        }        
-        else if (acao == 'l') ler(tab);
+            if (!tab) {
+                printf("Tabuleiro não carregado! Tente novamente.\n");
+                continue;
+            }
+            guardar (tab, &pilha, ficheiro); 
+        }
+        else if (acao == 'l') {
+            printf("Digite o nome do ficheiro: ");
+            if (!scanf("%s", ficheiro)) {
+                printf("Entrada inválida! Tente novamente.\n");
+                while (getchar() != '\n');
+                continue;
+            }
+            if (tab) {
+                freeTabuleiro(tab);
+            }
+            Tabuleiro* new_tab = carregar(ficheiro, &pilha);
+            if (!new_tab) {
+                continue;
+            }
+            
+            tab = new_tab;
+        }
         else if (acao == 'v') {
-            if (!verifica) { //verifica == 0
-                printf("O jogo nao esta valido\n");
-            } else {
-                printf("O jogo esta válido\n");
+            if (!tab) {
+                printf("Tabuleiro não carregado! Tente novamente.\n");
+                continue;
+            }
+            else if (!verifica(tab)) printf("O jogo está válido!\n"); //se a função verifica == 0, o jogo está valido
+        }
+        else if (acao == 'a') {// Implementar a função de ajuda
+            if (!tab) {
+                printf("Tabuleiro não carregado! Tente novamente.\n");
+                continue;
             }
         }
-        else if (acao == 'a') ; // Implementar a função de ajuda
-        else if (acao == 'A') ; // Implementar a função A
-        else if (acao == 'R') ; // Implementar a função R
-        else if (acao == 'd') {
-            desfazer(tab, &pilha, &verifica);  // Desfaz a última jogada
+        else if (acao == 'A') {// Implementar a função A
+            if (!tab) {
+                printf("Tabuleiro não carregado! Tente novamente.\n");
+                continue;
+            }
         }
-        else if (acao == 'b' || acao == 'r') {
+        else if (acao == 'R') {// Implementar a função resolver
+            if (!tab) {
+                printf("Tabuleiro não carregado! Tente novamente.\n");
+                continue;
+            }
+        }
+        else if (acao == 'd') {// Implementar a função desfazer
+            if (!tab) {
+                printf("Tabuleiro não carregado! Tente novamente.\n");
+                continue;
+            }
+            desfazer(tab, &pilha);  // Desfaz a última jogada
+        }
+        else if (acao == 'b') {
+            if (!tab) {
+                printf("Tabuleiro não carregado! Tente novamente.\n");
+                continue;
+            }
             printf("Digite coluna (letra) e linha (numero): ");
             if (!scanf(" %c %d", &col, &lin)) {
                 printf("Entrada inválida! Tente novamente.\n");
@@ -46,16 +89,36 @@ int main() {
                 continue;
             }
             int coluna = col - 'a'; // Converter letra para índice
-
-            if (acao == 'b')
-                branco(tab, lin - 1, coluna, &verifica, &pilha);
-            else if (acao == 'r')
-                riscar(tab, lin - 1, coluna, &verifica, &pilha);
+            if (coluna < 0 || coluna >= tab->colunas || lin - 1 < 0 || lin - 1 >= tab->linhas) {
+                printf("Posição inválida! Tente novamente.\n");
+                continue;
+            }
+            branco(tab, lin - 1, coluna, &pilha);
         } 
+        else if (acao == 'r') {
+            if (!tab) {
+                printf("Tabuleiro não carregado! Tente novamente.\n");
+                continue;
+            }
+            printf("Digite coluna (letra) e linha (numero): ");
+            if (!scanf(" %c %d", &col, &lin)) {
+                printf("Entrada inválida! Tente novamente.\n");
+                while (getchar() != '\n'); // Limpar o buffer
+                continue;
+            }
+            int coluna = col - 'a'; // Converter letra para índice
+            if (coluna < 0 || coluna >= tab->colunas || lin - 1 < 0 || lin - 1 >= tab->linhas) {
+                printf("Posição inválida! Tente novamente.\n");
+                continue;
+            }
+            riscar(tab, lin - 1, coluna, &pilha);
+        }
         else printf("Ação inválida! Tente novamente.\n");
     }
+    if (tab) {
+        freeTabuleiro(tab);
+    }
+    freePilha(&pilha);
 
-    liberarPilha(&pilha);  // Liberar a pilha antes de finalizar o programa
-    freeTabuleiro(tab); 
     return 0;
 }
