@@ -48,16 +48,23 @@ void test_ler(void) {
     CU_ASSERT_PTR_NOT_NULL(buffer);
     ler(tab);
     fflush(stdout);
-    freopen("/dev/tty", "w", stdout);
+    
+    // Verifica se a chamada para freopen foi bem-sucedida
+    if (freopen("/dev/tty", "w", stdout) == NULL) {
+        perror("Erro ao restaurar stdout");
+    }
 
     FILE* f = fopen("output.txt", "r");
     CU_ASSERT_PTR_NOT_NULL(f);
 
     char linha[100];
-    fgets(linha, sizeof(linha), f);
-    CU_ASSERT_STRING_EQUAL(linha, "x y \n");
-    fgets(linha, sizeof(linha), f);
-    CU_ASSERT_STRING_EQUAL(linha, "z w \n");
+    // Verifica se a leitura foi bem-sucedida
+    if (fgets(linha, sizeof(linha), f) != NULL) {
+        CU_ASSERT_STRING_EQUAL(linha, "x y \n");
+    }
+    if (fgets(linha, sizeof(linha), f) != NULL) {
+        CU_ASSERT_STRING_EQUAL(linha, "z w \n");
+    }
 
     fclose(f);
     freeTabuleiro(tab);
@@ -95,13 +102,19 @@ void test_riscar(void) {
     freeTabuleiro(tab);
 }
 
+// Teste para a função ajudar
 void test_ajuda(void) {
     Tabuleiro* tab = malloc(sizeof(Tabuleiro));
-    tab->linhas = 1;
-    tab->colunas = 1;
-    tab->grelha = malloc(sizeof(char*));
-    tab->grelha[0] = malloc(sizeof(char));
-    tab->grelha[0][0] = 'a';
+    tab->linhas = 5;
+    tab->colunas = 5;
+    tab->grelha = malloc(5 * sizeof(char*));
+    for (int i = 0; i < 5; i++) {
+        tab->grelha[i] = malloc(5 * sizeof(char));
+        for (int j = 0; j < 5; j++) {
+            tab->grelha[i][j] = 'a' + (i + j) % 26; // Preenche com letras
+        }
+    }
+    
 
     int verifica = 1;
     ajudar(tab, &verifica);

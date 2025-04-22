@@ -151,30 +151,50 @@ void freeTabuleiro(Tabuleiro* tab) {
 
 
 void ajudar(Tabuleiro* tab, int *verifica) {
- // Primeiro, riscar todas as letras iguais na mesma linha e coluna
- for (int i = 0; i < tab->linhas; i++) {
-        for (int j = 0; j < tab->colunas; j++) {
-            if (islower(tab->grelha[i][j])) { // Se a casa contém uma letra minúscula
-                // Verifica se a letra pode ser riscada
-                if (verificarRisca(tab, i, j)) {
-                    riscar(tab, i, j, verifica);
+// Riscar todas as letras iguais a uma letra branca na mesma linha e/ou coluna
+for (int i = 0; i < tab->linhas; i++) {
+    for (int j = 0; j < tab->colunas; j++) {
+        if (isupper(tab->grelha[i][j])) { // Se a casa contém uma letra branca
+            char letra = tab->grelha[i][j];
+            // Riscar todas as letras iguais na mesma linha
+            for (int k = 0; k < tab->colunas; k++) {
+                if (tab->grelha[i][k] == letra) {
+                    riscar(tab, i, k, verifica);
+                }
+            }
+            // Riscar todas as letras iguais na mesma coluna
+            for (int k = 0; k < tab->linhas; k++) {
+                if (tab->grelha[k][j] == letra) {
+                    riscar(tab, k, j, verifica);
                 }
             }
         }
     }
+}
 
+// Pintar de branco todas as casas vizinhas de uma casa riscada
+for (int i = 0; i < tab->linhas; i++) {
+    for (int j = 0; j < tab->colunas; j++) {
+        if (tab->grelha[i][j] == '#') { // Se a casa está riscada
+            // Pintar de branco as casas vizinhas
+            branco(tab, i - 1, j, verifica); // Acima
+            branco(tab, i + 1, j, verifica); // Abaixo
+            branco(tab, i, j - 1, verifica); // Esquerda
+            branco(tab, i, j + 1, verifica); // Direita
+        }
+    }
+}
 
- // Verificar se existem casas que podem ser pintadas de branco e pinta as de branco 
-    for (int i = 0; i < tab->linhas; i++) {
-        for (int j = 0; j < tab->colunas; j++) {
-            if (islower(tab->grelha[i][j])) { // Se a casa contém uma letra minúscula
-                // Verifica se a letra pode ser pintada de branco
-                if (verificarBranco(tab, i, j)) {
-                    branco(tab, i, j, verifica);
-                }
+// Pintar de branco uma casa quando seria impossível que esta fosse riscada por isolar casas brancas
+for (int i = 0; i < tab->linhas; i++) {
+    for (int j = 0; j < tab->colunas; j++) {
+        if (islower(tab->grelha[i][j])) { // Se a casa contém uma letra minúscula
+            if (!verificarRisca(tab, i, j)) { // Se seria impossível riscar esta casa
+                branco(tab, i, j, verifica);
             }
         }
     }
+}
 
     // Verifica se o jogo está válido
     if (*verifica == 1) {

@@ -1,4 +1,6 @@
-3 3
-a b c
-d e f
-g h i
+5 5
+ecadc
+dcdec
+bddce
+cdeeb
+accbb
