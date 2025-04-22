@@ -31,6 +31,7 @@ int verifica (Tabuleiro* tab);
 void inicializarPilha(Pilha* pilha, int capacidade);
 void empurrarPilha(Pilha* pilha, int lin, int col, char anterior, char tipo);
 void freePilha(Pilha* pilha);
+void guardar(Tabuleiro* tab, Pilha* pilha, const char* ficheiro);
 void desfazer(Tabuleiro* tab, Pilha* pilha);
 
 #endif
