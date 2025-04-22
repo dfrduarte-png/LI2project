@@ -101,6 +101,7 @@ void riscar(Tabuleiro* tab, int lin, int col, Pilha* pilha) {
     else if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
         empurrarPilha(pilha, lin, col, tab->grelha[lin][col], 'r');
         tab->grelha[lin][col] = '#';
+        return;
     } else {
         printf("Posição inválida! Tente de novo.\n");
     }
