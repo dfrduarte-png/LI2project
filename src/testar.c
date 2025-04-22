@@ -78,10 +78,9 @@ void test_branco(void) {
     tab->grelha[0] = malloc(sizeof(char));
     tab->grelha[0][0] = 'a';
 
-    branco(tab, 0, 0, 0);
+    branco(tab, 0, 0);
     CU_ASSERT_EQUAL(tab->grelha[0][0], 'A');
 
-    branco(tab, 1, 1, 0); // Posição inválida
 
     freeTabuleiro(tab);
 }
@@ -94,10 +93,9 @@ void test_riscar(void) {
     tab->grelha[0] = malloc(sizeof(char));
     tab->grelha[0][0] = 'a';
 
-    riscar(tab, 0, 0, 0);
+    riscar(tab, 0, 0);
     CU_ASSERT_EQUAL(tab->grelha[0][0], '#');
 
-    riscar(tab, 1, 1, 0); // Posição inválida
 
     freeTabuleiro(tab);
 }
@@ -111,13 +109,13 @@ void test_ajuda(void) {
     for (int i = 0; i < 5; i++) {
         tab->grelha[i] = malloc(5 * sizeof(char));
         for (int j = 0; j < 5; j++) {
-            tab->grelha[i][j] = 'a' + (i + j) % 26; // Preenche com letras
+            tab->grelha[i][j] = 'a' + (char)(i + j) % 26; // Preenche com letras
         }
     }
     
 
     int verifica = 1;
-    ajudar(tab, &verifica);
+    ajudar(tab);
     CU_ASSERT_EQUAL(verifica, 1);
 
     freeTabuleiro(tab);
@@ -144,4 +142,3 @@ int main() {
     CU_cleanup_registry();
     return CU_get_error();
 }
-

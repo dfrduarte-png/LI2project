@@ -168,65 +168,68 @@ int verifica (Tabuleiro* tab) {
 }
 
 
-void ajudar(Tabuleiro* tab, int *verifica) {
-    // Riscar todas as letras iguais a uma letra branca na mesma linha e/ou coluna
-    for (int i = 0; i < tab->linhas; i++) {
-        for (int j = 0; j < tab->colunas; j++) {
-            if (isupper(tab->grelha[i][j])) { // Se a casa contém uma letra branca
-                char letra = tab->grelha[i][j];
-                // Riscar todas as letras iguais na mesma linha
-                for (int k = 0; k < tab->colunas; k++) {
-                    if (tab->grelha[i][k] == letra) {
-                        riscar(tab, i, k, verifica);
+void ajudar(Tabuleiro* tab) {
+    int linhas = tab->linhas, colunas = tab->colunas;
+
+    // Riscar letras iguais a uma letra branca na mesma linha e coluna só á letra branca
+    for (int i = 0; i < linhas; i++) {
+        for (int j = 0; j < colunas; j++) {
+            if (isupper(tab->grelha[i][j])) { // Letra branca
+                char letraBranca = tab->grelha[i][j];
+                for (int k = 0; k < colunas; k++) {
+                    if (tab->grelha[i][k] == letraBranca) {
+                        riscar(tab, i, k); // Usar a função riscar
                     }
                 }
-                // Riscar todas as letras iguais na mesma coluna
-                for (int k = 0; k < tab->linhas; k++) {
-                    if (tab->grelha[k][j] == letra) {
-                        riscar(tab, k, j, verifica);
+                for (int k = 0; k < linhas; k++) {
+                    if (tab->grelha[k][j] == letraBranca) {
+                        riscar(tab, k, j); // Usar a função riscar
                     }
                 }
             }
         }
     }
-    
-    // Pintar de branco todas as casas vizinhas de uma casa riscada
-    for (int i = 0; i < tab->linhas; i++) {
-        for (int j = 0; j < tab->colunas; j++) {
-            if (tab->grelha[i][j] == '#') { // Se a casa está riscada
-                // Pintar de branco as casas vizinhas
-                branco(tab, i - 1, j, verifica); // Acima
-                branco(tab, i + 1, j, verifica); // Abaixo
-                branco(tab, i, j - 1, verifica); // Esquerda
-                branco(tab, i, j + 1, verifica); // Direita
+
+    // Pintar de branco casas vizinhas de uma casa riscada
+    for (int i = 0; i < linhas; i++) {
+        for (int j = 0; j < colunas; j++) {
+            if (tab->grelha[i][j] == '#') {
+                if (i > 0 && tab->grelha[i - 1][j] != '#') branco(tab, i - 1, j); // Pintar de branco acima
+                if (i < linhas - 1 && tab->grelha[i + 1][j] != '#') branco(tab, i + 1, j); // Pintar de branco abaixo
+                if (j > 0 && tab->grelha[i][j - 1] != '#') branco(tab, i, j - 1); // Pintar de branco à esquerda
+                if (j < colunas - 1 && tab->grelha[i][j + 1] != '#') branco(tab, i, j + 1); // Pintar de branco à direita
             }
         }
     }
-    
-    // Pintar de branco uma casa quando seria impossível que esta fosse riscada por isolar casas brancas
-    for (int i = 0; i < tab->linhas; i++) {
-        for (int j = 0; j < tab->colunas; j++) {
-            if (islower(tab->grelha[i][j])) { // Se a casa contém uma letra minúscula
-                if (!verificarRisca(tab, i, j)) { // Se seria impossível riscar esta casa
-                    branco(tab, i, j, verifica);
+
+    // Pintar de branco casas que não podem ser riscadas por isolar casas brancas
+    for (int i = 0; i < linhas; i++) {
+        for (int j = 0; j < colunas; j++) {
+            if (tab->grelha[i][j] == '.') { // Casa vazia
+                int brancasAdjacentes = 0;
+                int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // cima, baixo, esquerda, direita
+
+                for (int d = 0; d < 4; d++) {
+                    int newLin = i + direcoes[d][0];
+                    int newCol = j + direcoes[d][1];
+
+                    if (newLin >= 0 && newLin < linhas && newCol >= 0 && newCol < colunas) {
+                        if (isupper(tab->grelha[newLin][newCol])) {
+                            brancasAdjacentes++;
+                        }
+                    }
+                }
+
+                if (brancasAdjacentes >= 2) {
+                    branco(tab, i, j); // Pintar de branco
                 }
             }
         }
     }
-    
-        // Verifica se o jogo está válido
-        if (*verifica == 1) {
-            printf("O jogo está válido.\n");
-        } else {
-            printf("O jogo não está válido.\n");
-        }
-        // Imprime o tabuleiro atualizado
-        for (int i = 0; i < tab->linhas; i++) {
-            for (int j = 0; j < tab->colunas; j++) {
-                printf("%c ", tab->grelha[i][j]);
-            }
-            printf("\n");
-        }
-    
-    }
+
+  // atualiza o tabuleiro
+    printf("Tabuleiro atualizado:\n");
+    ler(tab);
+
+}
 

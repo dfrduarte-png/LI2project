@@ -46,40 +46,31 @@ int main() {
             }
             else if (!verifica(tab)) printf("O jogo está válido!\n"); //se a função verifica == 0, o jogo está valido
         }
-        else if (acao == 'a'){ ajudar(tab);
+        else if (acao == 'a') {
+            ajudar(tab); // Implementar a função ajudar
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            int verifica = 0;
-            ajudar(tab, &verifica); 
-            if (verifica == 0) {
-                printf("O jogo está válido!\n");
-            } else {
-                printf("O jogo não está válido!\n");
-            }
         }
-        else if (acao == 'A') {
+        
+        else if (acao == 'A') {// Implementar a função A
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            // Implementar a função A
         }
-        else if (acao == 'R') {
+        else if (acao == 'R') {// Implementar a função resolver
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            // Implementar a função resolver
         }
-        else if (acao == 'd') {
+        else if (acao == 'd') {// Implementar a função desfazer
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            // Implementar a função desfazer
-        }
         }
         else if (acao == 'b') {
             if (!tab) {
