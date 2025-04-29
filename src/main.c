@@ -76,6 +76,7 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
+            while (verifica(tab)){ ajudar(tab, &pilha); }
             ajuda_continua = 1;
             printf("Ajuda contínua ativada.\n");
         }

@@ -75,9 +75,9 @@
         -:   74:#if __USE_FORTIFY_LEVEL > 1
         -:   75:# ifdef __va_arg_pack
         -:   76:__fortify_function __nonnull ((1)) int
-       90:   77:fprintf (FILE *__restrict __stream, const char *__restrict __fmt, ...)
+       96:   77:fprintf (FILE *__restrict __stream, const char *__restrict __fmt, ...)
         -:   78:{
-       90:   79:  return __fprintf_chk (__stream, __USE_FORTIFY_LEVEL - 1, __fmt,
+       96:   79:  return __fprintf_chk (__stream, __USE_FORTIFY_LEVEL - 1, __fmt,
         -:   80:			__va_arg_pack ());
         -:   81:}
         -:   82:
@@ -194,14 +194,14 @@
         -:  193:
         -:  194:__fortify_function __wur __fortified_attr_access (__write_only__, 1, 2)
         -:  195:__nonnull ((3)) char *
-       30:  196:fgets (char *__restrict __s, int __n, FILE *__restrict __stream)
+       32:  196:fgets (char *__restrict __s, int __n, FILE *__restrict __stream)
         -:  197:{
-       30:  198:  size_t sz = __glibc_objsize (__s);
-       30:  199:  if (__glibc_safe_or_unknown_len (__n, sizeof (char), sz))
+       32:  198:  size_t sz = __glibc_objsize (__s);
+       32:  199:  if (__glibc_safe_or_unknown_len (__n, sizeof (char), sz))
         -:  200:    return __fgets_alias (__s, __n, __stream);
         -:  201:  if (__glibc_unsafe_len (__n, sizeof (char), sz))
         -:  202:    return __fgets_chk_warn (__s, sz, __n, __stream);
-       30:  203:  return __fgets_chk (__s, sz, __n, __stream);
+       32:  203:  return __fgets_chk (__s, sz, __n, __stream);
         -:  204:}
         -:  205:
         -:  206:__fortify_function __wur __nonnull ((4)) size_t
