@@ -6,7 +6,18 @@ int main() {
     Tabuleiro* tab = NULL;
     int lin;
     char acao, col;
+    int ajuda_continua = 0;
+
     while (1) {
+
+        if (tab) {
+            if (ajuda_continua && verifica(tab) != 0) {
+                printf("\nAjuda contínua aplicada:\n");
+                ajudar(tab);
+            }
+            //ler(tab);
+        }
+
         if (tab) ler(tab);
         printf("\nDigite ação(g = gravar, l = ler, b = branca, r = riscar, v = verificar, a = ajuda, A = ajuda contínua, R = resolver, d = desfazer, s = sair): ");
         if (!scanf(" %c", &acao)) {
@@ -54,12 +65,15 @@ int main() {
             }
         }
         
-        else if (acao == 'A') {// Implementar a função A
+        else if (acao == 'A') {
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
+            ajuda_continua = 1;
+            printf("Ajuda contínua ativada.\n");
         }
+
         else if (acao == 'R') {// Implementar a função resolver
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");

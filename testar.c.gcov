@@ -1,0 +1,145 @@
+        -:    0:Source:src/testar.c
+        -:    1:#include <CUnit/CUnit.h>
+        -:    2:#include <CUnit/Basic.h>
+        -:    3:#include <stdio.h>
+        -:    4:#include <stdlib.h>
+        -:    5:#include <string.h>
+        -:    6:#include "jogo.h"
+        -:    7:
+        9:    8:void criar_ficheiro_teste(const char* nome_ficheiro) {
+        9:    9:    FILE* f = fopen(nome_ficheiro, "w");
+       9*:   10:    fprintf(f, "5 5\n");
+       9*:   11:    fprintf(f, "ecadc\n");
+       9*:   12:    fprintf(f, "dcdec\n");
+       9*:   13:    fprintf(f, "bddce\n");
+       9*:   14:    fprintf(f, "cdeeb\n");
+       9*:   15:    fprintf(f, "accbb\n");
+       9*:   16:    fclose(f);
+        9:   17:}
+        -:   18:
+        9:   19:void test_carregar(void) {
+        9:   20:    criar_ficheiro_teste("tabuleiro.txt");
+        9:   21:    Tabuleiro* tab = carregar("tabuleiro.txt");
+        -:   22:
+        9:   23:    CU_ASSERT_PTR_NOT_NULL(tab);
+        9:   24:    CU_ASSERT_EQUAL(tab->linhas, 5);
+        9:   25:    CU_ASSERT_EQUAL(tab->colunas, 5);
+        9:   26:    CU_ASSERT_EQUAL(tab->grelha[0][0], 'e');
+        9:   27:    CU_ASSERT_EQUAL(tab->grelha[1][1], 'c');
+        9:   28:    CU_ASSERT_EQUAL(tab->grelha[2][2], 'd');
+        9:   29:    CU_ASSERT_EQUAL(tab->grelha[3][3], 'e');
+        9:   30:    CU_ASSERT_EQUAL(tab->grelha[4][4], 'b');
+        -:   31:
+        9:   32:    freeTabuleiro(tab);
+        9:   33:}
+        -:   34:
+        9:   35:void test_ler(void) {
+        9:   36:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        9:   37:    tab->linhas = 2;
+        9:   38:    tab->colunas = 2;
+        9:   39:    tab->grelha = malloc(2 * sizeof(char*));
+        9:   40:    tab->grelha[0] = malloc(2 * sizeof(char));
+        9:   41:    tab->grelha[1] = malloc(2 * sizeof(char));
+        9:   42:    tab->grelha[0][0] = 'x';
+        9:   43:    tab->grelha[0][1] = 'y';
+        9:   44:    tab->grelha[1][0] = 'z';
+        9:   45:    tab->grelha[1][1] = 'w';
+        -:   46:
+       9*:   47:    FILE* buffer = freopen("output.txt", "w", stdout);
+        9:   48:    CU_ASSERT_PTR_NOT_NULL(buffer);
+        9:   49:    ler(tab);
+        9:   50:    fflush(stdout);
+        -:   51:    
+        -:   52:    // Verifica se a chamada para freopen foi bem-sucedida
+       9*:   53:    if (freopen("/dev/tty", "w", stdout) == NULL) {
+    #####:   54:        perror("Erro ao restaurar stdout");
+        -:   55:    }
+        -:   56:
+        9:   57:    FILE* f = fopen("output.txt", "r");
+        9:   58:    CU_ASSERT_PTR_NOT_NULL(f);
+        -:   59:
+        9:   60:    char linha[100];
+        -:   61:    // Verifica se a leitura foi bem-sucedida
+      18*:   62:    if (fgets(linha, sizeof(linha), f) != NULL) {
+        9:   63:        CU_ASSERT_STRING_EQUAL(linha, "x y \n");
+        -:   64:    }
+      18*:   65:    if (fgets(linha, sizeof(linha), f) != NULL) {
+        9:   66:        CU_ASSERT_STRING_EQUAL(linha, "z w \n");
+        -:   67:    }
+        -:   68:
+       9*:   69:    fclose(f);
+        9:   70:    freeTabuleiro(tab);
+        9:   71:}
+        -:   72:
+        9:   73:void test_branco(void) {
+        9:   74:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        9:   75:    tab->linhas = 1;
+        9:   76:    tab->colunas = 1;
+        9:   77:    tab->grelha = malloc(sizeof(char*));
+        9:   78:    tab->grelha[0] = malloc(sizeof(char));
+        9:   79:    tab->grelha[0][0] = 'a';
+        -:   80:
+        9:   81:    branco(tab, 0, 0);
+        9:   82:    CU_ASSERT_EQUAL(tab->grelha[0][0], 'A');
+        -:   83:
+        -:   84:
+        9:   85:    freeTabuleiro(tab);
+        9:   86:}
+        -:   87:
+        9:   88:void test_riscar(void) {
+        9:   89:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        9:   90:    tab->linhas = 1;
+        9:   91:    tab->colunas = 1;
+        9:   92:    tab->grelha = malloc(sizeof(char*));
+        9:   93:    tab->grelha[0] = malloc(sizeof(char));
+        9:   94:    tab->grelha[0][0] = 'a';
+        -:   95:
+        9:   96:    riscar(tab, 0, 0);
+        9:   97:    CU_ASSERT_EQUAL(tab->grelha[0][0], '#');
+        -:   98:
+        -:   99:
+        9:  100:    freeTabuleiro(tab);
+        9:  101:}
+        -:  102:
+        -:  103:// Teste para a função ajudar
+        9:  104:void test_ajuda(void) {
+        9:  105:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        9:  106:    tab->linhas = 5;
+        9:  107:    tab->colunas = 5;
+        9:  108:    tab->grelha = malloc(5 * sizeof(char*));
+       54:  109:    for (int i = 0; i < 5; i++) {
+       45:  110:        tab->grelha[i] = malloc(5 * sizeof(char));
+      270:  111:        for (int j = 0; j < 5; j++) {
+      225:  112:            tab->grelha[i][j] = 'a' + (char)(i + j) % 26; // Preenche com letras
+        -:  113:        }
+        -:  114:    }
+        -:  115:    
+        -:  116:
+        9:  117:    int verifica = 1;
+        9:  118:    ajudar(tab);
+        9:  119:    CU_ASSERT_EQUAL(verifica, 1);
+        -:  120:
+        9:  121:    freeTabuleiro(tab);
+        9:  122:}
+        -:  123:
+        9:  124:int main() {
+        9:  125:    if (CUE_SUCCESS != CU_initialize_registry())
+    #####:  126:        return CU_get_error();
+        -:  127:
+        9:  128:    CU_pSuite suite = CU_add_suite("Teste do jogo", NULL, NULL);
+        9:  129:    if (suite == NULL) {
+    #####:  130:        CU_cleanup_registry();
+    #####:  131:        return CU_get_error();
+        -:  132:    }
+        -:  133:
+        9:  134:    CU_add_test(suite, "test_carregar", test_carregar);
+        9:  135:    CU_add_test(suite, "test_ler", test_ler);
+        9:  136:    CU_add_test(suite, "test_branco", test_branco);
+        9:  137:    CU_add_test(suite, "test_riscar", test_riscar);
+        9:  138:    CU_add_test(suite, "test_ajuda", test_ajuda);
+        -:  139:
+        9:  140:    CU_basic_set_mode(CU_BRM_VERBOSE);
+        9:  141:    CU_basic_run_tests();
+        9:  142:    CU_cleanup_registry();
+        9:  143:    return CU_get_error();
+        -:  144:}
