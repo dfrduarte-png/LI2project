@@ -78,7 +78,6 @@ int main() {
             }
             while (verifica(tab)){ ajudar(tab, &pilha); }
             ajuda_continua = 1;
-            printf("Ajuda contínua ativada.\n");
         }
         else if (acao == 'R') {// Implementar a função resolver
             resolveJogo(tab, &pilha);
