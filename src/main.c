@@ -19,7 +19,7 @@ int main() {
         if (tab) {
             if (ajuda_continua && verifica(tab) != 0) {
                 printf("\nAjuda contínua aplicada:\n");
-                ajudar(tab);
+                ajudar(tab,&pilha);
             }
             //ler(tab);
         }
@@ -64,7 +64,7 @@ int main() {
             else if (!verifica(tab)) printf("O jogo está válido!\n"); //se a função verifica == 0, o jogo está valido
         }
         else if (acao == 'a') {
-            ajudar(tab); // Implementar a função ajudar
+            ajudar(tab, &pilha); // Implementar a função ajudar
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
@@ -80,6 +80,7 @@ int main() {
             printf("Ajuda contínua ativada.\n");
         }
         else if (acao == 'R') {// Implementar a função resolver
+            resolveJogo(tab, &pilha);
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;

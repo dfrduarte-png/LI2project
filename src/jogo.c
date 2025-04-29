@@ -335,6 +335,87 @@ void ajudar(Tabuleiro* tab, Pilha* pilha) {
     }
 
     // Atualiza o tabuleiro
-    printf("Tabuleiro atualizado:\n");
-    ler(tab);
+    // printf("Tabuleiro atualizado:\n");
+    //ler(tab);
+}
+
+void resolveJogo(Tabuleiro* tab, Pilha* pilha) {
+    int alterado;
+
+    do {
+        alterado = 0;
+
+        // Regra 1: Se uma letra aparece só uma vez na linha, pinta de branco
+        for (int i = 0; i < tab->linhas; i++) {
+            int contagem[26] = {0};
+            int ultimaColuna[26];
+
+            for (int j = 0; j < tab->colunas; j++) {
+                char c = tab->grelha[i][j];
+                if (c >= 'a' && c <= 'z') {
+                    contagem[c - 'a']++;
+                    ultimaColuna[c - 'a'] = j;
+                }
+            }
+
+            for (int k = 0; k < 26; k++) {
+                if (contagem[k] == 1) {
+                    int col = ultimaColuna[k];
+                    branco(tab, i, col, pilha);
+                    alterado = 1;
+                }
+            }
+        }
+
+        // Regra 2: Se uma letra aparece só uma vez na coluna, pinta de branco
+        for (int j = 0; j < tab->colunas; j++) {
+            int contagem[26] = {0};
+            int ultimaLinha[26];
+
+            for (int i = 0; i < tab->linhas; i++) {
+                char c = (tab->grelha[i][j]);
+                if (c >= 'a' && c <= 'z') {
+                    contagem[c - 'a']++;
+                    ultimaLinha[c - 'a'] = i;
+                }
+            }
+
+            for (int k = 0; k < 26; k++) {
+                if (contagem[k] == 1) {
+                    int lin = ultimaLinha[k];
+                    branco(tab, lin, j, pilha);
+                    alterado = 1;
+                }
+            }
+        }
+
+        // Regra 3: Se já existe letra branca, risca os iguais na mesma linha e coluna
+        for (int i = 0; i < tab->linhas; i++) {
+            for (int j = 0; j < tab->colunas; j++) {
+                if (isupper(tab->grelha[i][j])) {
+                    char letra = tab->grelha[i][j];
+
+                    for (int k = 0; k < tab->colunas; k++) {
+                        if (tab->grelha[i][k] == letra) {
+                            riscar(tab, i, k, pilha);
+                            alterado = 1;
+                        }
+                    }
+                    for (int k = 0; k < tab->linhas; k++) {
+                        if (tab->grelha[k][j] == letra) {
+                            riscar(tab, k, j, pilha);
+                            alterado = 1;
+                        }
+                    }
+                }
+            }
+        }
+
+    } while (alterado);
+
+    if (verifica(tab) == 0) {
+        printf("O tabuleiro foi resolvido com sucesso!\n");
+    } else {
+        printf("O tabuleiro não pôde ser resolvido completamente.\n");
+    }
 }

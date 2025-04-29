@@ -147,6 +147,41 @@ void test_ajudar(void) {
     freePilha(&pilha);
 }
 
+void test_resolveJogo (void){
+
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    tab->linhas = 5;
+    tab->colunas = 5;
+    tab->grelha = malloc(5 * sizeof(char*));
+    for (int i = 0; i < 5; i++) {
+        tab->grelha[i] = malloc(5 * sizeof(char));
+    }
+
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            tab->grelha[i][j] = inicial[i][j];
+        }
+    }
+
+    Pilha pilha;
+    inicializarPilha(&pilha, 10);
+
+    // Chama a função a ser testada
+    resolveJogo(tab, &pilha);
+
+    // Verifica o estado final do tabuleiro
+    CU_ASSERT_EQUAL(tab->grelha[0][1], '#'); // Letra 'b' deve ser riscada
+    CU_ASSERT_EQUAL(tab->grelha[1][1], '#'); // Letra 'a' deve ser riscada
+    CU_ASSERT_EQUAL(tab->grelha[0][2], 'C'); // Letra 'c' deve ser pintada de branco
+
+    // Libera memória
+    freeTabuleiro(tab);
+    freePilha(&pilha);
+
+}
+
+
+
 int main() {
     if (CUE_SUCCESS != CU_initialize_registry())
         return CU_get_error();
@@ -162,6 +197,7 @@ int main() {
     CU_add_test(suite, "test_branco", test_branco);
     CU_add_test(suite, "test_riscar", test_riscar);
     CU_add_test(suite, "test_ajudar", test_ajudar);
+    CU_add_test(suite,"test_resolveJogo", test_resolveJogo);
 
     CU_basic_set_mode(CU_BRM_VERBOSE);
     CU_basic_run_tests();
