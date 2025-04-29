@@ -207,6 +207,7 @@ int verificaConectividade(Tabuleiro* tab) {
         }
     }
 
+    printf("Todas as casas brancas estão conectadas!\n");
     return 0; // Tudo certo
 }
 
@@ -315,4 +316,8 @@ void desfazer(Tabuleiro* tab, Pilha* pilha) {
     Jogada ultimaJogada = pilha->jogadas[pilha->topo--];
     tab->grelha[ultimaJogada.lin][ultimaJogada.col] = ultimaJogada.anterior;
     printf("Última jogada desfeita.\n");
+}
+
+void resolver(Tabuleiro* tab) {
+    
 }

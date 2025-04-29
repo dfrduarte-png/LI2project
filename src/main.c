@@ -59,22 +59,12 @@ int main() {
                 continue;
             }
         }
-        else if (acao == 'A') {
-            if (!tab) {
-                printf("Tabuleiro não carregado! Tente novamente.\n");
-                continue;
-            }
-            if (Ajcontinua) {
-                Ajcontinua = 0;
-            } else {
-                Ajcontinua = 1;
-            }
-        }
         else if (acao == 'R') {// Implementar a função resolver
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
+            resolver(tab);
         }
         else if (acao == 'd') {
             if (!tab) {
@@ -120,6 +110,13 @@ int main() {
                 continue;
             }
             riscar(tab, lin - 1, coluna, &pilha);
+        }
+        else if (acao == 'A') {
+            if (!tab) {
+                printf("Tabuleiro não carregado! Tente novamente.\n");
+                continue;
+            }
+            while (verifica(tab)) ;
         }
         else printf("Ação inválida! Tente novamente.\n");
     }
