@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include "jogo.h"
 
 Tabuleiro* carregar(const char* ficheiro, Pilha* pilha) {
@@ -154,7 +151,7 @@ int verificarRisca(Tabuleiro* tab, int lin, int col) {
 
         if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
             if (tab->grelha[newLin][newCol] < 'A' || tab->grelha[newLin][newCol] > 'Z') {
-                printf("Se a posição (%c, %d) está riscada a posição (%c, %d) deve ser branca!\n",lin + 'a', col + 1, newCol + 'a', newLin + 1);
+                printf("Se a posição (%c, %d) está riscada a posição (%c, %d) deve ser branca!\n",col + 'a', lin + 1, newCol + 'a', newLin + 1);
                 r = 1;
             }
         }
@@ -162,6 +159,55 @@ int verificarRisca(Tabuleiro* tab, int lin, int col) {
     return r;
     // return 0; // Se não encontrar nenhuma correspondência
     // return 1; // Se encontrar correspondência
+}
+
+void dfs(Tabuleiro* tab, int lin, int col, int visitado[tab->linhas][tab->colunas]) {
+    if (lin < 0 || lin >= tab->linhas || col < 0 || col >= tab->colunas) return;
+    if (visitado[lin][col]) return;
+    if (tab->grelha[lin][col] < 'A' || tab->grelha[lin][col] > 'Z') return; // Não é branco
+
+    visitado[lin][col] = 1;
+
+    dfs(tab, lin - 1, col, visitado); // cima
+    dfs(tab, lin + 1, col, visitado); // baixo
+    dfs(tab, lin, col - 1, visitado); // esquerda
+    dfs(tab, lin, col + 1, visitado); // direita
+}
+
+int verificaConectividade(Tabuleiro* tab) {
+    int visitado[tab->linhas][tab->colunas];
+    memset(visitado, 0, sizeof(visitado));
+
+    // Encontrar a primeira casa branca
+    int encontrou = 0, startLin = 0, startCol = 0;
+    for (int i = 0; i < tab->linhas && !encontrou; i++) {
+        for (int j = 0; j < tab->colunas && !encontrou; j++) {
+            if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') {
+                startLin = i;
+                startCol = j;
+                encontrou = 1;
+            }
+        }
+    }
+
+    if (!encontrou) {
+        return 0; // Não há casas brancas, considerado válido
+    }
+
+    // Iniciar DFS
+    dfs(tab, startLin, startCol, visitado); // modifica visitado para marcar as casas visitadas
+
+    // Verificar se todas as casas brancas foram visitadas
+    for (int i = 0; i < tab->linhas; i++) {
+        for (int j = 0; j < tab->colunas; j++) {
+            if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z' && !visitado[i][j]) {
+                printf("Casa branca (%c, %d) está desconectada!\n", j + 'a', i + 1);
+                return 1; // Conectividade quebrada
+            }
+        }
+    }
+
+    return 0; // Tudo certo
 }
 
 int verifica (Tabuleiro* tab) {
@@ -172,6 +218,7 @@ int verifica (Tabuleiro* tab) {
             else if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') r += verificarBranco(tab, i, j);
         }
     }
+    r += verificaConectividade(tab);
     return r;
 }
 

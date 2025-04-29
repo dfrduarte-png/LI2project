@@ -7,6 +7,7 @@ int main() {
     int lin;
     char acao, col;
     char ficheiro[25];
+    int Ajcontinua = 0; 
 
     // Inicializando a pilha para armazenar as jogadas
     Pilha pilha;
@@ -52,16 +53,21 @@ int main() {
             }
             else if (!verifica(tab)) printf("O jogo está válido!\n"); //se a função verifica == 0, o jogo está valido
         }
-        else if (acao == 'a') {// Implementar a função de ajuda
+        else if (acao == 'a' || Ajcontinua) {// Implementar a função de ajuda
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
         }
-        else if (acao == 'A') {// Implementar a função A
+        else if (acao == 'A') {
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
+            }
+            if (Ajcontinua) {
+                Ajcontinua = 0;
+            } else {
+                Ajcontinua = 1;
             }
         }
         else if (acao == 'R') {// Implementar a função resolver
@@ -70,7 +76,7 @@ int main() {
                 continue;
             }
         }
-        else if (acao == 'd') {// Implementar a função desfazer
+        else if (acao == 'd') {
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
@@ -88,6 +94,7 @@ int main() {
                 while (getchar() != '\n'); // Limpar o buffer
                 continue;
             }
+            printf("\n");
             int coluna = col - 'a'; // Converter letra para índice
             if (coluna < 0 || coluna >= tab->colunas || lin - 1 < 0 || lin - 1 >= tab->linhas) {
                 printf("Posição inválida! Tente novamente.\n");
@@ -106,6 +113,7 @@ int main() {
                 while (getchar() != '\n'); // Limpar o buffer
                 continue;
             }
+            printf("\n");
             int coluna = col - 'a'; // Converter letra para índice
             if (coluna < 0 || coluna >= tab->colunas || lin - 1 < 0 || lin - 1 >= tab->linhas) {
                 printf("Posição inválida! Tente novamente.\n");

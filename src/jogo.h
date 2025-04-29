@@ -1,6 +1,10 @@
 #ifndef JOGO_H
 #define JOGO_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
 // Estrutura para guardar o tabuleiro e o seu tamanho
 typedef struct {
     int linhas;
