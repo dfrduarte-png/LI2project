@@ -6,7 +6,13 @@ int main() {
     Tabuleiro* tab = NULL;
     int lin;
     char acao, col;
+    char ficheiro[25];
     int ajuda_continua = 0;
+
+
+    // Inicializando a pilha para armazenar as jogadas
+    Pilha pilha;
+    inicializarPilha(&pilha, 10);
 
     while (1) {
 
@@ -31,9 +37,9 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-        }// Implementar a função de gravar o estado do jogo
+            guardar (tab, &pilha, ficheiro); 
+        }
         else if (acao == 'l') {
-            char ficheiro[25];
             printf("Digite o nome do ficheiro: ");
             if (!scanf("%s", ficheiro)) {
                 printf("Entrada inválida! Tente novamente.\n");
@@ -43,7 +49,7 @@ int main() {
             if (tab) {
                 freeTabuleiro(tab);
             }
-            Tabuleiro* new_tab = carregar(ficheiro);
+            Tabuleiro* new_tab = carregar(ficheiro, &pilha);
             if (!new_tab) {
                 continue;
             }
@@ -73,7 +79,6 @@ int main() {
             ajuda_continua = 1;
             printf("Ajuda contínua ativada.\n");
         }
-
         else if (acao == 'R') {// Implementar a função resolver
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
@@ -85,6 +90,7 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
+            desfazer(tab, &pilha);  // Desfaz a última jogada
         }
         else if (acao == 'b') {
             if (!tab) {
@@ -102,7 +108,7 @@ int main() {
                 printf("Posição inválida! Tente novamente.\n");
                 continue;
             }
-            branco(tab, lin - 1, coluna);
+            branco(tab, lin - 1, coluna, &pilha);
         } 
         else if (acao == 'r') {
             if (!tab) {
@@ -120,12 +126,14 @@ int main() {
                 printf("Posição inválida! Tente novamente.\n");
                 continue;
             }
-            riscar(tab, lin - 1, coluna);
+            riscar(tab, lin - 1, coluna, &pilha);
         }
         else printf("Ação inválida! Tente novamente.\n");
     }
     if (tab) {
         freeTabuleiro(tab);
     }
+    freePilha(&pilha);
+
     return 0;
 }

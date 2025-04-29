@@ -3,14 +3,13 @@
 #include <ctype.h>
 #include "jogo.h"
 
-Tabuleiro* carregar(const char* ficheiro) {
+Tabuleiro* carregar(const char* ficheiro, Pilha* pilha) {
     FILE* f = fopen(ficheiro, "r");
-    printf("A carregar o tabuleiro em %s...\n", ficheiro);
     if (!f) {
         perror("Erro ao abrir ficheiro");
         return NULL;
     }
-    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    Tabuleiro* tab = malloc((size_t)sizeof(Tabuleiro));
     if (!fscanf(f, "%d %d", &tab->linhas, &tab->colunas)) {
         printf("Erro ao ler o tamanho do tabuleiro\n");
         fclose(f);
@@ -23,23 +22,36 @@ Tabuleiro* carregar(const char* ficheiro) {
         free(tab);
         return NULL;
     }
+
     tab->grelha = malloc((size_t)tab->linhas * sizeof(char*));
-    for (int i = 0; i < tab->linhas; i++)
-        tab->grelha[i] = malloc((size_t)tab->colunas * sizeof(char));
     for (int i = 0; i < tab->linhas; i++) {
+        tab->grelha[i] = malloc((size_t)tab->colunas * sizeof(char));
         for (int j = 0; j < tab->colunas; j++) {
-            int c;
-            char ch = 0;
-            do {
-                c = fgetc(f);
-                if (c == EOF) {
-                    // trata erro ou termina leitura
-                    fprintf(stderr, "Erro: fim do ficheiro inesperado ao ler a grelha.\n");
-                    return NULL;
-                }
-                ch = (char)c;
-            } while (ch == ' ' || ch == '\n');
-            tab->grelha[i][j] = ch;
+            if (fscanf(f, " %c", &tab->grelha[i][j]) != 1) {
+                printf("Erro ao ler o tabuleiro do ficheiro.\n");
+                fclose(f);
+                freeTabuleiro(tab);
+                return NULL;
+            }
+        }
+    }
+
+    // Ignorar separador "--"
+    char linhaBuffer[100];
+    while (fgets(linhaBuffer, sizeof(linhaBuffer), f)) {
+        if (linhaBuffer[0] == '-' && linhaBuffer[1] == '-') break;
+    }
+
+    // Ler jogadas
+    char tipo, coluna;
+    int linha;
+    while (fscanf(f, " %c %c %d", &tipo, &coluna, &linha) == 3) {
+        int lin = linha - 1;
+        int col = coluna - 'a';
+        if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
+            char anterior = tab->grelha[lin][col];
+            empurrarPilha(pilha, lin, col, anterior, tipo);
+            tab->grelha[lin][col] = (tipo == 'b') ? (char)toupper((unsigned char)anterior) : '#';
         }
     }
     fclose(f);
@@ -65,33 +77,29 @@ void ler(Tabuleiro* tab) {
     }
 }
 
-void branco(Tabuleiro* tab, int lin, int col) { 
+void branco(Tabuleiro* tab, int lin, int col, Pilha* pilha) { 
     if (tab->grelha[lin][col] >= 'A' && tab->grelha[lin][col] <= 'Z') {
         printf("Posição já preenchida!\n");
-        return;
     }
     else if (tab->grelha[lin][col] == '#') {
         printf("Posição já riscada! Tente de novo.\n");
-        return;
     }
     else if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
+        empurrarPilha(pilha, lin, col, tab->grelha[lin][col], 'b');
         tab->grelha[lin][col] = (char)toupper((unsigned char)tab->grelha[lin][col]);
-        return;
     } else {
         printf("Posição inválida! Tente de novo.\n");
     }
 }
-
-void riscar(Tabuleiro* tab, int lin, int col) {
+void riscar(Tabuleiro* tab, int lin, int col, Pilha* pilha) {
     if (tab->grelha[lin][col] >= 'A' && tab->grelha[lin][col] <= 'Z') {
         printf("Posição já preenchida! Tente de novo.\n");
-        return;
     }
     else if (tab->grelha[lin][col] == '#') {
         printf("Posição já riscada!\n");
-        return;
     }
     else if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
+        empurrarPilha(pilha, lin, col, tab->grelha[lin][col], 'r');
         tab->grelha[lin][col] = '#';
         return;
     } else {
@@ -167,27 +175,122 @@ int verifica (Tabuleiro* tab) {
     return r;
 }
 
+// Função para inicializar a pilha
+void inicializarPilha(Pilha* pilha, int capacidade) {
+    pilha->jogadas = malloc((size_t)capacidade * sizeof(Jogada));
+    pilha->topo = -1;
+    pilha->capacidade = capacidade;
+}
 
-void ajudar(Tabuleiro* tab) {
+void redimensionarPilha(Pilha* pilha) {
+    pilha->capacidade *= 2; // Dobra a capacidade
+    pilha->jogadas = realloc(pilha->jogadas, (size_t)pilha->capacidade * sizeof(Jogada));
+    if (!pilha->jogadas) {
+        perror("Erro ao redimensionar a pilha");
+        exit(EXIT_FAILURE);
+    }
+    printf("Pilha redimensionada para capacidade %d.\n", pilha->capacidade);
+}
+
+void freePilha(Pilha* pilha) {
+    free(pilha->jogadas);
+}
+
+// Função para adicionar uma jogada à pilha
+void empurrarPilha(Pilha* pilha, int lin, int col, char anterior, char tipo) {
+
     
+    // Verifica se a pilha está cheia
+    if (pilha->topo == pilha->capacidade - 1) {
+        redimensionarPilha(pilha); // Redimensiona a pilha se necessário
+    }
+
+    // Adiciona a jogada à pilha
+    pilha->jogadas[++pilha->topo] = (Jogada){lin, col, anterior, tipo};
+}
+
+void guardar(Tabuleiro* tab, Pilha* pilha, const char* ficheiro) {
+    FILE* f = fopen(ficheiro, "r");
+    if (!f) {
+        perror("Erro ao abrir ficheiro para leitura");
+        return;
+    }
+
+    // Copiar as primeiras (dimensao + 1) linhas
+    int linhas_a_copiar = tab->linhas + 1; // Dimensão do tabuleiro + 1 (linha das dimensões)
+    char** linhas = malloc((size_t)linhas_a_copiar * sizeof(char*)); // Aloca memória para armazenar as linhas
+    for (int i = 0; i < linhas_a_copiar; i++) {
+        linhas[i] = malloc(100 * sizeof(char)); // Aloca memória para cada linha
+        if (!fgets(linhas[i], 100, f)) {
+            perror("Erro ao ler o tabuleiro do ficheiro");
+            fclose(f);
+            for (int j = 0; j <= i; j++) free(linhas[j]); // Libera memória alocada
+            free(linhas);
+            return;
+        }
+    }
+    fclose(f);
+
+    // Abrir o arquivo no modo de escrita para apagar o conteúdo
+    f = fopen(ficheiro, "w");
+    if (!f) {
+        perror("Erro ao abrir ficheiro para escrita");
+        for (int i = 0; i < linhas_a_copiar; i++) free(linhas[i]); // Libera memória alocada
+        free(linhas);
+        return;
+    }
+
+    // Reescrever as linhas copiadas
+    for (int i = 0; i < linhas_a_copiar; i++) {
+        fputs(linhas[i], f);
+        free(linhas[i]); // Libera memória da linha após escrevê-la
+    }
+    free(linhas); // Libera o array de ponteiros
+
+    // Linha separadora
+    fprintf(f, "--\n");
+
+    // Escrever as jogadas feitas na pilha
+    for (int i = 0; i <= pilha->topo; i++) {
+        Jogada jogada = pilha->jogadas[i];
+        fprintf(f, "%c %c %d\n", jogada.tipo, 'a' + jogada.col, jogada.lin + 1);
+    }
+
+    fclose(f);
+    printf("Estado do jogo salvo com sucesso!\n");
+}
+
+// Função para remover uma jogada da pilha (desfazer)
+void desfazer(Tabuleiro* tab, Pilha* pilha) {
+    if (pilha->topo == -1) {
+        printf("Não há jogadas para desfazer!\n");
+        return;
+    }
+
+    Jogada ultimaJogada = pilha->jogadas[pilha->topo--];
+    tab->grelha[ultimaJogada.lin][ultimaJogada.col] = ultimaJogada.anterior;
+    printf("Última jogada desfeita.\n");
+}
+
+
+void ajudar(Tabuleiro* tab, Pilha* pilha) {
     int linhas = tab->linhas;
     int colunas = tab->colunas;
 
-
-    // Riscar letras iguais a uma letra branca na mesma linha e coluna 
+    // Riscar letras iguais a uma letra branca na mesma linha e coluna
     for (int i = 0; i < linhas; i++) {
         for (int j = 0; j < colunas; j++) {
             if (isupper(tab->grelha[i][j])) { // Letra branca
                 char letraBranca = tab->grelha[i][j];
                 for (int k = 0; k < colunas; k++) {
                     if (tab->grelha[i][k] == tolower(letraBranca)) {
-                        riscar(tab, i, k);
-                    }                    
+                        riscar(tab, i, k, pilha);
+                    }
                 }
                 for (int k = 0; k < linhas; k++) {
                     if (tab->grelha[k][j] == tolower(letraBranca)) {
-                        riscar(tab, k, j);
-                    }                    
+                        riscar(tab, k, j, pilha);
+                    }
                 }
             }
         }
@@ -197,10 +300,10 @@ void ajudar(Tabuleiro* tab) {
     for (int i = 0; i < linhas; i++) {
         for (int j = 0; j < colunas; j++) {
             if (tab->grelha[i][j] == '#') {
-                if (i > 0 && tab->grelha[i - 1][j] != '#') branco(tab, i - 1, j); // Pintar de branco acima
-                if (i < linhas - 1 && tab->grelha[i + 1][j] != '#') branco(tab, i + 1, j); // Pintar de branco abaixo
-                if (j > 0 && tab->grelha[i][j - 1] != '#') branco(tab, i, j - 1); // Pintar de branco à esquerda
-                if (j < colunas - 1 && tab->grelha[i][j + 1] != '#') branco(tab, i, j + 1); // Pintar de branco à direita
+                if (i > 0 && tab->grelha[i - 1][j] != '#') branco(tab, i - 1, j, pilha); // Pintar de branco acima
+                if (i < linhas - 1 && tab->grelha[i + 1][j] != '#') branco(tab, i + 1, j, pilha); // Pintar de branco abaixo
+                if (j > 0 && tab->grelha[i][j - 1] != '#') branco(tab, i, j - 1, pilha); // Pintar de branco à esquerda
+                if (j < colunas - 1 && tab->grelha[i][j + 1] != '#') branco(tab, i, j + 1, pilha); // Pintar de branco à direita
             } else if (tab->grelha[i][j] == ' ') { // Casa vazia
                 int brancasAdjacentes = 0;
                 int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // cima, baixo, esquerda, direita
@@ -217,7 +320,7 @@ void ajudar(Tabuleiro* tab) {
                 }
 
                 if (brancasAdjacentes >= 2) {
-                    branco(tab, i, j); // Pintar de branco
+                    branco(tab, i, j, pilha); // Pintar de branco
                 }
             }
         }
@@ -231,9 +334,7 @@ void ajudar(Tabuleiro* tab) {
         printf("O tabuleiro não está correto!\n");
     }
 
-  // atualiza o tabuleiro
+    // Atualiza o tabuleiro
     printf("Tabuleiro atualizado:\n");
     ler(tab);
-
 }
-
