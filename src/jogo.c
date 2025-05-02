@@ -75,13 +75,7 @@ void ler(Tabuleiro* tab) {
 }
 
 void branco(Tabuleiro* tab, int lin, int col, Pilha* pilha) { 
-    if (tab->grelha[lin][col] >= 'A' && tab->grelha[lin][col] <= 'Z') {
-        printf("Posição já preenchida!\n");
-    }
-    else if (tab->grelha[lin][col] == '#') {
-        printf("Posição já riscada! Tente de novo.\n");
-    }
-    else if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
+    if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
         empurrarPilha(pilha, lin, col, tab->grelha[lin][col], 'b');
         tab->grelha[lin][col] = (char)toupper((unsigned char)tab->grelha[lin][col]);
     } else {
@@ -89,13 +83,7 @@ void branco(Tabuleiro* tab, int lin, int col, Pilha* pilha) {
     }
 }
 void riscar(Tabuleiro* tab, int lin, int col, Pilha* pilha) {
-    if (tab->grelha[lin][col] >= 'A' && tab->grelha[lin][col] <= 'Z') {
-        printf("Posição já preenchida! Tente de novo.\n");
-    }
-    else if (tab->grelha[lin][col] == '#') {
-        printf("Posição já riscada!\n");
-    }
-    else if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
+    if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
         empurrarPilha(pilha, lin, col, tab->grelha[lin][col], 'r');
         tab->grelha[lin][col] = '#';
         return;
@@ -318,6 +306,101 @@ void desfazer(Tabuleiro* tab, Pilha* pilha) {
     printf("Última jogada desfeita.\n");
 }
 
-void resolver(Tabuleiro* tab) {
-    
+void resolver(Tabuleiro* tab, Pilha* pilha) {
+    int casas = tab->colunas * tab->linhas;
+    int altera = 1;
+    while (altera) {
+        altera = 0;
+        for (int i = 0; i < tab->linhas; i++) {
+            int *contagem = calloc((size_t)casas, sizeof(int));
+            int *ultimaColuna = malloc((size_t)casas * sizeof(int)); // Aloca memória para armazenar a última coluna de cada letra
+
+            for (int j = 0; j < tab->colunas; j++) {
+                char c = tab->grelha[i][j];
+                if (c >= 'a' && c <= 'z') {
+                    contagem[c - 'a']++;
+                    ultimaColuna[c - 'a'] = j;
+                }
+                else if (c >= 'A' && c <= 'Z') {
+                    contagem[c - 'A']++;
+                    ultimaColuna[c - 'A'] = j;
+                }
+            }
+
+            for (int k = 0; k < casas; k++) {
+                if (contagem[k] == 1) {
+                    int col = ultimaColuna[k];
+                    branco(tab, i, col, pilha);
+                }
+            }
+            free(contagem);
+            free(ultimaColuna);
+        }
+
+        // Regra 2: Se uma letra aparece só uma vez na coluna, pinta de branco
+        for (int j = 0; j < tab->colunas; j++) {
+            int *contagem = calloc((size_t)casas, sizeof(int));
+            int *ultimaLinha = malloc((size_t)casas * sizeof(int));
+
+            for (int i = 0; i < tab->linhas; i++) {
+                char c = (tab->grelha[i][j]);
+                if (c >= 'a' && c <= 'z') {
+                    contagem[c - 'a']++;
+                    ultimaLinha[c - 'a'] = i;
+                }
+                else if (c >= 'A' && c <= 'Z') {
+                    contagem[c - 'A']++;
+                    ultimaLinha[c - 'A'] = i;
+                }
+            }
+
+            for (int k = 0; k < casas; k++) {
+                if (contagem[k] == 1) {
+                    int lin = ultimaLinha[k];
+                    branco(tab, lin, j, pilha);
+                }
+            }
+            free(contagem);
+            free(ultimaLinha);
+        }
+
+        for (int i = 0; i < tab->linhas; i++) {
+            int *contagem = calloc((size_t)casas, sizeof(int));
+            int *ultimaColuna = malloc((size_t)casas * sizeof(int));
+            for (int j = 0; j < tab->colunas; j++) {
+                char c = tab->grelha[i][j];
+                if (c >= 'a' && c <= 'z') {
+                    contagem[c - 'a']++;
+                    ultimaColuna[c - 'a'] = j;
+                }
+            }
+            for (int k = 0; k < casas; k++) {
+                if (contagem[k] == 1) {
+                    int col = ultimaColuna[k];
+                    riscar(tab, i, col, pilha);
+                }
+            }
+            free(contagem);
+            free(ultimaColuna);
+        }
+        for (int i = 0; i < tab->linhas; i++) {
+            for (int j = 0; j < tab->colunas; j++) {
+                if (tab->grelha[i][j] == '#') {
+                    int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // cima, baixo, esquerda, direita
+                    for (int k = 0; k < 4; k++) {
+                        int newLin = i + direcoes[k][0];
+                        int newCol = j + direcoes[k][1];
+                
+                        if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
+                            if (tab->grelha[newLin][newCol] < 'A' || tab->grelha[newLin][newCol] > 'Z') {
+                                branco(tab, newLin, newCol, pilha);
+                                altera = 1; // Indica que houve alteração
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+    }
 }
