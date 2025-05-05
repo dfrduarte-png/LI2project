@@ -306,64 +306,47 @@ void desfazer(Tabuleiro* tab, Pilha* pilha) {
     printf("Última jogada desfeita.\n");
 }
 
-void validarUnicidade(Tabuleiro *tab, Pilha *pilha) {
+int  validarUnicidade(Tabuleiro *tab, Pilha *pilha) {
+    int r = 0;
     for (int i = 0; i < tab->linhas; i++) {
         for (int j = 0; j < tab->colunas; j++) {
             char c = tab->grelha[i][j];
-            int unicoLinha = 1, unicoColuna = 1;
 
-            for (int k = 0; k < tab->linhas; k++) {
-                if (k != i && tab->grelha[k][j] == c) {
-                    unicoLinha = 0;
-                    break;
-                }
-            }
+            // Só processamos letras minúsculas
+            if (!islower(c))
+                continue;
 
+            int contLinha = 0, contColuna = 0;
+
+            // Contar quantas vezes 'c' aparece na linha
             for (int l = 0; l < tab->colunas; l++) {
-                if (l != j && tab->grelha[i][l] == c) {
-                    unicoColuna = 0;
-                    break;
-                }
+                if (tab->grelha[i][l] == c || tab->grelha[i][l] == toupper(c))
+                    contLinha++;
             }
 
-            if (unicoLinha && unicoColuna) {
+            // Contar quantas vezes 'c' aparece minúscula na coluna
+            for (int k = 0; k < tab->linhas; k++) {
+                if (tab->grelha[k][j] == c || tab->grelha[k][j] == toupper(c))
+                    contColuna++;
+            }
+
+            // Se for único minúsculo na linha ou coluna, pode ser branco
+            if (contLinha == 1 || contColuna == 1) {
                 branco(tab, i, j, pilha);
+                r = 1;
             }
         }
     }
+    return r;
 }
 
-void riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
-    for (int i = 0; i < tab->linhas; i++) {
-        for (int j = 0; j < tab->colunas; j++) {
-            char c = tab->grelha[i][j];
 
-            // Só nos interessa se for uma letra branca (maiúscula)
-            if (c >= 'A' && c <= 'Z') {
-                char original = c + ('a' - 'A'); // Convertendo de maiúscula para minúscula
-
-                // Riscamos todas as outras ocorrências na mesma linha
-                for (int col = 0; col < tab->colunas; col++) {
-                    if (col != j && tab->grelha[i][col] == original) {
-                        riscar(tab, i, col, pilha);
-                    }
-                }
-
-                // Riscamos todas as outras ocorrências na mesma coluna
-                for (int lin = 0; lin < tab->linhas; lin++) {
-                    if (lin != i && tab->grelha[lin][j] == original) {
-                        riscar(tab, lin, j, pilha);
-                    }
-                }
-            }
-        }
-    }
-}
-
-void riscaEverifica(Tabuleiro *tab, Pilha *pilha) {
-    for (int i = 0; i < tab->linhas; i++) {
-        for (int j = 0; j < tab->colunas; j++) {
+int riscaEverifica(Tabuleiro *tab, Pilha *pilha) {
+    int r = 0;
+    for (int i = 0; i < tab->linhas && !r; i++) {
+        for (int j = 0; j < tab->colunas && !r; j++) {
             if (tab->grelha[i][j] >= 'a' && tab->grelha[i][j] <= 'z') {
+                r = 1;
                 int marcador = pilha->topo;
                 riscar(tab, i, j, pilha);
 
@@ -415,23 +398,56 @@ void riscaEverifica(Tabuleiro *tab, Pilha *pilha) {
             }
         }
     }
+    return r;
 }
 
+int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
+    int r = 0;
+    for (int i = 0; i < tab->linhas; i++) {
+        for (int j = 0; j < tab->colunas; j++) {
+            char c = tab->grelha[i][j];
+
+            // Só nos interessa se for uma letra branca (maiúscula)
+            if (c >= 'A' && c <= 'Z') {
+                char original = c + ('a' - 'A'); // Convertendo de maiúscula para minúscula
+
+                // Riscamos todas as outras ocorrências na mesma linha
+                for (int col = 0; col < tab->colunas; col++) {
+                    if (col != j && tab->grelha[i][col] == original) {
+                        riscar(tab, i, col, pilha);
+                        r = 1;
+                    }
+                }
+
+                // Riscamos todas as outras ocorrências na mesma coluna
+                for (int lin = 0; lin < tab->linhas; lin++) {
+                    if (lin != i && tab->grelha[lin][j] == original) {
+                        riscar(tab, lin, j, pilha);
+                        r = 1;
+                    }
+                }
+            }
+        }
+    }
+    return r;
+}
+
+
 void resolver(Tabuleiro* tab, Pilha* pilha) {
-    int altera = 1;
-    while (altera) {
-        altera = 0;
+    int continuar = 1;
+    while (continuar) {
+        continuar = 0;
         // 1. Garante unicidade de letras na linha e coluna
-        validarUnicidade(tab, pilha);
+        continuar = (validarUnicidade(tab, pilha)) ? 1 : continuar;
 
         // 2. Tenta riscar e reverter se necessário
-        riscaEverifica(tab, pilha);
+        continuar = (riscaEverifica(tab, pilha)) ? 1 : continuar;
 
         // 3. Riscamos cópias minúsculas de letras já brancas
-        riscarDuplicados(tab, pilha);
+        continuar = (riscarDuplicados(tab, pilha)) ? 1 : continuar;
     }
 
-    if (verificaConectividade(tab)) {
+    if (verifica(tab)) {
         printf("O tabuleiro não pode ser resolvido!\n");
     } else {
         printf("Jogo resolvido!\n");
