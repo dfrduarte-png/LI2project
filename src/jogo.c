@@ -337,7 +337,6 @@ void resolver(Tabuleiro* tab, Pilha* pilha) {
             free(ultimaColuna);
         }
 
-        // Regra 2: Se uma letra aparece só uma vez na coluna, pinta de branco
         for (int j = 0; j < tab->colunas; j++) {
             int *contagem = calloc((size_t)casas, sizeof(int));
             int *ultimaLinha = malloc((size_t)casas * sizeof(int));
@@ -364,6 +363,7 @@ void resolver(Tabuleiro* tab, Pilha* pilha) {
             free(ultimaLinha);
         }
 
+        // Regra 3: Se uma letra minuscula aparece só uma vez na linha, riscar
         for (int i = 0; i < tab->linhas; i++) {
             int *contagem = calloc((size_t)casas, sizeof(int));
             int *ultimaColuna = malloc((size_t)casas * sizeof(int));
@@ -383,6 +383,8 @@ void resolver(Tabuleiro* tab, Pilha* pilha) {
             free(contagem);
             free(ultimaColuna);
         }
+
+        // Regra 4: Todas as letras minúsculas adjacentes a uma letra riscada devem ficar brancas
         for (int i = 0; i < tab->linhas; i++) {
             for (int j = 0; j < tab->colunas; j++) {
                 if (tab->grelha[i][j] == '#') {
@@ -399,6 +401,18 @@ void resolver(Tabuleiro* tab, Pilha* pilha) {
                         }
 
                     }
+                }
+            }
+        }
+    }
+    // Verifica se não há casas repetidas
+    for (int i = 0; i < tab->linhas; i++) {
+        for (int j = 0; j < tab->colunas; j++) {
+            if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') {
+                if (verificarBranco(tab, i, j)) {
+                    desfazer(tab, pilha);
+                    printf("O tabuleiro não pode ser resolvido!\n");
+                    return;
                 }
             }
         }
