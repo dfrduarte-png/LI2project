@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include "jogo.h"
 
 Tabuleiro* carregar(const char* ficheiro, Pilha* pilha) {
@@ -78,13 +75,7 @@ void ler(Tabuleiro* tab) {
 }
 
 void branco(Tabuleiro* tab, int lin, int col, Pilha* pilha) { 
-    if (tab->grelha[lin][col] >= 'A' && tab->grelha[lin][col] <= 'Z') {
-        printf("Posição já preenchida!\n");
-    }
-    else if (tab->grelha[lin][col] == '#') {
-        printf("Posição já riscada! Tente de novo.\n");
-    }
-    else if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
+    if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
         empurrarPilha(pilha, lin, col, tab->grelha[lin][col], 'b');
         tab->grelha[lin][col] = (char)toupper((unsigned char)tab->grelha[lin][col]);
     } else {
@@ -92,13 +83,7 @@ void branco(Tabuleiro* tab, int lin, int col, Pilha* pilha) {
     }
 }
 void riscar(Tabuleiro* tab, int lin, int col, Pilha* pilha) {
-    if (tab->grelha[lin][col] >= 'A' && tab->grelha[lin][col] <= 'Z') {
-        printf("Posição já preenchida! Tente de novo.\n");
-    }
-    else if (tab->grelha[lin][col] == '#') {
-        printf("Posição já riscada!\n");
-    }
-    else if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
+    if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
         empurrarPilha(pilha, lin, col, tab->grelha[lin][col], 'r');
         tab->grelha[lin][col] = '#';
         return;
@@ -154,7 +139,7 @@ int verificarRisca(Tabuleiro* tab, int lin, int col) {
 
         if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
             if (tab->grelha[newLin][newCol] < 'A' || tab->grelha[newLin][newCol] > 'Z') {
-                printf("Se a posição (%c, %d) está riscada a posição (%c, %d) deve ser branca!\n",lin + 'a', col + 1, newCol + 'a', newLin + 1);
+                printf("Se a posição (%c, %d) está riscada a posição (%c, %d) deve ser branca!\n",col + 'a', lin + 1, newCol + 'a', newLin + 1);
                 r = 1;
             }
         }
@@ -162,6 +147,56 @@ int verificarRisca(Tabuleiro* tab, int lin, int col) {
     return r;
     // return 0; // Se não encontrar nenhuma correspondência
     // return 1; // Se encontrar correspondência
+}
+
+void dfs(Tabuleiro* tab, int lin, int col, int visitado[tab->linhas][tab->colunas]) {
+    if (lin < 0 || lin >= tab->linhas || col < 0 || col >= tab->colunas) return;
+    if (visitado[lin][col]) return;
+    if (tab->grelha[lin][col] < 'A' || tab->grelha[lin][col] > 'Z') return; // Não é branco
+
+    visitado[lin][col] = 1;
+
+    dfs(tab, lin - 1, col, visitado); // cima
+    dfs(tab, lin + 1, col, visitado); // baixo
+    dfs(tab, lin, col - 1, visitado); // esquerda
+    dfs(tab, lin, col + 1, visitado); // direita
+}
+
+int verificaConectividade(Tabuleiro* tab) {
+    int visitado[tab->linhas][tab->colunas];
+    memset(visitado, 0, sizeof(visitado));
+
+    // Encontrar a primeira casa branca
+    int encontrou = 0, startLin = 0, startCol = 0;
+    for (int i = 0; i < tab->linhas && !encontrou; i++) {
+        for (int j = 0; j < tab->colunas && !encontrou; j++) {
+            if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') {
+                startLin = i;
+                startCol = j;
+                encontrou = 1;
+            }
+        }
+    }
+
+    if (!encontrou) {
+        return 0; // Não há casas brancas, considerado válido
+    }
+
+    // Iniciar DFS
+    dfs(tab, startLin, startCol, visitado); // modifica visitado para marcar as casas visitadas
+
+    // Verificar se todas as casas brancas foram visitadas
+    for (int i = 0; i < tab->linhas; i++) {
+        for (int j = 0; j < tab->colunas; j++) {
+            if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z' && !visitado[i][j]) {
+                printf("Casa branca (%c, %d) está desconectada!\n", j + 'a', i + 1);
+                return 1; // Conectividade quebrada
+            }
+        }
+    }
+
+    printf("Todas as casas brancas estão conectadas!\n");
+    return 0; // Tudo certo
 }
 
 int verifica (Tabuleiro* tab) {
@@ -172,6 +207,7 @@ int verifica (Tabuleiro* tab) {
             else if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') r += verificarBranco(tab, i, j);
         }
     }
+    r += verificaConectividade(tab);
     return r;
 }
 
@@ -268,4 +304,117 @@ void desfazer(Tabuleiro* tab, Pilha* pilha) {
     Jogada ultimaJogada = pilha->jogadas[pilha->topo--];
     tab->grelha[ultimaJogada.lin][ultimaJogada.col] = ultimaJogada.anterior;
     printf("Última jogada desfeita.\n");
+}
+
+void resolver(Tabuleiro* tab, Pilha* pilha) {
+    int casas = tab->colunas * tab->linhas;
+    int altera = 1;
+    while (altera) {
+        altera = 0;
+        for (int i = 0; i < tab->linhas; i++) {
+            int *contagem = calloc((size_t)casas, sizeof(int));
+            int *ultimaColuna = malloc((size_t)casas * sizeof(int)); // Aloca memória para armazenar a última coluna de cada letra
+
+            for (int j = 0; j < tab->colunas; j++) {
+                char c = tab->grelha[i][j];
+                if (c >= 'a' && c <= 'z') {
+                    contagem[c - 'a']++;
+                    ultimaColuna[c - 'a'] = j;
+                }
+                else if (c >= 'A' && c <= 'Z') {
+                    contagem[c - 'A']++;
+                    ultimaColuna[c - 'A'] = j;
+                }
+            }
+
+            for (int k = 0; k < casas; k++) {
+                if (contagem[k] == 1) {
+                    int col = ultimaColuna[k];
+                    branco(tab, i, col, pilha);
+                }
+            }
+            free(contagem);
+            free(ultimaColuna);
+        }
+
+        for (int j = 0; j < tab->colunas; j++) {
+            int *contagem = calloc((size_t)casas, sizeof(int));
+            int *ultimaLinha = malloc((size_t)casas * sizeof(int));
+
+            for (int i = 0; i < tab->linhas; i++) {
+                char c = (tab->grelha[i][j]);
+                if (c >= 'a' && c <= 'z') {
+                    contagem[c - 'a']++;
+                    ultimaLinha[c - 'a'] = i;
+                }
+                else if (c >= 'A' && c <= 'Z') {
+                    contagem[c - 'A']++;
+                    ultimaLinha[c - 'A'] = i;
+                }
+            }
+
+            for (int k = 0; k < casas; k++) {
+                if (contagem[k] == 1) {
+                    int lin = ultimaLinha[k];
+                    branco(tab, lin, j, pilha);
+                }
+            }
+            free(contagem);
+            free(ultimaLinha);
+        }
+
+        // Regra 3: Se uma letra minuscula aparece só uma vez na linha, riscar
+        for (int i = 0; i < tab->linhas; i++) {
+            int *contagem = calloc((size_t)casas, sizeof(int));
+            int *ultimaColuna = malloc((size_t)casas * sizeof(int));
+            for (int j = 0; j < tab->colunas; j++) {
+                char c = tab->grelha[i][j];
+                if (c >= 'a' && c <= 'z') {
+                    contagem[c - 'a']++;
+                    ultimaColuna[c - 'a'] = j;
+                }
+            }
+            for (int k = 0; k < casas; k++) {
+                if (contagem[k] == 1) {
+                    int col = ultimaColuna[k];
+                    riscar(tab, i, col, pilha);
+                }
+            }
+            free(contagem);
+            free(ultimaColuna);
+        }
+
+        // Regra 4: Todas as letras minúsculas adjacentes a uma letra riscada devem ficar brancas
+        for (int i = 0; i < tab->linhas; i++) {
+            for (int j = 0; j < tab->colunas; j++) {
+                if (tab->grelha[i][j] == '#') {
+                    int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // cima, baixo, esquerda, direita
+                    for (int k = 0; k < 4; k++) {
+                        int newLin = i + direcoes[k][0];
+                        int newCol = j + direcoes[k][1];
+                
+                        if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
+                            if (tab->grelha[newLin][newCol] < 'A' || tab->grelha[newLin][newCol] > 'Z') {
+                                branco(tab, newLin, newCol, pilha);
+                                altera = 1; // Indica que houve alteração
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+    // Verifica se não há casas repetidas
+    for (int i = 0; i < tab->linhas; i++) {
+        for (int j = 0; j < tab->colunas; j++) {
+            if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') {
+                if (verificarBranco(tab, i, j)) {
+                    desfazer(tab, pilha);
+                    printf("O tabuleiro não pode ser resolvido!\n");
+                    return;
+                }
+            }
+        }
+    }
 }

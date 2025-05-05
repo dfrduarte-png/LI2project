@@ -58,19 +58,14 @@ int main() {
                 continue;
             }
         }
-        else if (acao == 'A') {// Implementar a função A
-            if (!tab) {
-                printf("Tabuleiro não carregado! Tente novamente.\n");
-                continue;
-            }
-        }
         else if (acao == 'R') {// Implementar a função resolver
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
+            resolver(tab, &pilha);
         }
-        else if (acao == 'd') {// Implementar a função desfazer
+        else if (acao == 'd') {
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
@@ -93,7 +88,16 @@ int main() {
                 printf("Posição inválida! Tente novamente.\n");
                 continue;
             }
-            branco(tab, lin - 1, coluna, &pilha);
+            else if (tab->grelha[lin - 1][coluna] >= 'A' && tab->grelha[lin - 1][coluna] <= 'Z') {
+                printf("Posição já preenchida!\n");
+            }
+            else if (tab->grelha[lin - 1][coluna] == '#') {
+                printf("Posição já riscada! Tente de novo.\n");
+            }
+            else {
+                printf("\n");
+                branco(tab, lin - 1, coluna, &pilha);
+            }
         } 
         else if (acao == 'r') {
             if (!tab) {
@@ -107,11 +111,25 @@ int main() {
                 continue;
             }
             int coluna = col - 'a'; // Converter letra para índice
-            if (coluna < 0 || coluna >= tab->colunas || lin - 1 < 0 || lin - 1 >= tab->linhas) {
+            if (tab->grelha[lin][coluna] >= 'A' && tab->grelha[lin][coluna] <= 'Z') {
+                printf("Posição já preenchida! Tente de novo.\n");
+            }
+            else if (tab->grelha[lin][coluna] == '#') {
+                printf("Posição já riscada!\n");
+            }
+            else if (coluna < 0 || coluna >= tab->colunas || lin - 1 < 0 || lin - 1 >= tab->linhas) {
                 printf("Posição inválida! Tente novamente.\n");
+            }
+            else {
+                printf("\n");
+                riscar(tab, lin - 1, coluna, &pilha);
+            }
+        }
+        else if (acao == 'A') {
+            if (!tab) {
+                printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            riscar(tab, lin - 1, coluna, &pilha);
         }
         else printf("Ação inválida! Tente novamente.\n");
     }
