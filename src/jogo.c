@@ -273,7 +273,8 @@ void desfazer(Tabuleiro* tab, Pilha* pilha) {
 }
 
 
-void ajudar(Tabuleiro* tab, Pilha* pilha) {
+void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
+    *cont = 0;
     int linhas = tab->linhas;
     int colunas = tab->colunas;
 
@@ -285,11 +286,13 @@ void ajudar(Tabuleiro* tab, Pilha* pilha) {
                 for (int k = 0; k < colunas; k++) {
                     if (tab->grelha[i][k] == tolower(letraBranca)) {
                         riscar(tab, i, k, pilha);
+                        *cont = 1;
                     }
                 }
                 for (int k = 0; k < linhas; k++) {
                     if (tab->grelha[k][j] == tolower(letraBranca)) {
                         riscar(tab, k, j, pilha);
+                        *cont = 1;
                     }
                 }
             }
@@ -321,6 +324,7 @@ void ajudar(Tabuleiro* tab, Pilha* pilha) {
 
                 if (brancasAdjacentes >= 2) {
                     branco(tab, i, j, pilha); // Pintar de branco
+                    *cont = 1;
                 }
             }
         }
