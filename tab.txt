@@ -5,6 +5,3 @@ b d d c e
 c d e e b 
 a c c b b 
 --
-b a 1
-b b 2
-r e 4

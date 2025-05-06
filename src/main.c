@@ -9,8 +9,8 @@ int main() {
     char ficheiro[25];
 
     // Inicializando a pilha para armazenar as jogadas
-    Pilha pilha;
-    inicializarPilha(&pilha, 10);
+    Pilha* pilha = malloc(sizeof(Pilha));
+    inicializarPilha(pilha, 10);
 
     while (1) {
         if (tab) ler(tab);
@@ -26,7 +26,7 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            guardar (tab, &pilha, ficheiro); 
+            guardar (tab, pilha, ficheiro); 
         }
         else if (acao == 'l') {
             printf("Digite o nome do ficheiro: ");
@@ -38,7 +38,7 @@ int main() {
             if (tab) {
                 freeTabuleiro(tab);
             }
-            Tabuleiro* new_tab = carregar(ficheiro, &pilha);
+            Tabuleiro* new_tab = carregar(ficheiro, pilha);
             if (!new_tab) {
                 continue;
             }
@@ -63,14 +63,14 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            resolver(tab, &pilha);
+            resolver(tab, pilha);
         }
         else if (acao == 'd') {
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            desfazer(tab, &pilha);  // Desfaz a última jogada
+            desfazer(tab, pilha);  // Desfaz a última jogada
         }
         else if (acao == 'b') {
             if (!tab) {
@@ -96,7 +96,7 @@ int main() {
             }
             else {
                 printf("\n");
-                branco(tab, lin - 1, coluna, &pilha);
+                branco(tab, lin - 1, coluna, pilha);
             }
         } 
         else if (acao == 'r') {
@@ -111,18 +111,19 @@ int main() {
                 continue;
             }
             int coluna = col - 'a'; // Converter letra para índice
-            if (tab->grelha[lin][coluna] >= 'A' && tab->grelha[lin][coluna] <= 'Z') {
+            int linha = lin - 1; // Converter linha para índice
+            if (tab->grelha[linha][coluna] >= 'A' && tab->grelha[linha][coluna] <= 'Z') {
                 printf("Posição já preenchida! Tente de novo.\n");
             }
-            else if (tab->grelha[lin][coluna] == '#') {
+            else if (tab->grelha[linha][coluna] == '#') {
                 printf("Posição já riscada!\n");
             }
-            else if (coluna < 0 || coluna >= tab->colunas || lin - 1 < 0 || lin - 1 >= tab->linhas) {
+            else if (coluna < 0 || coluna >= tab->colunas || linha < 0 || linha >= tab->linhas) {
                 printf("Posição inválida! Tente novamente.\n");
             }
             else {
                 printf("\n");
-                riscar(tab, lin - 1, coluna, &pilha);
+                riscar(tab, linha, coluna, pilha);
             }
         }
         else if (acao == 'A') {
@@ -136,7 +137,7 @@ int main() {
     if (tab) {
         freeTabuleiro(tab);
     }
-    freePilha(&pilha);
+    freePilha(pilha);
 
     return 0;
 }
