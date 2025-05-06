@@ -63,7 +63,7 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            resolver(tab, &pilha);
+            resolver(tab, &pilha, 0);
         }
         else if (acao == 'd') {
             if (!tab) {
