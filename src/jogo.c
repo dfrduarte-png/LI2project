@@ -289,7 +289,8 @@ void desfazer(Tabuleiro* tab, Pilha* pilha) {
 }
 
 
-void ajudar(Tabuleiro* tab, Pilha* pilha) {
+void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
+    *cont = 0;
     int linhas = tab->linhas;
     int colunas = tab->colunas;
 
