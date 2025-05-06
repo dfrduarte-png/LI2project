@@ -50,7 +50,7 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            else if (!verifica(tab)) printf("O jogo está válido!\n"); //se a função verifica == 0, o jogo está valido
+            else if (!verifica(tab, 1)) printf("O jogo está válido!\n"); //se a função verifica == 0, o jogo está valido
         }
         else if (acao == 'a') {// Implementar a função de ajuda
             if (!tab) {

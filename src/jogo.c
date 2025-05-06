@@ -98,20 +98,20 @@ void freeTabuleiro(Tabuleiro* tab) {
     free(tab);
 }
 
-int verificarBranco(Tabuleiro* tab, int lin, int col) {
+int verificarBranco(Tabuleiro* tab, int lin, int col, int vprintar) {
     char current = tab->grelha[lin][col];
     int r = 0;
     // Verificar verticalmente (cima e baixo)
     for (int i = lin + 1; i < tab->linhas; i++) {
         if (tab->grelha[i][col] == current) {
-            printf("A posição (%c, %d) e (%c, %d) são brancas e iguais!\n",col + 'a', lin + 1, col + 'a', i + 1);
+            if (vprintar) printf("A posição (%c, %d) e (%c, %d) são brancas e iguais!\n",col + 'a', lin + 1, col + 'a', i + 1);
             r = 1;
         }
     }
     // Verificar horizontalmente (esquerda e direita)
     for (int j = col + 1; j < tab->colunas; j++) {
         if (tab->grelha[lin][j] == current) {
-            printf("A posição (%c, %d) e (%c, %d) são brancas e iguais!\n",col + 'a', lin + 1, j + 'a', lin + 1);
+            if (vprintar) printf("A posição (%c, %d) e (%c, %d) são brancas e iguais!\n",col + 'a', lin + 1, j + 'a', lin + 1);
             r = 1;
         }
     }
@@ -123,14 +123,14 @@ int verificarBranco(Tabuleiro* tab, int lin, int col) {
 
     if (up && down && left && right) {
         r = 1;
-        printf("A posição (%c, %d) está cercada por '#'!\n", col + 'a', lin + 1);
+        if (vprintar) printf("A posição (%c, %d) está cercada por '#'!\n", col + 'a', lin + 1);
     }
     return r;
     // return 0; // Se não encontrar nenhuma correspondência (válido)
     // return 1; // Se encontrar correspondência (invalido)
 }
 
-int verificarRisca(Tabuleiro* tab, int lin, int col) {
+int verificarRisca(Tabuleiro* tab, int lin, int col, int vprintar) {
     int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // cima, baixo, esquerda, direita
     int r = 0;
     for (int i = 0; i < 4; i++) {
@@ -139,7 +139,7 @@ int verificarRisca(Tabuleiro* tab, int lin, int col) {
 
         if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
             if (tab->grelha[newLin][newCol] < 'A' || tab->grelha[newLin][newCol] > 'Z') {
-                printf("Se a posição (%c, %d) está riscada a posição (%c, %d) deve ser branca!\n",col + 'a', lin + 1, newCol + 'a', newLin + 1);
+                if (vprintar) printf("Se a posição (%c, %d) está riscada a posição (%c, %d) deve ser branca!\n",col + 'a', lin + 1, newCol + 'a', newLin + 1);
                 r = 1;
             }
         }
@@ -162,7 +162,7 @@ void dfs(Tabuleiro* tab, int lin, int col, int visitado[tab->linhas][tab->coluna
     dfs(tab, lin, col + 1, visitado); // direita
 }
 
-int verificaConectividade(Tabuleiro* tab) {
+int verificaConectividade(Tabuleiro* tab, int vprintar) {
     int visitado[tab->linhas][tab->colunas];
     memset(visitado, 0, sizeof(visitado));
 
@@ -189,25 +189,25 @@ int verificaConectividade(Tabuleiro* tab) {
     for (int i = 0; i < tab->linhas; i++) {
         for (int j = 0; j < tab->colunas; j++) {
             if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z' && !visitado[i][j]) {
-                printf("Casa branca (%c, %d) está desconectada!\n", j + 'a', i + 1);
+                if (vprintar) printf("Casa branca (%c, %d) está desconectada!\n", j + 'a', i + 1);
                 return 1; // Conectividade quebrada
             }
         }
     }
 
-    printf("Todas as casas brancas estão conectadas!\n");
+    if (vprintar) printf("Todas as casas brancas estão conectadas!\n");
     return 0; // Tudo certo
 }
 
-int verifica (Tabuleiro* tab) {
+int verifica (Tabuleiro* tab, int vprintar) {
     int r = 0;
     for (int i = 0; i < tab->linhas; i++) {
         for (int j = 0; j < tab->colunas; j++) {
-            if (tab->grelha[i][j] == '#') r += verificarRisca(tab, i, j);
-            else if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') r += verificarBranco(tab, i, j);
+            if (tab->grelha[i][j] == '#') r += verificarRisca(tab, i, j, vprintar);
+            else if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') r += verificarBranco(tab, i, j, vprintar);
         }
     }
-    r += verificaConectividade(tab);
+    r += verificaConectividade(tab, vprintar);
     return r;
 }
 
@@ -432,6 +432,7 @@ int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
 
 
 void resolver(Tabuleiro* tab, Pilha* pilha) {
+    int vprintar = 0; // para nao imprimir mensagens
     int continuar = 1, comei = 0, comej = 0;
     while (continuar) {
         continuar = 0;
@@ -445,7 +446,7 @@ void resolver(Tabuleiro* tab, Pilha* pilha) {
         continuar = (riscarDuplicados(tab, pilha)) ? 1 : continuar;
     }
 
-    if (verifica(tab)) {
+    if (verifica(tab, vprintar)) {
         printf("O tabuleiro não pode ser resolvido!\n");
     } else {
         printf("Jogo resolvido!\n");
