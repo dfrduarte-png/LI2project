@@ -319,14 +319,15 @@ int  validarUnicidade(Tabuleiro *tab, Pilha *pilha) {
             int contLinha = 0, contColuna = 0;
 
             // Contar quantas vezes 'c' aparece na linha
+            char upperC = (char)toupper(c);
             for (int l = 0; l < tab->colunas; l++) {
-                if (tab->grelha[i][l] == c || tab->grelha[i][l] == toupper(c))
+                if (tab->grelha[i][l] == c || tab->grelha[i][l] == upperC)
                     contLinha++;
             }
 
             // Contar quantas vezes 'c' aparece minúscula na coluna
             for (int k = 0; k < tab->linhas; k++) {
-                if (tab->grelha[k][j] == c || tab->grelha[k][j] == toupper(c))
+                if (tab->grelha[k][j] == c || tab->grelha[k][j] == upperC)
                     contColuna++;
             }
 
@@ -341,16 +342,18 @@ int  validarUnicidade(Tabuleiro *tab, Pilha *pilha) {
 }
 
 
-int riscaEverifica(Tabuleiro *tab, Pilha *pilha) {
+int riscaEverifica(Tabuleiro *tab, Pilha *pilha, int *comei, int *comej) {
     int r = 0;
-    for (int i = 0; i < tab->linhas && !r; i++) {
-        for (int j = 0; j < tab->colunas && !r; j++) {
+    int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
+    for (int i = *comei; i < tab->linhas && !r; i++) {
+        for (int j = *comej; j < tab->colunas && !r; j++) {
             if (tab->grelha[i][j] >= 'a' && tab->grelha[i][j] <= 'z') {
                 r = 1;
                 int marcador = pilha->topo;
                 riscar(tab, i, j, pilha);
 
-                int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+                // Tornar vizinhos brancos
                 for (int k = 0; k < 4; k++) {
                     int newLin = i + direcoes[k][0];
                     int newCol = j + direcoes[k][1];
@@ -359,29 +362,23 @@ int riscaEverifica(Tabuleiro *tab, Pilha *pilha) {
                     }
                 }
 
-                // Verificar se há conflito de letras brancas
+                // Verificar conflitos de letras brancas
                 int conflito = 0;
-                for (int k = 0; k < 4; k++) {
-                    int newLin = i + direcoes[k][0];
-                    int newCol = j + direcoes[k][1];
-                    if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
-                        if (verificarBranco(tab, newLin, newCol)) {
-                            conflito = 1;
-                            break;
-                        }
-                    }
-                }
-
                 for (int x = 0; x < tab->linhas && !conflito; x++) {
                     for (int y = 0; y < tab->colunas && !conflito; y++) {
                         char c1 = tab->grelha[x][y];
-                        if (c1 < 'A' || c1 > 'Z') continue; // ignora não-brancas
+                        if (c1 < 'A' || c1 > 'Z') continue; // Ignorar não-brancas
+
+                        // Verificar duplicados na coluna
                         for (int xx = 0; xx < tab->linhas; xx++) {
                             if (xx != x && tab->grelha[xx][y] == c1) {
                                 conflito = 1;
                                 break;
                             }
                         }
+
+                        if (conflito) break;
+                        // Verificar duplicados na linha
                         for (int yy = 0; yy < tab->colunas; yy++) {
                             if (yy != y && tab->grelha[x][yy] == c1) {
                                 conflito = 1;
@@ -397,6 +394,7 @@ int riscaEverifica(Tabuleiro *tab, Pilha *pilha) {
                 }
             }
         }
+        *comej = 0; // Reinicia a coluna para a próxima linha
     }
     return r;
 }
@@ -434,14 +432,14 @@ int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
 
 
 void resolver(Tabuleiro* tab, Pilha* pilha) {
-    int continuar = 1;
+    int continuar = 1, comei = 0, comej = 0;
     while (continuar) {
         continuar = 0;
         // 1. Garante unicidade de letras na linha e coluna
         continuar = (validarUnicidade(tab, pilha)) ? 1 : continuar;
 
         // 2. Tenta riscar e reverter se necessário
-        continuar = (riscaEverifica(tab, pilha)) ? 1 : continuar;
+        continuar = (riscaEverifica(tab, pilha, &comei, &comej)) ? 1 : continuar;
 
         // 3. Riscamos cópias minúsculas de letras já brancas
         continuar = (riscarDuplicados(tab, pilha)) ? 1 : continuar;
