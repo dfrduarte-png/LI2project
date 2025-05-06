@@ -1,4 +1,7 @@
         -:    0:Source:/usr/include/x86_64-linux-gnu/bits/stdio2.h
+        -:    0:Graph:src/jogo.gcno
+        -:    0:Data:src/jogo.gcda
+        -:    0:Runs:1
         -:    1:/* Checking macros for stdio functions.
         -:    2:   Copyright (C) 2004-2024 Free Software Foundation, Inc.
         -:    3:   This file is part of the GNU C Library.
@@ -75,16 +78,16 @@
         -:   74:#if __USE_FORTIFY_LEVEL > 1
         -:   75:# ifdef __va_arg_pack
         -:   76:__fortify_function __nonnull ((1)) int
-       96:   77:fprintf (FILE *__restrict __stream, const char *__restrict __fmt, ...)
+    #####:   77:fprintf (FILE *__restrict __stream, const char *__restrict __fmt, ...)
         -:   78:{
-       96:   79:  return __fprintf_chk (__stream, __USE_FORTIFY_LEVEL - 1, __fmt,
+    #####:   79:  return __fprintf_chk (__stream, __USE_FORTIFY_LEVEL - 1, __fmt,
         -:   80:			__va_arg_pack ());
         -:   81:}
         -:   82:
         -:   83:__fortify_function int
-        -:   84:printf (const char *__restrict __fmt, ...)
+      26*:   84:printf (const char *__restrict __fmt, ...)
         -:   85:{
-        -:   86:  return __printf_chk (__USE_FORTIFY_LEVEL - 1, __fmt, __va_arg_pack ());
+      26*:   86:  return __printf_chk (__USE_FORTIFY_LEVEL - 1, __fmt, __va_arg_pack ());
         -:   87:}
         -:   88:# elif !defined __cplusplus
         -:   89:#  define printf(...) \
@@ -194,14 +197,14 @@
         -:  193:
         -:  194:__fortify_function __wur __fortified_attr_access (__write_only__, 1, 2)
         -:  195:__nonnull ((3)) char *
-       32:  196:fgets (char *__restrict __s, int __n, FILE *__restrict __stream)
+    #####:  196:fgets (char *__restrict __s, int __n, FILE *__restrict __stream)
         -:  197:{
-       32:  198:  size_t sz = __glibc_objsize (__s);
-       32:  199:  if (__glibc_safe_or_unknown_len (__n, sizeof (char), sz))
-        -:  200:    return __fgets_alias (__s, __n, __stream);
+    #####:  198:  size_t sz = __glibc_objsize (__s);
+    #####:  199:  if (__glibc_safe_or_unknown_len (__n, sizeof (char), sz))
+    #####:  200:    return __fgets_alias (__s, __n, __stream);
         -:  201:  if (__glibc_unsafe_len (__n, sizeof (char), sz))
         -:  202:    return __fgets_chk_warn (__s, sz, __n, __stream);
-       32:  203:  return __fgets_chk (__s, sz, __n, __stream);
+    #####:  203:  return __fgets_chk (__s, sz, __n, __stream);
         -:  204:}
         -:  205:
         -:  206:__fortify_function __wur __nonnull ((4)) size_t

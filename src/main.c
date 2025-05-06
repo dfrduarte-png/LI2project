@@ -7,7 +7,7 @@ int main() {
     int lin;
     char acao, col;
     char ficheiro[25];
-    int ajuda_continua = 0;
+ 
 
 
     // Inicializando a pilha para armazenar as jogadas
@@ -16,13 +16,6 @@ int main() {
 
     while (1) {
 
-        if (tab) {
-            if (ajuda_continua && verifica(tab) != 0) {
-                printf("\nAjuda contínua aplicada:\n");
-                ajudar(tab,&pilha);
-            }
-            //ler(tab);
-        }
 
         if (tab) ler(tab);
         printf("\nDigite ação(g = gravar, l = ler, b = branca, r = riscar, v = verificar, a = ajuda, A = ajuda contínua, R = resolver, d = desfazer, s = sair): ");
@@ -64,11 +57,12 @@ int main() {
             else if (!verifica(tab)) printf("O jogo está válido!\n"); //se a função verifica == 0, o jogo está valido
         }
         else if (acao == 'a') {
-            ajudar(tab, &pilha); // Implementar a função ajudar
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
+            int cont = 0; // Só posto para não dar erro
+            ajudar(tab, &pilha, &cont); // Implementar a função ajudar, o 0 não muda nada
         }
         
         else if (acao == 'A') {
@@ -76,11 +70,13 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            while (verifica(tab)){ ajudar(tab, &pilha); }
-            ajuda_continua = 1;
+            int cont = 1;
+            while (cont) {
+                ajudar(tab, &pilha, &cont);
+            }
         }
         else if (acao == 'R') {// Implementar a função resolver
-            resolveJogo(tab, &pilha);
+            resolver(tab, &pilha);
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
