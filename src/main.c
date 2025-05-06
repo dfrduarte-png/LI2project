@@ -7,7 +7,7 @@ int main() {
     int lin;
     char acao, col;
     char ficheiro[25];
- 
+    int ajuda_continua = 0;
 
 
     // Inicializando a pilha para armazenar as jogadas
@@ -16,6 +16,13 @@ int main() {
 
     while (1) {
 
+        if (tab) {
+            if (ajuda_continua && verifica(tab) != 0) {
+                printf("\nAjuda contínua aplicada:\n");
+                ajudar(tab,&pilha);
+            }
+            //ler(tab);
+        }
 
         if (tab) ler(tab);
         printf("\nDigite ação(g = gravar, l = ler, b = branca, r = riscar, v = verificar, a = ajuda, A = ajuda contínua, R = resolver, d = desfazer, s = sair): ");
