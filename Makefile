@@ -14,8 +14,8 @@ jogo: $(OBJS)
 
 testar: CFLAGS += $(GCOV_FLAGS)
 testar: $(TEST_OBJS)
-	$(CC) -fprofile-arcs -ftest-coverage $(LDFLAGS) -lcunit -o testar $(TEST_OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -lcunit -o testar $(TEST_OBJS)
 	./testar
-	gcov $(SRC)/.c
+	gcov $(SRC)/*.c
 clean:
-	rm -f.o jogo testar .gcda.gcno *.gcov
+	rm -f *.o jogo testar *.gcda *.gcno *.gcov

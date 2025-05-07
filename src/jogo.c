@@ -315,7 +315,7 @@ void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
         }
     }
 
-    // Pintar de branco casas vizinhas de uma casa riscada e casas que não podem ser riscadas por isolar casas brancas
+    // Pintar de branco casas vizinhas de uma casa riscada
     for (int i = 0; i < linhas; i++) {
         for (int j = 0; j < colunas; j++) {
             if (tab->grelha[i][j] == '#') {
@@ -323,25 +323,6 @@ void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
                 if (i < linhas - 1 && tab->grelha[i + 1][j] != '#') branco(tab, i + 1, j, pilha); // Pintar de branco abaixo
                 if (j > 0 && tab->grelha[i][j - 1] != '#') branco(tab, i, j - 1, pilha); // Pintar de branco à esquerda
                 if (j < colunas - 1 && tab->grelha[i][j + 1] != '#') branco(tab, i, j + 1, pilha); // Pintar de branco à direita
-            } else if (tab->grelha[i][j] == ' ') { // Casa vazia
-                int brancasAdjacentes = 0;
-                int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // cima, baixo, esquerda, direita
-
-                for (int d = 0; d < 4; d++) {
-                    int newLin = i + direcoes[d][0];
-                    int newCol = j + direcoes[d][1];
-
-                    if (newLin >= 0 && newLin < linhas && newCol >= 0 && newCol < colunas) {
-                        if (isupper(tab->grelha[newLin][newCol])) {
-                            brancasAdjacentes++;
-                        }
-                    }
-                }
-
-                if (brancasAdjacentes >= 2) {
-                    branco(tab, i, j, pilha); // Pintar de branco
-                    *cont = 1;
-                }
             }
         }
     }

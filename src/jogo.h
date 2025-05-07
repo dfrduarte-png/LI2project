@@ -33,7 +33,7 @@ void freePilha(Pilha* pilha);
 void guardar(Tabuleiro* tab, Pilha* pilha, const char* ficheiro);
 void desfazer(Tabuleiro* tab, Pilha* pilha);
 void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont);
-void resolveJogo(Tabuleiro* tab, Pilha* pilha);
+void resolver(Tabuleiro* tab, Pilha* pilha);
 
 
 #endif
