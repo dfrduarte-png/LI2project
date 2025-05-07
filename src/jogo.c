@@ -359,7 +359,7 @@ void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
     }
 
     // Verifica se o tabuleiro está correto
-    int resultado = verifica(tab);
+    int resultado = verifica(tab, 0);
     if (resultado == 0) {
         printf("O tabuleiro está correto!\n");
     } else {
@@ -369,112 +369,6 @@ void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
     // Atualiza o tabuleiro
     // printf("Tabuleiro atualizado:\n");
     //ler(tab);
-}
-
-
-
-
-
-void resolver(Tabuleiro* tab, Pilha* pilha) {
-    int casas = tab->colunas * tab->linhas;
-    int altera = 1;
-    while (altera) {
-        altera = 0;
-        for (int i = 0; i < tab->linhas; i++) {
-            int *contagem = calloc((size_t)casas, sizeof(int));
-            int *ultimaColuna = malloc((size_t)casas * sizeof(int)); // Aloca memória para armazenar a última coluna de cada letra
-
-            for (int j = 0; j < tab->colunas; j++) {
-                char c = tab->grelha[i][j];
-                if (c >= 'a' && c <= 'z') {
-                    contagem[c - 'a']++;
-                    ultimaColuna[c - 'a'] = j;
-                }
-                else if (c >= 'A' && c <= 'Z') {
-                    contagem[c - 'A']++;
-                    ultimaColuna[c - 'A'] = j;
-                }
-            }
-
-            for (int k = 0; k < casas; k++) {
-                if (contagem[k] == 1) {
-                    int col = ultimaColuna[k];
-                    branco(tab, i, col, pilha);
-                }
-            }
-            free(contagem);
-            free(ultimaColuna);
-        }
-
-        for (int j = 0; j < tab->colunas; j++) {
-            int *contagem = calloc((size_t)casas, sizeof(int));
-            int *ultimaLinha = malloc((size_t)casas * sizeof(int));
-
-            for (int i = 0; i < tab->linhas; i++) {
-                char c = (tab->grelha[i][j]);
-                if (c >= 'a' && c <= 'z') {
-                    contagem[c - 'a']++;
-                    ultimaLinha[c - 'a'] = i;
-                }
-                else if (c >= 'A' && c <= 'Z') {
-                    contagem[c - 'A']++;
-                    ultimaLinha[c - 'A'] = i;
-                }
-            }
-
-            for (int k = 0; k < casas; k++) {
-                if (contagem[k] == 1) {
-                    int lin = ultimaLinha[k];
-                    branco(tab, lin, j, pilha);
-                }
-            }
-            free(contagem);
-            free(ultimaLinha);
-        }
-
-        // Regra 3: Se uma letra minuscula aparece só uma vez na linha, riscar
-        for (int i = 0; i < tab->linhas; i++) {
-            int *contagem = calloc((size_t)casas, sizeof(int));
-            int *ultimaColuna = malloc((size_t)casas * sizeof(int));
-            for (int j = 0; j < tab->colunas; j++) {
-                char c = tab->grelha[i][j];
-                if (c >= 'a' && c <= 'z') {
-                    contagem[c - 'a']++;
-                    ultimaColuna[c - 'a'] = j;
-                }
-            }
-            for (int k = 0; k < casas; k++) {
-                if (contagem[k] == 1) {
-                    int col = ultimaColuna[k];
-                    riscar(tab, i, col, pilha);
-                }
-            }
-            free(contagem);
-            free(ultimaColuna);
-        }
-
-        // Regra 4: Todas as letras minúsculas adjacentes a uma letra riscada devem ficar brancas
-        for (int i = 0; i < tab->linhas; i++) {
-            for (int j = 0; j < tab->colunas; j++) {
-                if (tab->grelha[i][j] == '#') {
-                    int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // cima, baixo, esquerda, direita
-                    for (int k = 0; k < 4; k++) {
-                        int newLin = i + direcoes[k][0];
-                        int newCol = j + direcoes[k][1];
-                
-                        if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
-                            if (tab->grelha[newLin][newCol] < 'A' || tab->grelha[newLin][newCol] > 'Z') {
-                                branco(tab, newLin, newCol, pilha);
-                                altera = 1; // Indica que houve alteração
-                            }
-                        }
-
-                    }
-                }
-            }
-        }
-    }
-    return 1; // Se correu tudo bem
 }
 
 int verificaBranco2(Tabuleiro* tab) {
@@ -549,6 +443,4 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
             jn = 0; // Reseta jn para 0 após cada linha
         }
     }
-
-    // Se chegou aqui, não há mais letras minúsculas — fim de jogo
 }

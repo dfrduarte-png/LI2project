@@ -72,7 +72,7 @@ int main() {
             }
         }
         else if (acao == 'R') {// Implementar a função resolver
-            resolver(tab, &pilha);
+            resolver(tab, &pilha, 0, 0, 0);
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
