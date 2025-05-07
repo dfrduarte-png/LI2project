@@ -1,4 +1,26 @@
 20 20
+<<<<<<< HEAD
+qbnjtjmsfmkdophomalr
+lgdhctmionqojjgbrspf
+tlldjrsqjgmgacbhoeqi
+eerjabfjsdjqrnntpimh
+aahklmecbldspndqpomg
+srmaqebgkqnjklmngctd
+fcatgrdkbolamiqrjeng
+ilednckpoqjrdifhlbha
+jppihffstscbrkrjbmgd
+bgjorqlghrkmdseainnt
+klpfiohamdsregehhdrf
+smkcfbtgeialqnjihpsk
+gfhmnihbebdkcqnpksal
+mtmkospnecqhkdieqjfm
+cmibnajfgsrpnosmslnq
+aornscpeahgtlbijmmqc
+mqscjdklpaffchjnerin
+fngsmhrclobafeckeijo
+oempnnbrckhsibadfqqj
+rjtrldomkeqpsdacpkdp
+=======
 q b n j t j m s f m k d o p h o m a l r 
 l g d h c t m i o n q o j j g b r s p f 
 t l l d j r s q j g m g a c b h o e q i 
@@ -22,3 +44,4 @@ r j t r l d o m k e q p s d a c p k d p
 --
 b a 1
 r b 2
+>>>>>>> origin/main

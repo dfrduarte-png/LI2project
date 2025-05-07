@@ -8,6 +8,10 @@ int main() {
     char acao, col;
     char ficheiro[25];
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> origin/main
     // Inicializando a pilha para armazenar as jogadas
     Pilha pilha;
     inicializarPilha(&pilha, 10);
@@ -52,13 +56,27 @@ int main() {
             }
             else if (!verifica(tab)) printf("O jogo está válido!\n"); //se a função verifica == 0, o jogo está valido
         }
-        else if (acao == 'a') {// Implementar a função de ajuda
+        else if (acao == 'a') {
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
+            int cont = 0; // Só posto para não dar erro
+            ajudar(tab, &pilha, &cont); // Implementar a função ajudar, o 0 não muda nada
+        }
+        
+        else if (acao == 'A') {
+            if (!tab) {
+                printf("Tabuleiro não carregado! Tente novamente.\n");
+                continue;
+            }
+            int cont = 1;
+            while (cont) {
+                ajudar(tab, &pilha, &cont);
+            }
         }
         else if (acao == 'R') {// Implementar a função resolver
+            resolver(tab, &pilha);
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;

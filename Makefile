@@ -1,3 +1,4 @@
+# Makefile for the LI2 project
 CC = gcc
 CFLAGS = -Wall -Wextra -Wconversion -Wshadow -Wundef -Wformat=2 -pedantic -O1 -g -fno-omit-frame-pointer -std=c11 -fsanitize=address -fsanitize=undefined
 GCOV_FLAGS = -fprofile-arcs -ftest-coverage

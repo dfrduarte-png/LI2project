@@ -93,10 +93,15 @@ void riscar(Tabuleiro* tab, int lin, int col, Pilha* pilha) {
 }
 
 void freeTabuleiro(Tabuleiro* tab) {
-    for (int i = 0; i < tab->linhas; i++) free(tab->grelha[i]);
-    free(tab->grelha);
-    free(tab);
+    if (tab != NULL) {  // Verifica se o ponteiro não é NULL
+        for (int i = 0; i < tab->linhas; i++) {
+            free(tab->grelha[i]);  // Libera cada linha da grelha
+        }
+        free(tab->grelha);  // Libera o array de ponteiros para as linhas
+        free(tab);  // Libera o próprio Tabuleiro
+    }
 }
+
 
 int verificarBranco(Tabuleiro* tab, int lin, int col) {
     char current = tab->grelha[lin][col];
@@ -305,6 +310,62 @@ void desfazer(Tabuleiro* tab, Pilha* pilha) {
     tab->grelha[ultimaJogada.lin][ultimaJogada.col] = ultimaJogada.anterior;
     printf("Última jogada desfeita.\n");
 }
+
+
+void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
+    *cont = 0;
+    int linhas = tab->linhas;
+    int colunas = tab->colunas;
+
+    // Riscar letras iguais a uma letra branca na mesma linha e coluna
+    for (int i = 0; i < linhas; i++) {
+        for (int j = 0; j < colunas; j++) {
+            if (isupper(tab->grelha[i][j])) { // Letra branca
+                char letraBranca = tab->grelha[i][j];
+                for (int k = 0; k < colunas; k++) {
+                    if (tab->grelha[i][k] == tolower(letraBranca)) {
+                        riscar(tab, i, k, pilha);
+                        *cont = 1;
+                    }
+                }
+                for (int k = 0; k < linhas; k++) {
+                    if (tab->grelha[k][j] == tolower(letraBranca)) {
+                        riscar(tab, k, j, pilha);
+                        *cont = 1;
+                    }
+                }
+            }
+        }
+    }
+
+    // Pintar de branco casas vizinhas de uma casa riscada
+    for (int i = 0; i < linhas; i++) {
+        for (int j = 0; j < colunas; j++) {
+            if (tab->grelha[i][j] == '#') {
+                if (i > 0 && tab->grelha[i - 1][j] != '#') branco(tab, i - 1, j, pilha); // Pintar de branco acima
+                if (i < linhas - 1 && tab->grelha[i + 1][j] != '#') branco(tab, i + 1, j, pilha); // Pintar de branco abaixo
+                if (j > 0 && tab->grelha[i][j - 1] != '#') branco(tab, i, j - 1, pilha); // Pintar de branco à esquerda
+                if (j < colunas - 1 && tab->grelha[i][j + 1] != '#') branco(tab, i, j + 1, pilha); // Pintar de branco à direita
+            }
+        }
+    }
+
+    // Verifica se o tabuleiro está correto
+    int resultado = verifica(tab);
+    if (resultado == 0) {
+        printf("O tabuleiro está correto!\n");
+    } else {
+        printf("O tabuleiro não está correto!\n");
+    }
+
+    // Atualiza o tabuleiro
+    // printf("Tabuleiro atualizado:\n");
+    //ler(tab);
+}
+
+
+
+
 
 void resolver(Tabuleiro* tab, Pilha* pilha) {
     int casas = tab->colunas * tab->linhas;
