@@ -6,447 +6,510 @@
         -:    5:#include <string.h>
         -:    6:#include "jogo.h"
         -:    7:
-        2:    8:void criar_ficheiro_teste(const char* nome_ficheiro) {
-        2:    9:    FILE* f = fopen(nome_ficheiro, "w");
-       2*:   10:    fprintf(f, "5 5\n");
-       2*:   11:    fprintf(f, "ecadc\n");
-       2*:   12:    fprintf(f, "dcdec\n");
-       2*:   13:    fprintf(f, "bddce\n");
-       2*:   14:    fprintf(f, "cdeeb\n");
-       2*:   15:    fprintf(f, "accbb\n");
-       2*:   16:    fclose(f);
-        2:   17:}
+        1:    8:void criar_ficheiro_teste(const char* nome_ficheiro) {
+        1:    9:    FILE* f = fopen(nome_ficheiro, "w");
+       1*:   10:    fprintf(f, "5 5\n");
+       1*:   11:    fprintf(f, "ecadc\n");
+       1*:   12:    fprintf(f, "dcdec\n");
+       1*:   13:    fprintf(f, "bddce\n");
+       1*:   14:    fprintf(f, "cdeeb\n");
+       1*:   15:    fprintf(f, "accbb\n");
+       1*:   16:    fclose(f);
+        1:   17:}
         -:   18:
-        2:   19:void test_carregar(void) {
-        2:   20:    criar_ficheiro_teste("tabuleiro.txt");
+        1:   19:void test_carregar(void) {
+        1:   20:    criar_ficheiro_teste("tabuleiro.txt");
         -:   21:
         -:   22:    // Inicializando a pilha
-        2:   23:    Pilha pilha;
-        2:   24:    inicializarPilha(&pilha, 10);
+        1:   23:    Pilha pilha;
+        1:   24:    inicializarPilha(&pilha, 10);
         -:   25:
         -:   26:    // Carregando o tabuleiro
-        2:   27:    Tabuleiro* tab = carregar("tabuleiro.txt", &pilha);
+        1:   27:    Tabuleiro* tab = carregar("tabuleiro.txt", &pilha);
         -:   28:
         -:   29:    // Verifique se o tabuleiro não é NULL
-        2:   30:    if (tab == NULL) {
+        1:   30:    if (tab == NULL) {
     #####:   31:        CU_FAIL("Falha ao carregar o tabuleiro");
     #####:   32:        freePilha(&pilha);  // Libera a pilha caso o carregamento falhe
     #####:   33:        return;  // Interrompe o teste se o tabuleiro for NULL
         -:   34:    }
         -:   35:
         -:   36:    // Realiza os asserts para validar os dados carregados
-        2:   37:    CU_ASSERT_PTR_NOT_NULL(tab);
-        2:   38:    CU_ASSERT_EQUAL(tab->linhas, 5);
-        2:   39:    CU_ASSERT_EQUAL(tab->colunas, 5);
-        2:   40:    CU_ASSERT_EQUAL(tab->grelha[0][0], 'e');
-        2:   41:    CU_ASSERT_EQUAL(tab->grelha[1][1], 'c');
-        2:   42:    CU_ASSERT_EQUAL(tab->grelha[2][2], 'd');
-        2:   43:    CU_ASSERT_EQUAL(tab->grelha[3][3], 'e');
-        2:   44:    CU_ASSERT_EQUAL(tab->grelha[4][4], 'b');
+        1:   37:    CU_ASSERT_PTR_NOT_NULL(tab);
+        1:   38:    CU_ASSERT_EQUAL(tab->linhas, 5);
+        1:   39:    CU_ASSERT_EQUAL(tab->colunas, 5);
+        1:   40:    CU_ASSERT_EQUAL(tab->grelha[0][0], 'e');
+        1:   41:    CU_ASSERT_EQUAL(tab->grelha[1][1], 'c');
+        1:   42:    CU_ASSERT_EQUAL(tab->grelha[2][2], 'd');
+        1:   43:    CU_ASSERT_EQUAL(tab->grelha[3][3], 'e');
+        1:   44:    CU_ASSERT_EQUAL(tab->grelha[4][4], 'b');
         -:   45:
         -:   46:    // Libera a memória alocada para o tabuleiro e pilha
-        2:   47:    freeTabuleiro(tab);
-        2:   48:    freePilha(&pilha);
+        1:   47:    freeTabuleiro(tab);
+        1:   48:    freePilha(&pilha);
         -:   49:}
         -:   50:
         -:   51:
-        2:   52:void test_inicializarPilha(void) {
-        2:   53:    Pilha pilha;
-        2:   54:    inicializarPilha(&pilha, 5);
-        2:   55:    CU_ASSERT_PTR_NOT_NULL(pilha.jogadas);
-        2:   56:    CU_ASSERT_EQUAL(pilha.topo, -1);
-        2:   57:    CU_ASSERT_EQUAL(pilha.capacidade, 5);
+        1:   52:void test_inicializarPilha(void) {
+        1:   53:    Pilha pilha;
+        1:   54:    inicializarPilha(&pilha, 5);
+        1:   55:    CU_ASSERT_PTR_NOT_NULL(pilha.jogadas);
+        1:   56:    CU_ASSERT_EQUAL(pilha.topo, -1);
+        1:   57:    CU_ASSERT_EQUAL(pilha.capacidade, 5);
         -:   58:
         -:   59:    // Libera a memória alocada para a pilha
-        2:   60:    freePilha(&pilha);
-        2:   61:}
+        1:   60:    freePilha(&pilha);
+        1:   61:}
         -:   62:
         -:   63:
-        2:   64:void test_freeTabuleiro(void) {
+        1:   64:void test_freeTabuleiro(void) {
         -:   65:    // Aloca e inicializa o tabuleiro
-        2:   66:    Tabuleiro* tab = (Tabuleiro*)malloc(sizeof(Tabuleiro));
-        2:   67:    tab->linhas = 5;
-        2:   68:    tab->colunas = 5;
-        2:   69:    tab->grelha = (char**)malloc(tab->linhas * sizeof(char*));
+        1:   66:    Tabuleiro* tab = (Tabuleiro*)malloc(sizeof(Tabuleiro));
+        1:   67:    tab->linhas = 5;
+        1:   68:    tab->colunas = 5;
+        1:   69:    tab->grelha = (char**)malloc((size_t)tab->linhas * sizeof(char*));
         -:   70:
-       12:   71:    for (int i = 0; i < tab->linhas; i++) {
-       10:   72:        tab->grelha[i] = (char*)malloc(tab->colunas * sizeof(char));
+        6:   71:    for (int i = 0; i < tab->linhas; i++) {
+        5:   72:        tab->grelha[i] = (char*)malloc((size_t)tab->colunas * sizeof(char));
         -:   73:    }
         -:   74:
         -:   75:    // Preenche a grelha com valores de exemplo
-        2:   76:    tab->grelha[0][0] = 'A';
-        2:   77:    tab->grelha[4][4] = 'B';
+        1:   76:    tab->grelha[0][0] = 'A';
+        1:   77:    tab->grelha[4][4] = 'B';
         -:   78:
         -:   79:    // Libera o tabuleiro
-        2:   80:    freeTabuleiro(tab);
+        1:   80:    freeTabuleiro(tab);
         -:   81:
-        2:   82:}
+        1:   82:}
         -:   83:
         -:   84:
-        2:   85:void test_freePilha(void) {
-        2:   86:    Pilha pilha;
-        2:   87:    inicializarPilha(&pilha, 1);  // Aloca a pilha
+        1:   85:void test_freePilha(void) {
+        1:   86:    Pilha pilha;
+        1:   87:    inicializarPilha(&pilha, 1);  // Aloca a pilha
         -:   88:
         -:   89:    // Realize as operações necessárias no teste...
         -:   90:    
         -:   91:    // Verifique se a pilha está sendo limpa corretamente
-        2:   92:    freePilha(&pilha); // Libere a memória da pilha
-        2:   93:}
+        1:   92:    freePilha(&pilha); // Libere a memória da pilha
+        1:   93:}
         -:   94:
         -:   95:
         -:   96:
-        2:   97:void test_redimensionarPilha(void) {
-        2:   98:    Pilha pilha;
-        2:   99:    inicializarPilha(&pilha, 2);
-        2:  100:    pilha.topo = 1; // Simulando que a pilha está cheia
+        1:   97:void test_redimensionarPilha(void) {
+        1:   98:    Pilha pilha;
+        1:   99:    inicializarPilha(&pilha, 2);
+        1:  100:    pilha.topo = 1; // Simulando que a pilha está cheia
         -:  101:
-        2:  102:    redimensionarPilha(&pilha);
-        2:  103:    CU_ASSERT_EQUAL(pilha.capacidade, 4); // Verifica se a capacidade foi dobrada
+        1:  102:    redimensionarPilha(&pilha);
+        1:  103:    CU_ASSERT_EQUAL(pilha.capacidade, 4); // Verifica se a capacidade foi dobrada
         -:  104:
-        2:  105:    freePilha(&pilha);
-        2:  106:}
+        1:  105:    freePilha(&pilha);
+        1:  106:}
         -:  107:
-        2:  108:void test_empurrarPilha(void) {
-        2:  109:    Pilha pilha;
-        2:  110:    inicializarPilha(&pilha, 2);
+        1:  108:void test_empurrarPilha(void) {
+        1:  109:    Pilha pilha;
+        1:  110:    inicializarPilha(&pilha, 2);
         -:  111:
-        2:  112:    empurrarPilha(&pilha, 0, 0, 'a', 'b');
-        2:  113:    CU_ASSERT_EQUAL(pilha.topo, 0);
-        2:  114:    CU_ASSERT_EQUAL(pilha.jogadas[0].lin, 0);
-        2:  115:    CU_ASSERT_EQUAL(pilha.jogadas[0].col, 0);
-        2:  116:    CU_ASSERT_EQUAL(pilha.jogadas[0].anterior, 'a');
-        2:  117:    CU_ASSERT_EQUAL(pilha.jogadas[0].tipo, 'b');
+        1:  112:    empurrarPilha(&pilha, 0, 0, 'a', 'b');
+        1:  113:    CU_ASSERT_EQUAL(pilha.topo, 0);
+        1:  114:    CU_ASSERT_EQUAL(pilha.jogadas[0].lin, 0);
+        1:  115:    CU_ASSERT_EQUAL(pilha.jogadas[0].col, 0);
+        1:  116:    CU_ASSERT_EQUAL(pilha.jogadas[0].anterior, 'a');
+        1:  117:    CU_ASSERT_EQUAL(pilha.jogadas[0].tipo, 'b');
         -:  118:
-        2:  119:    freePilha(&pilha);
-        2:  120:}
+        1:  119:    freePilha(&pilha);
+        1:  120:}
         -:  121:
         -:  122:
-        2:  123:void test_guardar(void) {
-        2:  124:    Pilha pilha;
-        2:  125:    inicializarPilha(&pilha, 10);
+        1:  123:void test_guardar(void) {
+        1:  124:    Pilha pilha;
+        1:  125:    inicializarPilha(&pilha, 10);
         -:  126:
         -:  127:    // Realizar operações no jogo aqui...
         -:  128:
         -:  129:    // Após o uso, liberar a memória
-        2:  130:    freePilha(&pilha);
-        2:  131:}
+        1:  130:    freePilha(&pilha);
+        1:  131:}
         -:  132:
         -:  133:
         -:  134:
-        2:  135:void test_verificarRisca(void) {
-        2:  136:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
-        2:  137:    tab->linhas = 2;
-        2:  138:    tab->colunas = 2;
-        2:  139:    tab->grelha = malloc(2 * sizeof(char*));
-        2:  140:    tab->grelha[0] = malloc(2 * sizeof(char));
-        2:  141:    tab->grelha[1] = malloc(2 * sizeof(char));
-        2:  142:    tab->grelha[0][0] = '#';
-        2:  143:    tab->grelha[0][1] = 'a';
-        2:  144:    tab->grelha[1][0] = 'b';
-        2:  145:    tab->grelha[1][1] = 'c';
+        1:  135:void test_verificarRisca(void) {
+        1:  136:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        1:  137:    tab->linhas = 2;
+        1:  138:    tab->colunas = 2;
+        1:  139:    tab->grelha = malloc(2 * sizeof(char*));
+        1:  140:    tab->grelha[0] = malloc(2 * sizeof(char));
+        1:  141:    tab->grelha[1] = malloc(2 * sizeof(char));
+        1:  142:    tab->grelha[0][0] = '#';
+        1:  143:    tab->grelha[0][1] = 'a';
+        1:  144:    tab->grelha[1][0] = 'b';
+        1:  145:    tab->grelha[1][1] = 'c';
         -:  146:
-        2:  147:    int resultado = verificarRisca(tab, 0, 0);
-        2:  148:    CU_ASSERT_EQUAL(resultado, 1); // Deve retornar 1 pois a casa (0,0) é riscada
+        1:  147:    int resultado = verificarRisca(tab, 0, 0);
+        1:  148:    CU_ASSERT_EQUAL(resultado, 1); // Deve retornar 1 pois a casa (0,0) é riscada
         -:  149:
-        2:  150:    freeTabuleiro(tab);
-        2:  151:}
+        1:  150:    freeTabuleiro(tab);
+        1:  151:}
         -:  152:
-        2:  153:void test_verificaBranco(void){
-        2:  154:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
-        2:  155:    tab->linhas = 2;
-        2:  156:    tab->colunas = 2;
-        2:  157:    tab->grelha = malloc(2 * sizeof(char*));
-        2:  158:    tab->grelha[0] = malloc(2 * sizeof(char));
-        2:  159:    tab->grelha[1] = malloc(2 * sizeof(char));
-        2:  160:    tab->grelha[0][0] = 'A';
-        2:  161:    tab->grelha[0][1] = 'b';
-        2:  162:    tab->grelha[1][0] = 'c';
-        2:  163:    tab->grelha[1][1] = 'd';
+        1:  153:void test_verificaBranco(void){
+        1:  154:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        1:  155:    tab->linhas = 2;
+        1:  156:    tab->colunas = 2;
+        1:  157:    tab->grelha = malloc(2 * sizeof(char*));
+        1:  158:    tab->grelha[0] = malloc(2 * sizeof(char));
+        1:  159:    tab->grelha[1] = malloc(2 * sizeof(char));
+        1:  160:    tab->grelha[0][0] = 'A';
+        1:  161:    tab->grelha[0][1] = 'b';
+        1:  162:    tab->grelha[1][0] = 'c';
+        1:  163:    tab->grelha[1][1] = 'd';
         -:  164:
-        2:  165:    int resultado = verificarBranco(tab, 0, 0);
-        2:  166:    CU_ASSERT_EQUAL(resultado,0); // Deve retornar 0 pois a casa (0,0)   é branca
+        1:  165:    int resultado = verificarBranco(tab, 0, 0);
+        1:  166:    CU_ASSERT_EQUAL(resultado,0); // Deve retornar 0 pois a casa (0,0)   é branca
         -:  167:
-        2:  168:    freeTabuleiro(tab);
-        2:  169:}
+        1:  168:    freeTabuleiro(tab);
+        1:  169:}
         -:  170:
         -:  171:
-        2:  172:void test_verifica(void){
-        2:  173:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
-        2:  174:    tab->linhas = 2;
-        2:  175:    tab->colunas = 2;
-        2:  176:    tab->grelha = malloc(2 * sizeof(char*));
-        2:  177:    tab->grelha[0] = malloc(2 * sizeof(char));
-        2:  178:    tab->grelha[1] = malloc(2 * sizeof(char));
-        2:  179:    tab->grelha[0][0] = 'A';
-        2:  180:    tab->grelha[0][1] = 'B';
-        2:  181:    tab->grelha[1][0] = 'C';
-        2:  182:    tab->grelha[1][1] = 'D';
+        1:  172:void test_verifica(void){
+        1:  173:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        1:  174:    tab->linhas = 2;
+        1:  175:    tab->colunas = 2;
+        1:  176:    tab->grelha = malloc(2 * sizeof(char*));
+        1:  177:    tab->grelha[0] = malloc(2 * sizeof(char));
+        1:  178:    tab->grelha[1] = malloc(2 * sizeof(char));
+        1:  179:    tab->grelha[0][0] = 'A';
+        1:  180:    tab->grelha[0][1] = 'B';
+        1:  181:    tab->grelha[1][0] = 'C';
+        1:  182:    tab->grelha[1][1] = 'D';
         -:  183:
-        2:  184:    int resultado = verifica(tab);
-        2:  185:    CU_ASSERT_EQUAL(resultado, 0); // Deve retornar 0 pois o tabuleiro está correto
+        1:  184:    int resultado = verifica(tab);
+        1:  185:    CU_ASSERT_EQUAL(resultado, 0); // Deve retornar 0 pois o tabuleiro está correto
         -:  186:
-        2:  187:    freeTabuleiro(tab);
-        2:  188:}
+        1:  187:    freeTabuleiro(tab);
+        1:  188:}
         -:  189:
-        2:  190:void test_ler(void) {
-        2:  191:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
-        2:  192:    tab->linhas = 2;
-        2:  193:    tab->colunas = 2;
-        2:  194:    tab->grelha = malloc(2 * sizeof(char*));
-        2:  195:    tab->grelha[0] = malloc(2 * sizeof(char));
-        2:  196:    tab->grelha[1] = malloc(2 * sizeof(char));
-        2:  197:    tab->grelha[0][0] = 'x';
-        2:  198:    tab->grelha[0][1] = 'y';
-        2:  199:    tab->grelha[1][0] = 'z';
-        2:  200:    tab->grelha[1][1] = 'w';
+        1:  190:void test_ler(void) {
+        1:  191:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        1:  192:    tab->linhas = 2;
+        1:  193:    tab->colunas = 2;
+        1:  194:    tab->grelha = malloc(2 * sizeof(char*));
+        1:  195:    tab->grelha[0] = malloc(2 * sizeof(char));
+        1:  196:    tab->grelha[1] = malloc(2 * sizeof(char));
+        1:  197:    tab->grelha[0][0] = 'x';
+        1:  198:    tab->grelha[0][1] = 'y';
+        1:  199:    tab->grelha[1][0] = 'z';
+        1:  200:    tab->grelha[1][1] = 'w';
         -:  201:
-       2*:  202:    FILE* buffer = freopen("output.txt", "w", stdout);
-        2:  203:    CU_ASSERT_PTR_NOT_NULL(buffer);
-        2:  204:    ler(tab);
-        2:  205:    fflush(stdout);
+       1*:  202:    FILE* buffer = freopen("output.txt", "w", stdout);
+        1:  203:    CU_ASSERT_PTR_NOT_NULL(buffer);
+        1:  204:    ler(tab);
+        1:  205:    fflush(stdout);
         -:  206:
-       2*:  207:    if (freopen("/dev/tty", "w", stdout) == NULL) {
+       1*:  207:    if (freopen("/dev/tty", "w", stdout) == NULL) {
     #####:  208:        perror("freopen failed");
     #####:  209:        exit(EXIT_FAILURE);
         -:  210:    }
         -:  211:
-        2:  212:    FILE* f = fopen("output.txt", "r");
-        2:  213:    CU_ASSERT_PTR_NOT_NULL(f);
+        1:  212:    FILE* f = fopen("output.txt", "r");
+        1:  213:    CU_ASSERT_PTR_NOT_NULL(f);
         -:  214:
-        2:  215:    char linha[100];
-       4*:  216:    CU_ASSERT_PTR_NOT_NULL(fgets(linha, sizeof(linha), f));
-        2:  217:    CU_ASSERT_STRING_EQUAL(linha, "    a b \n");
+        1:  215:    char linha[100];
+       2*:  216:    CU_ASSERT_PTR_NOT_NULL(fgets(linha, sizeof(linha), f));
+        1:  217:    CU_ASSERT_STRING_EQUAL(linha, "    a b \n");
         -:  218:
-       4*:  219:    CU_ASSERT_PTR_NOT_NULL(fgets(linha, sizeof(linha), f));
-        2:  220:    CU_ASSERT_STRING_EQUAL(linha, "    ---\n");
+       2*:  219:    CU_ASSERT_PTR_NOT_NULL(fgets(linha, sizeof(linha), f));
+        1:  220:    CU_ASSERT_STRING_EQUAL(linha, "    ---\n");
         -:  221:
-       4*:  222:    CU_ASSERT_PTR_NOT_NULL(fgets(linha, sizeof(linha), f));
-        2:  223:    CU_ASSERT_STRING_EQUAL(linha, " 1| x y \n");
+       2*:  222:    CU_ASSERT_PTR_NOT_NULL(fgets(linha, sizeof(linha), f));
+        1:  223:    CU_ASSERT_STRING_EQUAL(linha, " 1| x y \n");
         -:  224:
-       4*:  225:    CU_ASSERT_PTR_NOT_NULL(fgets(linha, sizeof(linha), f));
-        2:  226:    CU_ASSERT_STRING_EQUAL(linha, " 2| z w \n");
+       2*:  225:    CU_ASSERT_PTR_NOT_NULL(fgets(linha, sizeof(linha), f));
+        1:  226:    CU_ASSERT_STRING_EQUAL(linha, " 2| z w \n");
         -:  227:
-       2*:  228:    fclose(f);
-        2:  229:    freeTabuleiro(tab);
-        2:  230:}
+       1*:  228:    fclose(f);
+        1:  229:    freeTabuleiro(tab);
+        1:  230:}
         -:  231:
-        2:  232:void test_branco(void) {
-        2:  233:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
-        2:  234:    tab->linhas = 1;
-        2:  235:    tab->colunas = 1;
-        2:  236:    tab->grelha = malloc(sizeof(char*));
-        2:  237:    tab->grelha[0] = malloc(sizeof(char));
-        2:  238:    tab->grelha[0][0] = 'a';
+        1:  232:void test_branco(void) {
+        1:  233:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        1:  234:    tab->linhas = 1;
+        1:  235:    tab->colunas = 1;
+        1:  236:    tab->grelha = malloc(sizeof(char*));
+        1:  237:    tab->grelha[0] = malloc(sizeof(char));
+        1:  238:    tab->grelha[0][0] = 'a';
         -:  239:
-        2:  240:    Pilha pilha;
-        2:  241:    inicializarPilha(&pilha, 10);
+        1:  240:    Pilha pilha;
+        1:  241:    inicializarPilha(&pilha, 10);
         -:  242:
-        2:  243:    branco(tab, 0, 0, &pilha);
-        2:  244:    CU_ASSERT_EQUAL(tab->grelha[0][0], 'A');
+        1:  243:    branco(tab, 0, 0, &pilha);
+        1:  244:    CU_ASSERT_EQUAL(tab->grelha[0][0], 'A');
         -:  245:
-        2:  246:    tab->grelha[0][0] = '#';
-        2:  247:    branco(tab, 0, 0, &pilha);
-        2:  248:    CU_ASSERT_EQUAL(tab->grelha[0][0], '#'); // Não deve alterar
+        1:  246:    tab->grelha[0][0] = '#';
+        1:  247:    branco(tab, 0, 0, &pilha);
+        1:  248:    CU_ASSERT_EQUAL(tab->grelha[0][0], '#'); // Não deve alterar
         -:  249:
-        2:  250:    freeTabuleiro(tab);
-        2:  251:    freePilha(&pilha);
-        2:  252:}
+        1:  250:    freeTabuleiro(tab);
+        1:  251:    freePilha(&pilha);
+        1:  252:}
         -:  253:
-        2:  254:void test_riscar(void) {
-        2:  255:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
-        2:  256:    tab->linhas = 1;
-        2:  257:    tab->colunas = 1;
-        2:  258:    tab->grelha = malloc(sizeof(char*));
-        2:  259:    tab->grelha[0] = malloc(sizeof(char));
-        2:  260:    tab->grelha[0][0] = 'a';
+        1:  254:void test_riscar(void) {
+        1:  255:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        1:  256:    tab->linhas = 1;
+        1:  257:    tab->colunas = 1;
+        1:  258:    tab->grelha = malloc(sizeof(char*));
+        1:  259:    tab->grelha[0] = malloc(sizeof(char));
+        1:  260:    tab->grelha[0][0] = 'a';
         -:  261:
-        2:  262:    Pilha pilha;
-        2:  263:    inicializarPilha(&pilha, 10);
+        1:  262:    Pilha pilha;
+        1:  263:    inicializarPilha(&pilha, 10);
         -:  264:
-        2:  265:    riscar(tab, 0, 0, &pilha);
-        2:  266:    CU_ASSERT_EQUAL(tab->grelha[0][0], '#');
+        1:  265:    riscar(tab, 0, 0, &pilha);
+        1:  266:    CU_ASSERT_EQUAL(tab->grelha[0][0], '#');
         -:  267:
-        2:  268:    tab->grelha[0][0] = 'A';
-        2:  269:    riscar(tab, 0, 0, &pilha);
-        2:  270:    CU_ASSERT_EQUAL(tab->grelha[0][0], 'A'); // Não deve alterar
+        1:  268:    tab->grelha[0][0] = 'A';
+        1:  269:    riscar(tab, 0, 0, &pilha);
+        1:  270:    CU_ASSERT_EQUAL(tab->grelha[0][0], '#'); // Corrigido: agora espera '#'
         -:  271:
-        2:  272:    freeTabuleiro(tab);
-        2:  273:    freePilha(&pilha);
-        2:  274:}
+        1:  272:    freeTabuleiro(tab);
+        1:  273:    freePilha(&pilha);
+        1:  274:}
         -:  275:
-        2:  276:void test_ajudar(void) {
-        -:  277:    // Setup: Criar o tabuleiro com 5x5
-        2:  278:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
-        2:  279:    tab->linhas = 5;
-        2:  280:    tab->colunas = 5;
-        2:  281:    tab->grelha = malloc(5 * sizeof(char*));
-       12:  282:    for (int i = 0; i < 5; i++) {
-       10:  283:        tab->grelha[i] = malloc(5 * sizeof(char));
-       60:  284:        for (int j = 0; j < 5; j++) {
-       50:  285:            tab->grelha[i][j] = (char)('a' + (i + j) % 26); // Preencher com letras aleatórias
-        -:  286:        }
-        -:  287:    }
-        -:  288:
-        -:  289:    // Criar algumas condições específicas
-        2:  290:    tab->grelha[0][0] = 'A'; // Letra branca
-        2:  291:    tab->grelha[1][0] = 'a'; // Letra minúscula que deve ser riscada
-        2:  292:    tab->grelha[0][1] = 'B'; // Letra que será pintada de branco
-        2:  293:    tab->grelha[2][2] = 'C'; // Outra letra maiúscula
-        2:  294:    tab->grelha[3][3] = 'c'; // Outra letra minúscula
-        2:  295:    tab->grelha[4][4] = '#'; // Casa riscada que deve pintar vizinhos
-        -:  296:
-        -:  297:    // Testar casas vazias adjacentes a duas ou mais letras brancas
-        2:  298:    tab->grelha[1][1] = 'x'; // ou qualquer letra minúscula
-        2:  299:    tab->grelha[2][1] = 'A'; // Letra branca adjacente
-        2:  300:    tab->grelha[1][2] = 'A'; // Letra branca adjacente
-        2:  301:    tab->grelha[4][3] = 'a'; // ← necessário para que a função branco pinte de branco
-        -:  302:
+        -:  276:
+        1:  277:void test_ajudar(void) {
+        -:  278:    // Setup: Criar o tabuleiro com 5x5
+        1:  279:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        1:  280:    tab->linhas = 5;
+        1:  281:    tab->colunas = 5;
+        1:  282:    tab->grelha = malloc(5 * sizeof(char*));
+        6:  283:    for (int i = 0; i < 5; i++) {
+        5:  284:        tab->grelha[i] = malloc(5 * sizeof(char));
+       30:  285:        for (int j = 0; j < 5; j++) {
+       25:  286:            tab->grelha[i][j] = (char)('a' + (i + j) % 26); // Preencher com letras aleatórias
+        -:  287:        }
+        -:  288:    }
+        -:  289:
+        -:  290:    // Criar algumas condições específicas
+        1:  291:    tab->grelha[0][0] = 'A'; // Letra branca
+        1:  292:    tab->grelha[1][0] = 'a'; // Letra minúscula que deve ser riscada
+        1:  293:    tab->grelha[0][1] = 'B'; // Letra que será pintada de branco
+        1:  294:    tab->grelha[2][2] = 'C'; // Outra letra maiúscula
+        1:  295:    tab->grelha[3][3] = 'c'; // Outra letra minúscula
+        1:  296:    tab->grelha[4][4] = '#'; // Casa riscada que deve pintar vizinhos
+        -:  297:
+        -:  298:    // Testar casas vazias adjacentes a duas ou mais letras brancas
+        1:  299:    tab->grelha[1][1] = 'x'; // ou qualquer letra minúscula
+        1:  300:    tab->grelha[2][1] = 'A'; // Letra branca adjacente
+        1:  301:    tab->grelha[1][2] = 'A'; // Letra branca adjacente
+        1:  302:    tab->grelha[4][3] = 'a'; // ← necessário para que a função branco pinte de branco
         -:  303:
-        -:  304:    // Inicializar pilha e contador
-        2:  305:    Pilha pilha;
-        2:  306:    inicializarPilha(&pilha, 10);
-        2:  307:    int cont = 0;
-        -:  308:
-        -:  309:    // Chamar a função a ser testada
-        2:  310:    ajudar(tab, &pilha, &cont);
-        -:  311:
-        -:  312:    // Teste 1: Verificar se a letra minúscula foi riscada
-        2:  313:    CU_ASSERT_EQUAL(tab->grelha[1][0], '#'); // Letra 'a' deve ser riscada
-        -:  314:
-        -:  315:    // Teste 3: Verificar se a casa vizinha foi pintada de branco após a riscação
-        2:  316:    CU_ASSERT_EQUAL(tab->grelha[0][1], 'B'); // A casa vizinha à 'A' deve ser pintada de branco
-        -:  317:
-        -:  318:    // Teste 4: Verificar se as casas vizinhas a uma casa riscada (#) foram pintadas de branco
-        2:  319:    CU_ASSERT_EQUAL(tab->grelha[4][3], 'A'); // A casa acima de '#' (4,3) deve ser branca (A)
-        -:  320:
-        -:  321:    // Teste 5: Verificar se o contador foi incrementado
-        2:  322:    CU_ASSERT_EQUAL(cont, 1); // O contador deve ser 1 pois houve modificações
-        -:  323:
-        -:  324:    // Liberação de memória
-        2:  325:    freeTabuleiro(tab);
-        2:  326:    freePilha(&pilha);
-        2:  327:}
-        -:  328:
-        -:  329:/*
-        -:  330:void test_resolver(void) {
-        -:  331:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
-        -:  332:    tab->linhas = 5;
-        -:  333:    tab->colunas = 5;
-        -:  334:    tab->grelha = malloc((size_t)tab->linhas * sizeof(char*));
-        -:  335:    for (int i = 0; i < tab->linhas; i++) {
-        -:  336:        tab->grelha[i] = malloc((size_t)tab->colunas * sizeof(char));
-        -:  337:        for (int j = 0; j < tab->colunas; j++) {
-        -:  338:            tab->grelha[i][j] = (char)('a' + (rand() % 26)); // Gerar letras aleatórias entre 'a' e 'z'
-        -:  339:        }
-        -:  340:    }
-        -:  341:    
-        -:  342:
-        -:  343:    // Inicializar pilha
-        -:  344:    Pilha pilha;
-        -:  345:    inicializarPilha(&pilha, 10);
-        -:  346:
-        -:  347:    // Chama a função a ser testada
-        -:  348:    resolver(tab, &pilha);
-        -:  349:
-        -:  350:    // Testes: Verificar o estado final do tabuleiro após resolver
-        -:  351:    // 1. Verifica se não há mais letras minúsculas no tabuleiro (deveriam ser riscadas ou pintadas)
-        -:  352:    for (int i = 0; i < tab->linhas; i++) {
-        -:  353:        for (int j = 0; j < tab->colunas; j++) {
-        -:  354:            // A função deve riscar ou pintar as letras minúsculas. Não deve haver letras minúsculas ao final
-        -:  355:            if (tab->grelha[i][j] >= 'a' && tab->grelha[i][j] <= 'z') {
-        -:  356:                CU_FAIL("O tabuleiro contém letras minúsculas após a resolução.");
-        -:  357:            }
-        -:  358:        }
-        -:  359:    }
-        -:  360:
-        -:  361:    // 2. Verifica se todas as letras minúsculas adjacentes a uma letra riscada (#) foram pintadas de branco (A-Z)
-        -:  362:    for (int i = 0; i < tab->linhas; i++) {
-        -:  363:        for (int j = 0; j < tab->colunas; j++) {
-        -:  364:            if (tab->grelha[i][j] == '#') {
-        -:  365:                int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // cima, baixo, esquerda, direita
-        -:  366:                for (int k = 0; k < 4; k++) {
-        -:  367:                    int newLin = i + direcoes[k][0];
-        -:  368:                    int newCol = j + direcoes[k][1];
-        -:  369:                
-        -:  370:                    if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
-        -:  371:                        // Verifica se uma letra adjacente a '#' (riscada) foi pintada de branco
-        -:  372:                        if (tab->grelha[newLin][newCol] >= 'a' && tab->grelha[newLin][newCol] <= 'z') {
-        -:  373:                            CU_ASSERT_EQUAL(tab->grelha[newLin][newCol], '#');
-        -:  374:                        }
-        -:  375:                    }
-        -:  376:                }
-        -:  377:            }
-        -:  378:        }
-        -:  379:    }
-        -:  380:
-        -:  381:    // 3. Verifica se as letras únicas foram corretamente identificadas (riscar ou pintar)
-        -:  382:    for (int i = 0; i < tab->linhas; i++) {
-        -:  383:        for (int j = 0; j < tab->colunas; j++) {
-        -:  384:            char c = tab->grelha[i][j];
-        -:  385:            if (c >= 'a' && c <= 'z') {
-        -:  386:                // Se a letra é única, deveria ter sido riscada
-        -:  387:                CU_ASSERT_EQUAL(tab->grelha[i][j], '#');
-        -:  388:            }
-        -:  389:        }
-        -:  390:    }
-        -:  391:
-        -:  392:    // Libera memória
-        -:  393:    freeTabuleiro(tab);
-        -:  394:    freePilha(&pilha);
-        -:  395:}
-        -:  396:*/
-        -:  397:
-        2:  398:void test_desfazer(void){
-        2:  399:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
-        2:  400:    tab->linhas = 1;
-        2:  401:    tab->colunas = 1;
-        2:  402:    tab->grelha = malloc(sizeof(char*));
-        2:  403:    tab->grelha[0] = malloc(sizeof(char));
-        2:  404:    tab->grelha[0][0] = 'a';
-        -:  405:
-        2:  406:    Pilha pilha;
-        2:  407:    inicializarPilha(&pilha, 10);
-        -:  408:
-        2:  409:    empurrarPilha(&pilha, 0, 0, 'a', 'b');
-        2:  410:    desfazer(tab, &pilha);
-        2:  411:    CU_ASSERT_EQUAL(tab->grelha[0][0], 'a');
-        -:  412:
-        2:  413:    freeTabuleiro(tab);
-        2:  414:    freePilha(&pilha);
-        2:  415:}
-        -:  416:
-        -:  417:
-        -:  418:
-        2:  419:int main() {
-        2:  420:    if (CUE_SUCCESS != CU_initialize_registry())
-    #####:  421:        return CU_get_error();
-        -:  422:
-        2:  423:    CU_pSuite suite = CU_add_suite("Teste do jogo", NULL, NULL);
-        2:  424:    if (suite == NULL) {
-    #####:  425:        CU_cleanup_registry();
-    #####:  426:        return CU_get_error();
-        -:  427:    }
-        -:  428:
-        2:  429:    CU_add_test(suite, "test_carregar", test_carregar);
-        2:  430:    CU_add_test(suite, "test_ler", test_ler);
-        2:  431:    CU_add_test(suite, "test_branco", test_branco);
-        2:  432:    CU_add_test(suite, "test_riscar", test_riscar);
-        2:  433:    CU_add_test(suite, "test_ajudar", test_ajudar);
-        -:  434:    // CU_add_test(suite,"test_resolver", test_resolver);
-        2:  435:    CU_add_test(suite,"test_desfazer", test_desfazer);
-        2:  436:    CU_add_test(suite, "test_freeTabuleiro", test_freeTabuleiro);
-        2:  437:    CU_add_test(suite, "test_freePilha", test_freePilha);
-        2:  438:    CU_add_test(suite, "test_empurrarPilha", test_empurrarPilha);
-        2:  439:    CU_add_test(suite, "test_redimensionarPilha", test_redimensionarPilha);
-        2:  440:    CU_add_test(suite, "test_guardar", test_guardar);
-        2:  441:    CU_add_test(suite, "test_verificarRisca", test_verificarRisca);
-        2:  442:    CU_add_test(suite, "test_verificaBranco", test_verificaBranco);
-        2:  443:    CU_add_test(suite, "test_verifica", test_verifica);
-        2:  444:    CU_add_test(suite, "test_inicializarPilha", test_inicializarPilha);
-        -:  445:
-        -:  446:
-        2:  447:    CU_basic_set_mode(CU_BRM_VERBOSE);
-        2:  448:    CU_basic_run_tests();
-        2:  449:    CU_cleanup_registry();
-        2:  450:    return CU_get_error();
-        -:  451:}
+        -:  304:
+        -:  305:    // Inicializar pilha e contador
+        1:  306:    Pilha pilha;
+        1:  307:    inicializarPilha(&pilha, 10);
+        1:  308:    int cont = 0;
+        -:  309:
+        -:  310:    // Chamar a função a ser testada
+        1:  311:    ajudar(tab, &pilha, &cont);
+        -:  312:
+        -:  313:    // Teste 1: Verificar se a letra minúscula foi riscada
+        1:  314:    CU_ASSERT_EQUAL(tab->grelha[1][0], '#'); // Letra 'a' deve ser riscada
+        -:  315:
+        -:  316:    // Teste 3: Verificar se a casa vizinha foi pintada de branco após a riscação
+        1:  317:    CU_ASSERT_EQUAL(tab->grelha[0][1], 'B'); // A casa vizinha à 'A' deve ser pintada de branco
+        -:  318:
+        -:  319:    // Teste 4: Verificar se as casas vizinhas a uma casa riscada (#) foram pintadas de branco
+        1:  320:    CU_ASSERT_EQUAL(tab->grelha[4][3], 'A'); // A casa acima de '#' (4,3) deve ser branca (A)
+        -:  321:
+        -:  322:    // Teste 5: Verificar se o contador foi incrementado
+        1:  323:    CU_ASSERT_EQUAL(cont, 1); // O contador deve ser 1 pois houve modificações
+        -:  324:
+        -:  325:    // Liberação de memória
+        1:  326:    freeTabuleiro(tab);
+        1:  327:    freePilha(&pilha);
+        1:  328:}
+        -:  329:
+        -:  330:
+        -:  331:
+        -:  332:
+        1:  333:void test_verificaConectividade(void) {
+        1:  334:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        1:  335:    tab->linhas = 3;
+        1:  336:    tab->colunas = 3;
+        1:  337:    tab->grelha = malloc(3 * sizeof(char*));
+        4:  338:    for (int i = 0; i < 3; i++) {
+        3:  339:        tab->grelha[i] = malloc(3 * sizeof(char));
+       12:  340:        for (int j = 0; j < 3; j++) {
+        9:  341:            tab->grelha[i][j] = '.'; // Espaços vazios
+        -:  342:        }
+        -:  343:    }
+        -:  344:
+        -:  345:    // Primeiro cenário: casas brancas desconectadas
+        1:  346:    tab->grelha[0][0] = 'A'; // Casa branca 1
+        1:  347:    tab->grelha[2][2] = 'B'; // Casa branca 2, isolada
+        -:  348:
+        1:  349:    int resultado = verificaConectividade(tab);
+        1:  350:    CU_ASSERT_EQUAL(resultado, 1); // Deve retornar 1 (desconectado)
+        -:  351:
+        -:  352:    // Segundo cenário: todas casas brancas conectadas
+        1:  353:    tab->grelha[0][1] = 'C';
+        1:  354:    tab->grelha[1][1] = 'D';
+        1:  355:    tab->grelha[2][1] = 'E';
+        -:  356:
+        1:  357:    resultado = verificaConectividade(tab);
+        1:  358:    CU_ASSERT_EQUAL(resultado, 0); // Deve retornar 0 (todas conectadas)
+        -:  359:
+        1:  360:    freeTabuleiro(tab);
+        1:  361:}
+        -:  362:
+        -:  363:
+        1:  364:void test_dfs(void) {
+        1:  365:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        1:  366:    tab->linhas = 3;
+        1:  367:    tab->colunas = 3;
+        1:  368:    tab->grelha = malloc(3 * sizeof(char*));
+        4:  369:    for (int i = 0; i < 3; i++) {
+        3:  370:        tab->grelha[i] = malloc(3 * sizeof(char));
+       12:  371:        for (int j = 0; j < 3; j++) {
+        9:  372:            tab->grelha[i][j] = 'A'; // Preencher com letras brancas
+        -:  373:        }
+        -:  374:    }
+        -:  375:
+        1:  376:    int visitado[3][3] = {0}; // Inicializa a matriz de visitados
+        -:  377:
+        1:  378:    dfs(tab, 0, 0, visitado); // Chama a função DFS
+        -:  379:
+        -:  380:    // Verifica se todas as casas foram visitadas
+        4:  381:    for (int i = 0; i < 3; i++) {
+       12:  382:        for (int j = 0; j < 3; j++) {
+        9:  383:            CU_ASSERT_EQUAL(visitado[i][j], 1); // Todas as casas devem ser visitadas
+        -:  384:        }
+        -:  385:    }
+        -:  386:
+        -:  387:    // Liberação de memória
+        1:  388:    freeTabuleiro(tab);
+        1:  389:}
+        -:  390:/*
+        -:  391:void test_resolver(void) {
+        -:  392:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        -:  393:    tab->linhas = 5;
+        -:  394:    tab->colunas = 5;
+        -:  395:    tab->grelha = malloc((size_t)tab->linhas * sizeof(char*));
+        -:  396:    for (int i = 0; i < tab->linhas; i++) {
+        -:  397:        tab->grelha[i] = malloc((size_t)tab->colunas * sizeof(char));
+        -:  398:        for (int j = 0; j < tab->colunas; j++) {
+        -:  399:            tab->grelha[i][j] = (char)('a' + (rand() % 26)); // Gerar letras aleatórias entre 'a' e 'z'
+        -:  400:        }
+        -:  401:    }
+        -:  402:    
+        -:  403:
+        -:  404:    // Inicializar pilha
+        -:  405:    Pilha pilha;
+        -:  406:    inicializarPilha(&pilha, 10);
+        -:  407:
+        -:  408:    // Chama a função a ser testada
+        -:  409:    resolver(tab, &pilha);
+        -:  410:
+        -:  411:    // Testes: Verificar o estado final do tabuleiro após resolver
+        -:  412:    // 1. Verifica se não há mais letras minúsculas no tabuleiro (deveriam ser riscadas ou pintadas)
+        -:  413:    for (int i = 0; i < tab->linhas; i++) {
+        -:  414:        for (int j = 0; j < tab->colunas; j++) {
+        -:  415:            // A função deve riscar ou pintar as letras minúsculas. Não deve haver letras minúsculas ao final
+        -:  416:            if (tab->grelha[i][j] >= 'a' && tab->grelha[i][j] <= 'z') {
+        -:  417:                CU_FAIL("O tabuleiro contém letras minúsculas após a resolução.");
+        -:  418:            }
+        -:  419:        }
+        -:  420:    }
+        -:  421:
+        -:  422:    // 2. Verifica se todas as letras minúsculas adjacentes a uma letra riscada (#) foram pintadas de branco (A-Z)
+        -:  423:    for (int i = 0; i < tab->linhas; i++) {
+        -:  424:        for (int j = 0; j < tab->colunas; j++) {
+        -:  425:            if (tab->grelha[i][j] == '#') {
+        -:  426:                int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // cima, baixo, esquerda, direita
+        -:  427:                for (int k = 0; k < 4; k++) {
+        -:  428:                    int newLin = i + direcoes[k][0];
+        -:  429:                    int newCol = j + direcoes[k][1];
+        -:  430:                
+        -:  431:                    if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
+        -:  432:                        // Verifica se uma letra adjacente a '#' (riscada) foi pintada de branco
+        -:  433:                        if (tab->grelha[newLin][newCol] >= 'a' && tab->grelha[newLin][newCol] <= 'z') {
+        -:  434:                            CU_ASSERT_EQUAL(tab->grelha[newLin][newCol], '#');
+        -:  435:                        }
+        -:  436:                    }
+        -:  437:                }
+        -:  438:            }
+        -:  439:        }
+        -:  440:    }
+        -:  441:
+        -:  442:    // 3. Verifica se as letras únicas foram corretamente identificadas (riscar ou pintar)
+        -:  443:    for (int i = 0; i < tab->linhas; i++) {
+        -:  444:        for (int j = 0; j < tab->colunas; j++) {
+        -:  445:            char c = tab->grelha[i][j];
+        -:  446:            if (c >= 'a' && c <= 'z') {
+        -:  447:                // Se a letra é única, deveria ter sido riscada
+        -:  448:                CU_ASSERT_EQUAL(tab->grelha[i][j], '#');
+        -:  449:            }
+        -:  450:        }
+        -:  451:    }
+        -:  452:
+        -:  453:    // Libera memória
+        -:  454:    freeTabuleiro(tab);
+        -:  455:    freePilha(&pilha);
+        -:  456:}
+        -:  457:*/
+        -:  458:
+        1:  459:void test_desfazer(void){
+        1:  460:    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+        1:  461:    tab->linhas = 1;
+        1:  462:    tab->colunas = 1;
+        1:  463:    tab->grelha = malloc(sizeof(char*));
+        1:  464:    tab->grelha[0] = malloc(sizeof(char));
+        1:  465:    tab->grelha[0][0] = 'a';
+        -:  466:
+        1:  467:    Pilha pilha;
+        1:  468:    inicializarPilha(&pilha, 10);
+        -:  469:
+        1:  470:    empurrarPilha(&pilha, 0, 0, 'a', 'b');
+        1:  471:    desfazer(tab, &pilha);
+        1:  472:    CU_ASSERT_EQUAL(tab->grelha[0][0], 'a');
+        -:  473:
+        1:  474:    freeTabuleiro(tab);
+        1:  475:    freePilha(&pilha);
+        1:  476:}
+        -:  477:
+        -:  478:
+        -:  479:
+        1:  480:int main() {
+        1:  481:    if (CUE_SUCCESS != CU_initialize_registry())
+    #####:  482:        return CU_get_error();
+        -:  483:
+        1:  484:    CU_pSuite suite = CU_add_suite("Teste do jogo", NULL, NULL);
+        1:  485:    if (suite == NULL) {
+    #####:  486:        CU_cleanup_registry();
+    #####:  487:        return CU_get_error();
+        -:  488:    }
+        -:  489:
+        1:  490:    CU_add_test(suite, "test_carregar", test_carregar);
+        1:  491:    CU_add_test(suite, "test_ler", test_ler);
+        1:  492:    CU_add_test(suite, "test_branco", test_branco);
+        1:  493:    CU_add_test(suite, "test_riscar", test_riscar);
+        1:  494:    CU_add_test(suite, "test_ajudar", test_ajudar);
+        -:  495:    // CU_add_test(suite,"test_resolver", test_resolver);
+        1:  496:    CU_add_test(suite,"test_desfazer", test_desfazer);
+        1:  497:    CU_add_test(suite, "test_freeTabuleiro", test_freeTabuleiro);
+        1:  498:    CU_add_test(suite, "test_freePilha", test_freePilha);
+        1:  499:    CU_add_test(suite, "test_empurrarPilha", test_empurrarPilha);
+        1:  500:    CU_add_test(suite, "test_redimensionarPilha", test_redimensionarPilha);
+        1:  501:    CU_add_test(suite, "test_guardar", test_guardar);
+        1:  502:    CU_add_test(suite, "test_verificarRisca", test_verificarRisca);
+        1:  503:    CU_add_test(suite, "test_verificaBranco", test_verificaBranco);
+        1:  504:    CU_add_test(suite, "test_verifica", test_verifica);
+        1:  505:    CU_add_test(suite, "test_inicializarPilha", test_inicializarPilha);
+        1:  506:    CU_add_test(suite, "test_verificaConectividade", test_verificaConectividade);
+        1:  507:    CU_add_test(suite, "test_dfs", test_dfs);
+        -:  508:
+        -:  509:
+        1:  510:    CU_basic_set_mode(CU_BRM_VERBOSE);
+        1:  511:    CU_basic_run_tests();
+        1:  512:    CU_cleanup_registry();
+        1:  513:    return CU_get_error();
+        -:  514:}

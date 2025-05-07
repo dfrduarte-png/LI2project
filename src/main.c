@@ -8,10 +8,6 @@ int main() {
     char acao, col;
     char ficheiro[25];
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/main
     // Inicializando a pilha para armazenar as jogadas
     Pilha pilha;
     inicializarPilha(&pilha, 10);
