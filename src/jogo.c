@@ -371,6 +371,49 @@ void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
     //ler(tab);
 }
 
+int vizinhosBrancos(Tabuleiro *tab, Pilha *pilha, int lin, int col) {
+    int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // cima, baixo, esquerda, direita
+    for (int i = 0; i < 4; i++) {
+        int newLin = lin + direcoes[i][0];
+        int newCol = col + direcoes[i][1];
+        if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
+            char viz = tab->grelha[newLin][newCol];
+            if (viz == '#') return 0; // não pode ter vizinho riscado
+            if (viz >= 'a' && viz <= 'z') branco(tab, newLin, newCol, pilha); // só pintar se for minúscula
+        }
+    }
+    return 1;
+}
+
+int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
+    for (int i = 0; i < tab->linhas; i++) {
+        for (int j = 0; j < tab->colunas; j++) {
+            char c = tab->grelha[i][j];
+
+            if (c >= 'A' && c <= 'Z') {
+                char original = c + ('a' - 'A'); // Converte para minúscula
+
+                // Riscamos duplicados na mesma linha
+                for (int col = 0; col < tab->colunas; col++) {
+                    if (col != j && tab->grelha[i][col] == original) {
+                        riscar(tab, i, col, pilha);
+                        if (!vizinhosBrancos(tab, pilha, i, col)) return 0;
+                    }
+                }
+
+                // Riscamos duplicados na mesma coluna
+                for (int lin = 0; lin < tab->linhas; lin++) {
+                    if (lin != i && tab->grelha[lin][j] == original) {
+                        riscar(tab, lin, j, pilha);
+                        if (!vizinhosBrancos(tab, pilha, lin, j)) return 0;
+                    }
+                }
+            }
+        }
+    }
+    return 1; // Se correu tudo bem
+}
+
 int verificaBranco2(Tabuleiro* tab) {
     // Verificar se há brancos duplicados
     for (int i = 0; i < tab->linhas; i++) {
