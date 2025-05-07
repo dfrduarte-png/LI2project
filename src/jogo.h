@@ -38,6 +38,10 @@ void empurrarPilha(Pilha* pilha, int lin, int col, char anterior, char tipo);
 void freePilha(Pilha* pilha);
 void guardar(Tabuleiro* tab, Pilha* pilha, const char* ficheiro);
 void desfazer(Tabuleiro* tab, Pilha* pilha);
-void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int i, int j);
+void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont);
+void resolver(Tabuleiro* tab, Pilha* pilha);
+void redimensionarPilha(Pilha* pilha);
+int verificaConectividade(Tabuleiro* tab);
+void dfs(Tabuleiro* tab, int lin, int col, int visitado[tab->linhas][tab->colunas]);
 
 #endif
