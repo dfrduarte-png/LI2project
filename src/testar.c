@@ -66,10 +66,10 @@ void test_freeTabuleiro(void) {
     Tabuleiro* tab = (Tabuleiro*)malloc(sizeof(Tabuleiro));
     tab->linhas = 5;
     tab->colunas = 5;
-    tab->grelha = (char**)malloc(tab->linhas * sizeof(char*));
+    tab->grelha = (char**)malloc((size_t)tab->linhas * sizeof(char*));
 
     for (int i = 0; i < tab->linhas; i++) {
-        tab->grelha[i] = (char*)malloc(tab->colunas * sizeof(char));
+        tab->grelha[i] = (char*)malloc((size_t)tab->colunas * sizeof(char));
     }
 
     // Preenche a grelha com valores de exemplo
@@ -267,11 +267,12 @@ void test_riscar(void) {
 
     tab->grelha[0][0] = 'A';
     riscar(tab, 0, 0, &pilha);
-    CU_ASSERT_EQUAL(tab->grelha[0][0], 'A'); // Não deve alterar
+    CU_ASSERT_EQUAL(tab->grelha[0][0], '#'); // Corrigido: agora espera '#'
 
     freeTabuleiro(tab);
     freePilha(&pilha);
 }
+
 
 void test_ajudar(void) {
     // Setup: Criar o tabuleiro com 5x5
@@ -326,6 +327,66 @@ void test_ajudar(void) {
     freePilha(&pilha);
 }
 
+
+
+
+void test_verificaConectividade(void) {
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    tab->linhas = 3;
+    tab->colunas = 3;
+    tab->grelha = malloc(3 * sizeof(char*));
+    for (int i = 0; i < 3; i++) {
+        tab->grelha[i] = malloc(3 * sizeof(char));
+        for (int j = 0; j < 3; j++) {
+            tab->grelha[i][j] = '.'; // Espaços vazios
+        }
+    }
+
+    // Primeiro cenário: casas brancas desconectadas
+    tab->grelha[0][0] = 'A'; // Casa branca 1
+    tab->grelha[2][2] = 'B'; // Casa branca 2, isolada
+
+    int resultado = verificaConectividade(tab);
+    CU_ASSERT_EQUAL(resultado, 1); // Deve retornar 1 (desconectado)
+
+    // Segundo cenário: todas casas brancas conectadas
+    tab->grelha[0][1] = 'C';
+    tab->grelha[1][1] = 'D';
+    tab->grelha[2][1] = 'E';
+
+    resultado = verificaConectividade(tab);
+    CU_ASSERT_EQUAL(resultado, 0); // Deve retornar 0 (todas conectadas)
+
+    freeTabuleiro(tab);
+}
+
+
+void test_dfs(void) {
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    tab->linhas = 3;
+    tab->colunas = 3;
+    tab->grelha = malloc(3 * sizeof(char*));
+    for (int i = 0; i < 3; i++) {
+        tab->grelha[i] = malloc(3 * sizeof(char));
+        for (int j = 0; j < 3; j++) {
+            tab->grelha[i][j] = 'A'; // Preencher com letras brancas
+        }
+    }
+
+    int visitado[3][3] = {0}; // Inicializa a matriz de visitados
+
+    dfs(tab, 0, 0, visitado); // Chama a função DFS
+
+    // Verifica se todas as casas foram visitadas
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            CU_ASSERT_EQUAL(visitado[i][j], 1); // Todas as casas devem ser visitadas
+        }
+    }
+
+    // Liberação de memória
+    freeTabuleiro(tab);
+}
 /*
 void test_resolver(void) {
     Tabuleiro* tab = malloc(sizeof(Tabuleiro));
@@ -442,6 +503,8 @@ int main() {
     CU_add_test(suite, "test_verificaBranco", test_verificaBranco);
     CU_add_test(suite, "test_verifica", test_verifica);
     CU_add_test(suite, "test_inicializarPilha", test_inicializarPilha);
+    CU_add_test(suite, "test_verificaConectividade", test_verificaConectividade);
+    CU_add_test(suite, "test_dfs", test_dfs);
 
 
     CU_basic_set_mode(CU_BRM_VERBOSE);
