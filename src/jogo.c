@@ -81,7 +81,7 @@ void branco(Tabuleiro* tab, int lin, int col, Pilha* pilha) {
     }
 
     char c = tab->grelha[lin][col];
-    if (c == '#' || (c >= 'A' && c <= 'Z')) return; // já branco ou riscado
+    if (c == '#' || (c >= 'A' && c <= 'Z')) return; // já riscado ou branco
 
     empurrarPilha(pilha, lin, col, c, 'b');
     tab->grelha[lin][col] = (char)toupper((unsigned char)c);
@@ -216,7 +216,6 @@ int verifica (Tabuleiro* tab, int vprintar) {
             else if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') r |= verificarBranco(tab, i, j, vprintar);
         }
     }
-    r |= verificaConectividade(tab, vprintar);
     return r;
 }
 
@@ -388,19 +387,17 @@ int riscaEverifica(Tabuleiro *tab, Pilha *pilha) {
 
 
 int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
-    int r = 0;
     for (int i = 0; i < tab->linhas; i++) {
         for (int j = 0; j < tab->colunas; j++) {
             char c = tab->grelha[i][j];
 
             if (c >= 'A' && c <= 'Z') {
-                char original = c + ('a' - 'A');
+                char original = c + ('a' - 'A'); // Converte para minúscula
 
                 // Riscamos duplicados na mesma linha
                 for (int col = 0; col < tab->colunas; col++) {
                     if (col != j && tab->grelha[i][col] == original) {
                         riscar(tab, i, col, pilha);
-                        r = 1;
                         if (!vizinhosBrancos(tab, pilha, i, col)) return 0;
                     }
                 }
@@ -409,17 +406,16 @@ int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
                 for (int lin = 0; lin < tab->linhas; lin++) {
                     if (lin != i && tab->grelha[lin][j] == original) {
                         riscar(tab, lin, j, pilha);
-                        r = 1;
                         if (!vizinhosBrancos(tab, pilha, lin, j)) return 0;
                     }
                 }
             }
         }
     }
-    return r;
+    return 1; // Se correu tudo bem
 }
 
-int brancoEverifica(Tabuleiro* tab) {
+int verificaBranco2(Tabuleiro* tab) {
     // Verificar se há brancos duplicados
     for (int i = 0; i < tab->linhas; i++) {
         for (int j = 0; j < tab->colunas; j++) {
@@ -444,16 +440,14 @@ int brancoEverifica(Tabuleiro* tab) {
             if (cima && baixo && esquerda && direita) return 0;
         }
     }
-
-    // Verificar conectividade de todas as brancas
-    return verificaConectividade(tab, 0) == 0;
+    return 1; // Se não houver duplicados ou cercados
 }
 
 
 
-void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar) {
-    for (int i = 0; i < tab->linhas; i++) {
-        for (int j = 0; j < tab->colunas; j++) {
+void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
+    for (int i = in; i < tab->linhas; i++) {
+        for (int j = jn; j < tab->colunas; j++) {
             char c = tab->grelha[i][j];
 
             // Se for uma letra por decidir (minúscula)
@@ -464,10 +458,9 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar) {
                 riscar(tab, i, j, pilha);
                 if (vizinhosBrancos(tab, pilha, i, j) &&
                     riscarDuplicados(tab, pilha) &&
-                    brancoEverifica(tab) &&
-                    !verifica(tab, vprintar)) {
+                    verificaBranco2(tab)) {
 
-                    resolver(tab, pilha, vprintar); // tenta resolver a seguir
+                    resolver(tab, pilha, vprintar, i, j); // tenta resolver a seguir
 
                     if (!verifica(tab, vprintar)) return; // encontrou solução
                 }
@@ -479,10 +472,9 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar) {
                 marcador = pilha->topo;
                 branco(tab, i, j, pilha);
                 if (riscarDuplicados(tab, pilha) &&
-                    brancoEverifica(tab) &&
-                    !verifica(tab, vprintar)) {
+                   verificaBranco2(tab)) {
 
-                    resolver(tab, pilha, vprintar);
+                    resolver(tab, pilha, vprintar, i, j); // tenta resolver a seguir
 
                     if (!verifica(tab, vprintar)) return;
                 }
@@ -492,6 +484,7 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar) {
 
                 return; // nenhuma opção deu certo, volta (backtrack)
             }
+            jn = 0; // Reseta jn para 0 após cada linha
         }
     }
 
