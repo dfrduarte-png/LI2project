@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include "jogo.h"
 
 Tabuleiro* carregar(const char* ficheiro, Pilha* pilha) {
@@ -78,13 +75,7 @@ void ler(Tabuleiro* tab) {
 }
 
 void branco(Tabuleiro* tab, int lin, int col, Pilha* pilha) { 
-    if (tab->grelha[lin][col] >= 'A' && tab->grelha[lin][col] <= 'Z') {
-        printf("Posição já preenchida!\n");
-    }
-    else if (tab->grelha[lin][col] == '#') {
-        printf("Posição já riscada! Tente de novo.\n");
-    }
-    else if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
+    if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
         empurrarPilha(pilha, lin, col, tab->grelha[lin][col], 'b');
         tab->grelha[lin][col] = (char)toupper((unsigned char)tab->grelha[lin][col]);
     } else {
@@ -92,13 +83,7 @@ void branco(Tabuleiro* tab, int lin, int col, Pilha* pilha) {
     }
 }
 void riscar(Tabuleiro* tab, int lin, int col, Pilha* pilha) {
-    if (tab->grelha[lin][col] >= 'A' && tab->grelha[lin][col] <= 'Z') {
-        printf("Posição já preenchida! Tente de novo.\n");
-    }
-    else if (tab->grelha[lin][col] == '#') {
-        printf("Posição já riscada!\n");
-    }
-    else if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
+    if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
         empurrarPilha(pilha, lin, col, tab->grelha[lin][col], 'r');
         tab->grelha[lin][col] = '#';
         return;
@@ -159,7 +144,7 @@ int verificarRisca(Tabuleiro* tab, int lin, int col) {
 
         if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
             if (tab->grelha[newLin][newCol] < 'A' || tab->grelha[newLin][newCol] > 'Z') {
-                printf("Se a posição (%c, %d) está riscada a posição (%c, %d) deve ser branca!\n",lin + 'a', col + 1, newCol + 'a', newLin + 1);
+                printf("Se a posição (%c, %d) está riscada a posição (%c, %d) deve ser branca!\n",col + 'a', lin + 1, newCol + 'a', newLin + 1);
                 r = 1;
             }
         }
@@ -167,6 +152,56 @@ int verificarRisca(Tabuleiro* tab, int lin, int col) {
     return r;
     // return 0; // Se não encontrar nenhuma correspondência
     // return 1; // Se encontrar correspondência
+}
+
+void dfs(Tabuleiro* tab, int lin, int col, int visitado[tab->linhas][tab->colunas]) {
+    if (lin < 0 || lin >= tab->linhas || col < 0 || col >= tab->colunas) return;
+    if (visitado[lin][col]) return;
+    if (tab->grelha[lin][col] < 'A' || tab->grelha[lin][col] > 'Z') return; // Não é branco
+
+    visitado[lin][col] = 1;
+
+    dfs(tab, lin - 1, col, visitado); // cima
+    dfs(tab, lin + 1, col, visitado); // baixo
+    dfs(tab, lin, col - 1, visitado); // esquerda
+    dfs(tab, lin, col + 1, visitado); // direita
+}
+
+int verificaConectividade(Tabuleiro* tab) {
+    int visitado[tab->linhas][tab->colunas];
+    memset(visitado, 0, sizeof(visitado));
+
+    // Encontrar a primeira casa branca
+    int encontrou = 0, startLin = 0, startCol = 0;
+    for (int i = 0; i < tab->linhas && !encontrou; i++) {
+        for (int j = 0; j < tab->colunas && !encontrou; j++) {
+            if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') {
+                startLin = i;
+                startCol = j;
+                encontrou = 1;
+            }
+        }
+    }
+
+    if (!encontrou) {
+        return 0; // Não há casas brancas, considerado válido
+    }
+
+    // Iniciar DFS
+    dfs(tab, startLin, startCol, visitado); // modifica visitado para marcar as casas visitadas
+
+    // Verificar se todas as casas brancas foram visitadas
+    for (int i = 0; i < tab->linhas; i++) {
+        for (int j = 0; j < tab->colunas; j++) {
+            if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z' && !visitado[i][j]) {
+                printf("Casa branca (%c, %d) está desconectada!\n", j + 'a', i + 1);
+                return 1; // Conectividade quebrada
+            }
+        }
+    }
+
+    printf("Todas as casas brancas estão conectadas!\n");
+    return 0; // Tudo certo
 }
 
 int verifica (Tabuleiro* tab) {
@@ -177,20 +212,16 @@ int verifica (Tabuleiro* tab) {
             else if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') r += verificarBranco(tab, i, j);
         }
     }
+    r += verificaConectividade(tab);
     return r;
 }
 
+// Função para inicializar a pilha
 void inicializarPilha(Pilha* pilha, int capacidade) {
-    pilha->capacidade = capacidade;
+    pilha->jogadas = malloc((size_t)capacidade * sizeof(Jogada));
     pilha->topo = -1;
-    pilha->jogadas = (Jogada*)malloc(capacidade * sizeof(Jogada)); // Alocando memória
-    if (pilha->jogadas == NULL) {
-        printf("Erro ao alocar memória para a pilha\n");
-        exit(1);
-    }
+    pilha->capacidade = capacidade;
 }
-
-
 
 void redimensionarPilha(Pilha* pilha) {
     pilha->capacidade *= 2; // Dobra a capacidade
@@ -203,19 +234,11 @@ void redimensionarPilha(Pilha* pilha) {
 }
 
 void freePilha(Pilha* pilha) {
-    if (pilha->jogadas != NULL) {
-        free(pilha->jogadas);  // Libera a memória alocada para as jogadas
-        pilha->jogadas = NULL;  // Evita o uso de um ponteiro pendente
-    }
+    free(pilha->jogadas);
 }
-
-
-
 
 // Função para adicionar uma jogada à pilha
 void empurrarPilha(Pilha* pilha, int lin, int col, char anterior, char tipo) {
-
-    
     // Verifica se a pilha está cheia
     if (pilha->topo == pilha->capacidade - 1) {
         redimensionarPilha(pilha); // Redimensiona a pilha se necessário
@@ -371,8 +394,8 @@ void resolver(Tabuleiro* tab, Pilha* pilha) {
                     branco(tab, i, col, pilha);
                 }
             }
-            if (contagem) free(contagem);
-            if (ultimaColuna) free(ultimaColuna);
+            free(contagem);
+            free(ultimaColuna);
         }
 
         for (int j = 0; j < tab->colunas; j++) {
@@ -397,8 +420,8 @@ void resolver(Tabuleiro* tab, Pilha* pilha) {
                     branco(tab, lin, j, pilha);
                 }
             }
-            if (contagem) free(contagem);
-            if (ultimaLinha) free(ultimaLinha);
+            free(contagem);
+            free(ultimaLinha);
         }
 
         // Regra 3: Se uma letra minuscula aparece só uma vez na linha, riscar
