@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+
 // Estrutura para guardar o tabuleiro e o seu tamanho
 typedef struct {
     int linhas;
@@ -22,8 +23,10 @@ typedef struct {
     Jogada* jogadas;
     int topo;
     int capacidade;
+    int numJogadasR; // numero de jogadas feitas pela funcao resolver
 } Pilha;
 
+// Funções que utilizam Pilha* (ponteiro para Pilha)
 Tabuleiro* carregar(const char* ficheiro, Pilha* pilha);
 void ler(Tabuleiro* tab);
 void branco(Tabuleiro* tab, int lin, int col, Pilha* pilha);
