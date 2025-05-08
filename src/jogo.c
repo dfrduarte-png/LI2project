@@ -76,8 +76,6 @@ void ler(Tabuleiro* tab) {
 
 void branco(Tabuleiro* tab, int lin, int col, Pilha* pilha) {
     if (lin < 0 || lin >= tab->linhas || col < 0 || col >= tab->colunas) {
-        empurrarPilha(pilha, lin, col, tab->grelha[lin][col], 'b');
-        tab->grelha[lin][col] = (char)toupper((unsigned char)tab->grelha[lin][col]);
         printf("Posição inválida! Tente de novo.\n");
         return;
     }
@@ -91,8 +89,6 @@ void branco(Tabuleiro* tab, int lin, int col, Pilha* pilha) {
 
 void riscar(Tabuleiro* tab, int lin, int col, Pilha* pilha) {
     if (lin < 0 || lin >= tab->linhas || col < 0 || col >= tab->colunas) {
-        empurrarPilha(pilha, lin, col, tab->grelha[lin][col], 'r');
-        tab->grelha[lin][col] = '#';
         printf("Posição inválida! Tente de novo.\n");
         return;
     }
@@ -180,56 +176,6 @@ void dfs(Tabuleiro* tab, int lin, int col, int visitado[tab->linhas][tab->coluna
     dfs(tab, lin, col + 1, visitado); // direita
 }
 
-int verificaConectividade(Tabuleiro* tab) {
-    int visitado[tab->linhas][tab->colunas];
-    memset(visitado, 0, sizeof(visitado));
-
-    // Encontrar a primeira casa branca
-    int encontrou = 0, startLin = 0, startCol = 0;
-    for (int i = 0; i < tab->linhas && !encontrou; i++) {
-        for (int j = 0; j < tab->colunas && !encontrou; j++) {
-            if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') {
-                startLin = i;
-                startCol = j;
-                encontrou = 1;
-            }
-        }
-    }
-
-    if (!encontrou) {
-        return 0; // Não há casas brancas, considerado válido
-    }
-
-    // Iniciar DFS
-    dfs(tab, startLin, startCol, visitado); // modifica visitado para marcar as casas visitadas
-
-    // Verificar se todas as casas brancas foram visitadas
-    for (int i = 0; i < tab->linhas; i++) {
-        for (int j = 0; j < tab->colunas; j++) {
-            if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z' && !visitado[i][j]) {
-                printf("Casa branca (%c, %d) está desconectada!\n", j + 'a', i + 1);
-                return 1; // Conectividade quebrada
-            }
-        }
-    }
-
-    printf("Todas as casas brancas estão conectadas!\n");
-    return 0; // Tudo certo
-}
-
-void dfs(Tabuleiro* tab, int lin, int col, int visitado[tab->linhas][tab->colunas]) {
-    if (lin < 0 || lin >= tab->linhas || col < 0 || col >= tab->colunas) return;
-    if (visitado[lin][col]) return;
-    if (tab->grelha[lin][col] < 'A' || tab->grelha[lin][col] > 'Z') return; // Não é branco
-
-    visitado[lin][col] = 1;
-
-    dfs(tab, lin - 1, col, visitado); // cima
-    dfs(tab, lin + 1, col, visitado); // baixo
-    dfs(tab, lin, col - 1, visitado); // esquerda
-    dfs(tab, lin, col + 1, visitado); // direita
-}
-
 int verificaConectividade(Tabuleiro* tab, int vprintar) {
     int visitado[tab->linhas][tab->colunas];
     memset(visitado, 0, sizeof(visitado));
@@ -275,7 +221,7 @@ int verifica (Tabuleiro* tab, int vprintar) {
             else if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') r |= verificarBranco(tab, i, j, vprintar);
         }
     }
-    r += verificaConectividade(tab);
+    r += verificaConectividade(tab, vprintar);
     return r;
 }
 
@@ -386,7 +332,6 @@ void desfazer(Tabuleiro* tab, Pilha* pilha) {
     }
 }
 
-
 void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
     *cont = 0;
     int linhas = tab->linhas;
@@ -446,7 +391,10 @@ int vizinhosBrancos(Tabuleiro *tab, Pilha *pilha, int lin, int col) {
         if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
             char viz = tab->grelha[newLin][newCol];
             if (viz == '#') return 0; // não pode ter vizinho riscado
-            if (viz >= 'a' && viz <= 'z') branco(tab, newLin, newCol, pilha); // só pintar se for minúscula
+            if (viz >= 'a' && viz <= 'z') {
+                branco(tab, newLin, newCol, pilha); // só pintar se for minúscula
+                pilha->numJogadasR++; // incrementa o numero de jogadas feitas
+            }
         }
     }
     return 1;
@@ -464,6 +412,7 @@ int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
                 for (int col = 0; col < tab->colunas; col++) {
                     if (col != j && tab->grelha[i][col] == original) {
                         riscar(tab, i, col, pilha);
+                        pilha->numJogadasR++; // incrementa o numero de jogadas feitas
                         if (!vizinhosBrancos(tab, pilha, i, col)) return 0;
                     }
                 }
@@ -472,6 +421,7 @@ int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
                 for (int lin = 0; lin < tab->linhas; lin++) {
                     if (lin != i && tab->grelha[lin][j] == original) {
                         riscar(tab, lin, j, pilha);
+                        pilha->numJogadasR++; // incrementa o numero de jogadas feitas
                         if (!vizinhosBrancos(tab, pilha, lin, j)) return 0;
                     }
                 }
@@ -509,8 +459,6 @@ int verificaBranco2(Tabuleiro* tab) {
     return 1; // Se não houver duplicados ou cercados
 }
 
-
-
 void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
     for (int i = in; i < tab->linhas; i++) {
         for (int j = jn; j < tab->colunas; j++) {
@@ -522,6 +470,7 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
 
                 // --- TENTAR RISCAR ---
                 riscar(tab, i, j, pilha);
+                pilha->numJogadasR++; // incrementa o numero de jogadas feitas
                 if (vizinhosBrancos(tab, pilha, i, j) &&
                     riscarDuplicados(tab, pilha) &&
                     verificaBranco2(tab)) {
@@ -532,11 +481,15 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
                 }
 
                 // desfaz tentativa de riscar
-                while (pilha->topo > marcador) desfazer(tab, pilha);
+                while (pilha->topo > marcador) {
+                    desfazer(tab, pilha);
+                    pilha->numJogadasR--; // decrementa o numero de jogadas feitas
+                }
 
                 // --- TENTAR BRANCO ---
                 marcador = pilha->topo;
                 branco(tab, i, j, pilha);
+                pilha->numJogadasR++; // incrementa o numero de jogadas feitas
                 if (riscarDuplicados(tab, pilha) &&
                    verificaBranco2(tab)) {
 
@@ -546,7 +499,10 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
                 }
 
                 // desfaz tentativa de branco
-                while (pilha->topo > marcador) desfazer(tab, pilha);
+                while (pilha->topo > marcador) {
+                    desfazer(tab, pilha);
+                    pilha->numJogadasR--; // decrementa o numero de jogadas feitas
+                }
 
                 return; // nenhuma opção deu certo, volta (backtrack)
             }
