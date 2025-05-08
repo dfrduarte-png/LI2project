@@ -144,7 +144,7 @@ void test_verificarRisca(void) {
     tab->grelha[1][0] = 'b';
     tab->grelha[1][1] = 'c';
 
-    int resultado = verificarRisca(tab, 0, 0);
+    int resultado = verificarRisca(tab, 0, 0, 0);
     CU_ASSERT_EQUAL(resultado, 1); // Deve retornar 1 pois a casa (0,0) é riscada
 
     freeTabuleiro(tab);
@@ -162,7 +162,7 @@ void test_verificaBranco(void){
     tab->grelha[1][0] = 'c';
     tab->grelha[1][1] = 'd';
 
-    int resultado = verificarBranco(tab, 0, 0);
+    int resultado = verificarBranco(tab, 0, 0, 0);
     CU_ASSERT_EQUAL(resultado,0); // Deve retornar 0 pois a casa (0,0)   é branca
 
     freeTabuleiro(tab);
@@ -181,7 +181,7 @@ void test_verifica(void){
     tab->grelha[1][0] = 'C';
     tab->grelha[1][1] = 'D';
 
-    int resultado = verifica(tab);
+    int resultado = verifica(tab, 0);
     CU_ASSERT_EQUAL(resultado, 0); // Deve retornar 0 pois o tabuleiro está correto
 
     freeTabuleiro(tab);
@@ -346,7 +346,7 @@ void test_verificaConectividade(void) {
     tab->grelha[0][0] = 'A'; // Casa branca 1
     tab->grelha[2][2] = 'B'; // Casa branca 2, isolada
 
-    int resultado = verificaConectividade(tab);
+    int resultado = verificaConectividade(tab, 0);
     CU_ASSERT_EQUAL(resultado, 1); // Deve retornar 1 (desconectado)
 
     // Segundo cenário: todas casas brancas conectadas
@@ -354,7 +354,7 @@ void test_verificaConectividade(void) {
     tab->grelha[1][1] = 'D';
     tab->grelha[2][1] = 'E';
 
-    resultado = verificaConectividade(tab);
+    resultado = verificaConectividade(tab, 0);
     CU_ASSERT_EQUAL(resultado, 0); // Deve retornar 0 (todas conectadas)
 
     freeTabuleiro(tab);
