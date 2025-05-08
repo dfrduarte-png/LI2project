@@ -50,20 +50,40 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            else if (!verifica(tab)) printf("O jogo está válido!\n"); //se a função verifica == 0, o jogo está valido
+            else if (!verifica(tab, 1) && !verificaConectividade(tab, 1)) printf("O jogo está válido!\n"); //se a função verifica == 0, o jogo está valido
         }
-        else if (acao == 'a') {// Implementar a função de ajuda
+        else if (acao == 'a') {
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
+            int cont = 0; // Só posto para não dar erro
+            ajudar(tab, &pilha, &cont); // Implementar a função ajudar, o 0 não muda nada
         }
+<<<<<<< HEAD
+=======
+        
+        else if (acao == 'A') {
+            if (!tab) {
+                printf("Tabuleiro não carregado! Tente novamente.\n");
+                continue;
+            }
+            int cont = 1;
+            while (cont) {
+                ajudar(tab, &pilha, &cont);
+            }
+        }
+>>>>>>> main
         else if (acao == 'R') {// Implementar a função resolver
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
+<<<<<<< HEAD
             resolver(tab, pilha);
+=======
+            resolver(tab, &pilha, 0, 0, 0);
+>>>>>>> main
         }
         else if (acao == 'd') {
             if (!tab) {
@@ -84,19 +104,31 @@ int main() {
                 continue;
             }
             int coluna = col - 'a'; // Converter letra para índice
-            if (coluna < 0 || coluna >= tab->colunas || lin - 1 < 0 || lin - 1 >= tab->linhas) {
+            int linha = lin - 1; // Converter linha para índice
+            if (coluna < 0 || coluna >= tab->colunas || linha < 0 || linha >= tab->linhas) {
                 printf("Posição inválida! Tente novamente.\n");
                 continue;
             }
+<<<<<<< HEAD
             else if (tab->grelha[lin - 1][coluna] >= 'A' && tab->grelha[lin - 1][coluna] <= 'Z') {
                 printf("Posição já preenchida!\n");
             }
             else if (tab->grelha[lin - 1][coluna] == '#') {
+=======
+            else if (tab->grelha[linha][coluna] >= 'A' && tab->grelha[linha][coluna] <= 'Z') {
+                printf("Posição já preenchida!\n");
+            }
+            else if (tab->grelha[linha][coluna] == '#') {
+>>>>>>> main
                 printf("Posição já riscada! Tente de novo.\n");
             }
             else {
                 printf("\n");
+<<<<<<< HEAD
                 branco(tab, lin - 1, coluna, pilha);
+=======
+                branco(tab, lin - 1, coluna, &pilha);
+>>>>>>> main
             }
         } 
         else if (acao == 'r') {
@@ -118,12 +150,20 @@ int main() {
             else if (tab->grelha[linha][coluna] == '#') {
                 printf("Posição já riscada!\n");
             }
+<<<<<<< HEAD
             else if (coluna < 0 || coluna >= tab->colunas || linha < 0 || linha >= tab->linhas) {
+=======
+            else if (coluna < 0 || coluna >= tab->colunas || lin - 1 < 0 || lin - 1 >= tab->linhas) {
+>>>>>>> main
                 printf("Posição inválida! Tente novamente.\n");
             }
             else {
                 printf("\n");
+<<<<<<< HEAD
                 riscar(tab, linha, coluna, pilha);
+=======
+                riscar(tab, linha, coluna, &pilha);
+>>>>>>> main
             }
         }
         else if (acao == 'A') {
