@@ -231,6 +231,7 @@ void inicializarPilha(Pilha* pilha, int capacidade) {
     pilha->topo = -1;
     pilha->capacidade = capacidade;
     pilha->numJogadasR = 0; // Inicializa o contador
+    pilha->resolverConcluido = 0; // Inicializa o estado da função resolver
 }
 
 void redimensionarPilha(Pilha* pilha) {
@@ -316,7 +317,7 @@ void desfazer(Tabuleiro* tab, Pilha* pilha) {
     }
 
     // Se houver jogadas feitas pela função resolver, desfaz todas elas
-    if (pilha->numJogadasR > 0) {
+    if (pilha->resolverConcluido && pilha->numJogadasR > 0) {
         printf("Desfazendo todas as jogadas feitas pela função resolver...\n");
         while (pilha->numJogadasR > 0 && pilha->topo >= 0) {
             Jogada ultimaJogada = pilha->jogadas[pilha->topo--];
@@ -460,6 +461,7 @@ int verificaBranco2(Tabuleiro* tab) {
 }
 
 void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
+    pilha->resolverConcluido = 0; // para saber quando devo desfazer um bloco ou nao na funcao desfazer
     for (int i = in; i < tab->linhas; i++) {
         for (int j = jn; j < tab->colunas; j++) {
             char c = tab->grelha[i][j];
@@ -509,4 +511,5 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
             jn = 0; // Reseta jn para 0 após cada linha
         }
     }
+    pilha->resolverConcluido = 1;
 }
