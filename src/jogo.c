@@ -461,7 +461,6 @@ int verificaBranco2(Tabuleiro* tab) {
 }
 
 void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
-    pilha->resolverConcluido = 0; // para saber quando devo desfazer um bloco ou nao na funcao desfazer
     for (int i = in; i < tab->linhas; i++) {
         for (int j = jn; j < tab->colunas; j++) {
             char c = tab->grelha[i][j];
@@ -511,5 +510,4 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
             jn = 0; // Reseta jn para 0 após cada linha
         }
     }
-    pilha->resolverConcluido = 1;
 }
