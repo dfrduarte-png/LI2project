@@ -87,6 +87,12 @@ void test_freePilha(void) {
     inicializarPilha(&pilha, 1);  // Aloca a pilha
 
     // Realize as operações necessárias no teste...
+    empurrarPilha(&pilha, 0, 0, 'x', 'y');
+    CU_ASSERT_EQUAL(pilha.topo, 0);
+    CU_ASSERT_EQUAL(pilha.jogadas[0].lin, 0);
+    CU_ASSERT_EQUAL(pilha.jogadas[0].col, 0);
+    CU_ASSERT_EQUAL(pilha.jogadas[0].anterior, 'x');
+    CU_ASSERT_EQUAL(pilha.jogadas[0].tipo, 'y');
     
     // Verifique se a pilha está sendo limpa corretamente
     freePilha(&pilha); // Libere a memória da pilha
@@ -119,14 +125,38 @@ void test_empurrarPilha(void) {
     freePilha(&pilha);
 }
 
+void test_guardar(void){
+    // Setup: Criar o tabuleiro com 5x5
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    tab->linhas = 5;
+    tab->colunas = 5;
+    tab->grelha = malloc(5 * sizeof(char*));
+    for (int i = 0; i < 5; i++) {
+        tab->grelha[i] = malloc(5 * sizeof(char));
+        for (int j = 0; j < 5; j++) {
+            tab->grelha[i][j] = (char)('a' + (i + j) % 26); // Preencher com letras aleatórias
+        }
+    }
 
-void test_guardar(void) {
+    // Criar a pilha
     Pilha pilha;
     inicializarPilha(&pilha, 10);
 
-    // Realizar operações no jogo aqui...
+    // Adicionar jogadas à pilha
+    empurrarPilha(&pilha, 0, 0, 'a', 'b');
+    empurrarPilha(&pilha, 1, 1, 'c', 'd');
 
-    // Após o uso, liberar a memória
+    // Chamar a função a ser testada
+    guardar(tab, &pilha, "output.txt");
+
+    // Verificar se o arquivo foi criado corretamente
+    FILE* f = fopen("output.txt", "r");
+    CU_ASSERT_PTR_NOT_NULL(f);
+
+    fclose(f);
+    
+    // Liberação de memória
+    freeTabuleiro(tab);
     freePilha(&pilha);
 }
 

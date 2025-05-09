@@ -401,7 +401,7 @@ int verificaBranco2(Tabuleiro* tab) {
 
 
 
-/*
+
 void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
     for (int i = in; i < tab->linhas; i++) {
         for (int j = jn; j < tab->colunas; j++) {
@@ -445,4 +445,3 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
         }
     }
 }
-*/
