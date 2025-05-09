@@ -372,35 +372,36 @@ void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
 }
 
 int verificaBranco2(Tabuleiro* tab) {
-    // Verificar se há brancos duplicados
+    // Verifica se há letras duplicadas ou letras cercadas por #
     for (int i = 0; i < tab->linhas; i++) {
         for (int j = 0; j < tab->colunas; j++) {
             char atual = tab->grelha[i][j];
-            if (atual < 'A' || atual > 'Z') continue;
+            if (atual < 'A' || atual > 'Z') continue; // Ignora se não for letra
 
-            // Verificar duplicados na mesma linha
+            // Verifica duplicatas na mesma linha
             for (int jj = j + 1; jj < tab->colunas; jj++) {
-                if (tab->grelha[i][jj] == atual) return 0;
+                if (tab->grelha[i][jj] == atual) return 1; // ERRO: duplicata
             }
 
-            // Verificar duplicados na mesma coluna
+            // Verifica duplicatas na mesma coluna
             for (int ii = i + 1; ii < tab->linhas; ii++) {
-                if (tab->grelha[ii][j] == atual) return 0;
+                if (tab->grelha[ii][j] == atual) return 1; // ERRO: duplicata
             }
 
-            // Verificar se está cercado por #
-            int cima    = (i > 0) ? tab->grelha[i - 1][j] == '#' : 1;
-            int baixo   = (i < tab->linhas - 1) ? tab->grelha[i + 1][j] == '#' : 1;
-            int esquerda= (j > 0) ? tab->grelha[i][j - 1] == '#' : 1;
-            int direita = (j < tab->colunas - 1) ? tab->grelha[i][j + 1] == '#' : 1;
-            if (cima && baixo && esquerda && direita) return 0;
+            // Verifica se está cercado por '#'
+            int cima     = (i > 0) ? tab->grelha[i - 1][j] == '#' : 1;
+            int baixo    = (i < tab->linhas - 1) ? tab->grelha[i + 1][j] == '#' : 1;
+            int esquerda = (j > 0) ? tab->grelha[i][j - 1] == '#' : 1;
+            int direita  = (j < tab->colunas - 1) ? tab->grelha[i][j + 1] == '#' : 1;
+            if (cima && baixo && esquerda && direita) return 1; // ERRO: cercado
         }
     }
-    return 1; // Se não houver duplicados ou cercados
+    return 0; // OK: sem duplicatas nem letras cercadas
 }
 
 
 
+/*
 void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
     for (int i = in; i < tab->linhas; i++) {
         for (int j = jn; j < tab->colunas; j++) {
@@ -444,3 +445,4 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
         }
     }
 }
+*/
