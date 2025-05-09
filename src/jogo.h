@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-
 // Estrutura para guardar o tabuleiro e o seu tamanho
 typedef struct {
     int linhas;
@@ -23,11 +22,8 @@ typedef struct {
     Jogada* jogadas;
     int topo;
     int capacidade;
-    int numJogadasR; // numero de jogadas feitas pela funcao resolver
-    int resolverConcluido; // se a funcao resolver acabou
 } Pilha;
 
-// Funções que utilizam Pilha* (ponteiro para Pilha)
 Tabuleiro* carregar(const char* ficheiro, Pilha* pilha);
 void ler(Tabuleiro* tab);
 void branco(Tabuleiro* tab, int lin, int col, Pilha* pilha);
@@ -46,6 +42,5 @@ void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont);
 void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn);
 void redimensionarPilha(Pilha* pilha);
 void dfs(Tabuleiro* tab, int lin, int col, int visitado[tab->linhas][tab->colunas]);
-int riscarDuplicados(Tabuleiro* tab, Pilha* pilha);
-
+int verificaBranco2(Tabuleiro* tab);
 #endif
