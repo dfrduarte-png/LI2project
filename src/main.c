@@ -76,7 +76,9 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
+            pilha.resolverConcluido = 0; // para saber quando devo desfazer um bloco ou nao na funcao desfazer
             resolver(tab, &pilha, 0, 0, 0);
+            pilha.resolverConcluido = 1;
         }
         else if (acao == 'd') {
             if (!tab) {
