@@ -24,6 +24,7 @@ typedef struct {
     int topo;
     int capacidade;
     int numJogadasR; // numero de jogadas feitas pela funcao resolver
+    int resolverConcluido; // se a funcao resolver acabou
 } Pilha;
 
 // Funções que utilizam Pilha* (ponteiro para Pilha)
