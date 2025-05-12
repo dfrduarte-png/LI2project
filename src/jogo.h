@@ -45,4 +45,7 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn);
 void redimensionarPilha(Pilha* pilha);
 void dfs(Tabuleiro* tab, int lin, int col, int visitado[tab->linhas][tab->colunas]);
 int verificaBranco2(Tabuleiro* tab);
+int vizinhosBrancos(Tabuleiro *tab, Pilha *pilha, int lin, int col);
+int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) ;
+
 #endif

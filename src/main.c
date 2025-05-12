@@ -61,7 +61,7 @@ int main() {
             ajudar(tab, &pilha, &cont); // Implementar a função ajudar, o 0 não muda nada
         }
         
-        else if (acao == 'A') {
+        else if (acao == 'A') { 
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
