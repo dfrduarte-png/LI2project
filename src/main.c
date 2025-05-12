@@ -78,13 +78,15 @@ int main() {
                 continue;
             }
             resolver(tab, &pilha, 0, 0, 0);
+            pilha.resolverConcluido = 1;
+            if (!pilha.numJogadasR) printf("O tabuleiro pode ser resolvido!\n");
         }
         else if (acao == 'd') {
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            desfazer(tab, &pilha);  // Desfaz a última jogada
+            desfazer(tab, &pilha, 1);  // Desfaz a última jogada
         }
         else if (acao == 'b') {
             if (!tab) {

@@ -22,6 +22,8 @@ typedef struct {
     Jogada* jogadas;
     int topo;
     int capacidade;
+    int numJogadasR; // numero de jogadas feitas pela funcao resolver
+    int resolverConcluido; // se a funcao resolver acabou
 } Pilha;
 
 Tabuleiro* carregar(const char* ficheiro, Pilha* pilha);
@@ -37,7 +39,7 @@ void inicializarPilha(Pilha* pilha, int capacidade);
 void empurrarPilha(Pilha* pilha, int lin, int col, char anterior, char tipo);
 void freePilha(Pilha* pilha);
 void guardar(Tabuleiro* tab, Pilha* pilha, const char* ficheiro);
-void desfazer(Tabuleiro* tab, Pilha* pilha);
+void desfazer(Tabuleiro* tab, Pilha* pilha, int vprintar);
 void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont);
 void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn);
 void redimensionarPilha(Pilha* pilha);
