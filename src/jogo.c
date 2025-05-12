@@ -310,7 +310,7 @@ void guardar(Tabuleiro* tab, Pilha* pilha, const char* ficheiro) {
 }
 
 // Função para remover uma jogada da pilha (desfazer)
-void desfazer(Tabuleiro* tab, Pilha* pilha) {
+void desfazer(Tabuleiro* tab, Pilha* pilha, int vprintar) {
     if (pilha->topo == -1) {
         printf("Não há jogadas para desfazer!\n");
         return;
@@ -329,7 +329,7 @@ void desfazer(Tabuleiro* tab, Pilha* pilha) {
         // Desfaz apenas a última jogada
         Jogada ultimaJogada = pilha->jogadas[pilha->topo--];
         tab->grelha[ultimaJogada.lin][ultimaJogada.col] = ultimaJogada.anterior;
-        printf("Última jogada desfeita.\n");
+        if (vprintar) printf("Última jogada desfeita.\n");
     }
 }
 
@@ -483,7 +483,7 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
 
                 // desfaz tentativa de riscar
                 while (pilha->topo > marcador) {
-                    desfazer(tab, pilha);
+                    desfazer(tab, pilha, 0);
                     pilha->numJogadasR--; // decrementa o numero de jogadas feitas
                 }
 
@@ -501,7 +501,7 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
 
                 // desfaz tentativa de branco
                 while (pilha->topo > marcador) {
-                    desfazer(tab, pilha);
+                    desfazer(tab, pilha, 0);
                     pilha->numJogadasR--; // decrementa o numero de jogadas feitas
                 }
 
