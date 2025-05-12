@@ -399,8 +399,36 @@ int verificaBranco2(Tabuleiro* tab) {
     return 0; // OK: sem duplicatas nem letras cercadas
 }
 
+int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
+    for (int i = 0; i < tab->linhas; i++) {
+        for (int j = 0; j < tab->colunas; j++) {
+            char c = tab->grelha[i][j];
 
+            if (c >= 'A' && c <= 'Z') {
+                char original = c + ('a' - 'A'); // Converte para minúscula
 
+                // Riscamos duplicados na mesma linha
+                for (int col = 0; col < tab->colunas; col++) {
+                    if (col != j && tab->grelha[i][col] == original) {
+                        riscar(tab, i, col, pilha);
+                        pilha->numJogadasR++; // incrementa o numero de jogadas feitas
+                        if (!vizinhosBrancos(tab, pilha, i, col)) return 0;
+                    }
+                }
+
+                // Riscamos duplicados na mesma coluna
+                for (int lin = 0; lin < tab->linhas; lin++) {
+                    if (lin != i && tab->grelha[lin][j] == original) {
+                        riscar(tab, lin, j, pilha);
+                        pilha->numJogadasR++; // incrementa o numero de jogadas feitas
+                        if (!vizinhosBrancos(tab, pilha, lin, j)) return 0;
+                    }
+                }
+            }
+        }
+    }
+    return 1; // Se correu tudo bem
+}
 
 void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
     for (int i = in; i < tab->linhas; i++) {
