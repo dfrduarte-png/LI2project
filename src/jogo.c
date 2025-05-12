@@ -308,17 +308,28 @@ void guardar(Tabuleiro* tab, Pilha* pilha, const char* ficheiro) {
 }
 
 // Função para remover uma jogada da pilha (desfazer)
-void desfazer(Tabuleiro* tab, Pilha* pilha) {
+void desfazer(Tabuleiro* tab, Pilha* pilha, int vprintar) {
     if (pilha->topo == -1) {
         printf("Não há jogadas para desfazer!\n");
         return;
     }
 
-    Jogada ultimaJogada = pilha->jogadas[pilha->topo--];
-    tab->grelha[ultimaJogada.lin][ultimaJogada.col] = ultimaJogada.anterior;
-    printf("Última jogada desfeita.\n");
+    // Se houver jogadas feitas pela função resolver, desfaz todas elas
+    if (pilha->resolverConcluido && pilha->numJogadasR > 0) {
+        printf("Desfazendo todas as jogadas feitas pela função resolver...\n");
+        while (pilha->numJogadasR > 0 && pilha->topo >= 0) {
+            Jogada ultimaJogada = pilha->jogadas[pilha->topo--];
+            tab->grelha[ultimaJogada.lin][ultimaJogada.col] = ultimaJogada.anterior;
+            pilha->numJogadasR--; // Decrementa o contador
+        }
+        printf("Todas as jogadas feitas pela função resolver foram desfeitas.\n");
+    } else {
+        // Desfaz apenas a última jogada
+        Jogada ultimaJogada = pilha->jogadas[pilha->topo--];
+        tab->grelha[ultimaJogada.lin][ultimaJogada.col] = ultimaJogada.anterior;
+        if (vprintar) printf("Última jogada desfeita.\n");
+    }
 }
-
 
 void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
     *cont = 0;
@@ -399,8 +410,53 @@ int verificaBranco2(Tabuleiro* tab) {
     return 0; // OK: sem duplicatas nem letras cercadas
 }
 
+int vizinhosBrancos(Tabuleiro *tab, Pilha *pilha, int lin, int col) {
+    int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // cima, baixo, esquerda, direita
+    for (int i = 0; i < 4; i++) {
+        int newLin = lin + direcoes[i][0];
+        int newCol = col + direcoes[i][1];
+        if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
+            char viz = tab->grelha[newLin][newCol];
+            if (viz == '#') return 0; // não pode ter vizinho riscado
+            if (viz >= 'a' && viz <= 'z') {
+                branco(tab, newLin, newCol, pilha); // só pintar se for minúscula
+                pilha->numJogadasR++; // incrementa o numero de jogadas feitas
+            }
+        }
+    }
+    return 1;
+}
 
+int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
+    for (int i = 0; i < tab->linhas; i++) {
+        for (int j = 0; j < tab->colunas; j++) {
+            char c = tab->grelha[i][j];
 
+            if (c >= 'A' && c <= 'Z') {
+                char original = c + ('a' - 'A'); // Converte para minúscula
+
+                // Riscamos duplicados na mesma linha
+                for (int col = 0; col < tab->colunas; col++) {
+                    if (col != j && tab->grelha[i][col] == original) {
+                        riscar(tab, i, col, pilha);
+                        pilha->numJogadasR++; // incrementa o numero de jogadas feitas
+                        if (!vizinhosBrancos(tab, pilha, i, col)) return 0;
+                    }
+                }
+
+                // Riscamos duplicados na mesma coluna
+                for (int lin = 0; lin < tab->linhas; lin++) {
+                    if (lin != i && tab->grelha[lin][j] == original) {
+                        riscar(tab, lin, j, pilha);
+                        pilha->numJogadasR++; // incrementa o numero de jogadas feitas
+                        if (!vizinhosBrancos(tab, pilha, lin, j)) return 0;
+                    }
+                }
+            }
+        }
+    }
+    return 1; // Se correu tudo bem
+}
 
 void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
     for (int i = in; i < tab->linhas; i++) {
@@ -423,7 +479,10 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
                 }
 
                 // desfaz tentativa de riscar
-                while (pilha->topo > marcador) desfazer(tab, pilha);
+                while (pilha->topo > marcador) {
+                    desfazer(tab, pilha, 0);
+                    pilha->numJogadasR--; // decrementa o numero de jogadas feitas
+                }
 
                 // --- TENTAR BRANCO ---
                 marcador = pilha->topo;
@@ -437,7 +496,10 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
                 }
 
                 // desfaz tentativa de branco
-                while (pilha->topo > marcador) desfazer(tab, pilha);
+                while (pilha->topo > marcador) {
+                    desfazer(tab, pilha, 0);
+                    pilha->numJogadasR--; // decrementa o numero de jogadas feitas
+                }
 
                 return; // nenhuma opção deu certo, volta (backtrack)
             }

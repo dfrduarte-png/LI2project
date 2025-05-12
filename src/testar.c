@@ -454,7 +454,7 @@ void test_desfazer(void){
     inicializarPilha(&pilha, 10);
 
     empurrarPilha(&pilha, 0, 0, 'a', 'b');
-    desfazer(tab, &pilha);
+    desfazer(tab, &pilha, 0); // Add the missing argument(s) as required by the function definition
     CU_ASSERT_EQUAL(tab->grelha[0][0], 'a');
 
     freeTabuleiro(tab);
@@ -463,9 +463,85 @@ void test_desfazer(void){
 
 
 
+void test_resolver(void){
+    // Implementar o teste para a função resolver
+    // Exemplo de implementação:
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    tab->linhas = 2;
+    tab->colunas = 2;
+    tab->grelha = malloc(2 * sizeof(char*));
+    tab->grelha[0] = malloc(2 * sizeof(char));
+    tab->grelha[1] = malloc(2 * sizeof(char));
+    tab->grelha[0][0] = 'A';
+    tab->grelha[0][1] = 'B';
+    tab->grelha[1][0] = 'C';
+    tab->grelha[1][1] = 'D';
 
-// void testresolver(void) 
+    // Chamar a função resolver
+    resolver(tab, NULL, 0, 0, 0); // Passar NULL para a pilha se não for necessário
 
+    // Verificar o resultado esperado
+    CU_ASSERT_EQUAL(tab->grelha[0][0], 'A'); // Exemplo de verificação
+
+    freeTabuleiro(tab);
+}
+
+
+void test_riscarduplicados(void) {
+    // Implementar o teste para a função riscarDuplicados
+    // Exemplo de implementação:
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    tab->linhas = 2;
+    tab->colunas = 2;
+    tab->grelha = malloc(2 * sizeof(char*));
+    tab->grelha[0] = malloc(2 * sizeof(char));
+    tab->grelha[1] = malloc(2 * sizeof(char));
+    tab->grelha[0][0] = 'A';
+    tab->grelha[0][1] = 'B';
+    tab->grelha[1][0] = 'C';
+    tab->grelha[1][1] = 'D';
+
+    // Inicializar a pilha
+    Pilha pilha;
+    inicializarPilha(&pilha, 10);
+
+    // Chamar a função riscarDuplicados
+    riscarDuplicados(tab, &pilha); // Passar os argumentos necessários
+
+    // Liberar a memória da pilha
+    freePilha(&pilha);
+
+    // Verificar o resultado esperado
+    CU_ASSERT_EQUAL(tab->grelha[0][1], 'B'); // Exemplo de verificação
+
+    freeTabuleiro(tab);
+}
+
+void test_vizinhosbrancos(void) {
+    // Implementar o teste para a função vizinhosBrancos
+    // Exemplo de implementação:
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    tab->linhas = 2;
+    tab->colunas = 2;
+    tab->grelha = malloc(2 * sizeof(char*));
+    tab->grelha[0] = malloc(2 * sizeof(char));
+    tab->grelha[1] = malloc(2 * sizeof(char));
+    tab->grelha[0][0] = 'A';
+    tab->grelha[0][1] = 'B';
+    tab->grelha[1][0] = 'C';
+    tab->grelha[1][1] = 'D';
+
+    // Chamar a função vizinhosBrancos
+    Pilha pilha;
+    inicializarPilha(&pilha, 10); // Inicializar a pilha
+    int resultado = vizinhosBrancos(tab, &pilha, 0, 0); // Passar os argumentos necessários
+    freePilha(&pilha); // Liberar a memória da pilha
+
+    // Verificar o resultado esperado
+    CU_ASSERT_EQUAL(resultado, 1); // Exemplo de verificação
+
+    freeTabuleiro(tab);
+}
 
 int main() {
     if (CUE_SUCCESS != CU_initialize_registry())
@@ -482,7 +558,7 @@ int main() {
     CU_add_test(suite, "test_branco", test_branco);
     CU_add_test(suite, "test_riscar", test_riscar);
     CU_add_test(suite, "test_ajudar", test_ajudar);
-    // CU_add_test(suite,"test_resolver", test_resolver);
+    CU_add_test(suite,"test_resolver", test_resolver);
     CU_add_test(suite,"test_desfazer", test_desfazer);
     CU_add_test(suite, "test_freeTabuleiro", test_freeTabuleiro);
     CU_add_test(suite, "test_freePilha", test_freePilha);
@@ -496,6 +572,8 @@ int main() {
     CU_add_test(suite, "test_verificaConectividade", test_verificaConectividade);
     CU_add_test(suite, "test_dfs", test_dfs);
     CU_add_test(suite, "test_verificaBranco2", test_verificaBranco2);
+    CU_add_test(suite, "test_riscarduplicados", test_riscarduplicados);
+    CU_add_test(suite, "test_vizinhosbrancos", test_vizinhosbrancos);
 
 
     CU_basic_set_mode(CU_BRM_VERBOSE);
