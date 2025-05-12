@@ -221,7 +221,6 @@ int verifica (Tabuleiro* tab, int vprintar) {
             else if (tab->grelha[i][j] >= 'A' && tab->grelha[i][j] <= 'Z') r |= verificarBranco(tab, i, j, vprintar);
         }
     }
-    r += verificaConectividade(tab, vprintar);
     return r;
 }
 
@@ -230,8 +229,6 @@ void inicializarPilha(Pilha* pilha, int capacidade) {
     pilha->jogadas = malloc((size_t)capacidade * sizeof(Jogada));
     pilha->topo = -1;
     pilha->capacidade = capacidade;
-    pilha->numJogadasR = 0; // Inicializa o contador
-    pilha->resolverConcluido = 0; // Inicializa o estado da função resolver
 }
 
 void redimensionarPilha(Pilha* pilha) {
@@ -241,6 +238,7 @@ void redimensionarPilha(Pilha* pilha) {
         perror("Erro ao redimensionar a pilha");
         exit(EXIT_FAILURE);
     }
+    printf("Pilha redimensionada para capacidade %d.\n", pilha->capacidade);
 }
 
 void freePilha(Pilha* pilha) {
@@ -384,21 +382,32 @@ void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
     //ler(tab);
 }
 
-int vizinhosBrancos(Tabuleiro *tab, Pilha *pilha, int lin, int col) {
-    int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // cima, baixo, esquerda, direita
-    for (int i = 0; i < 4; i++) {
-        int newLin = lin + direcoes[i][0];
-        int newCol = col + direcoes[i][1];
-        if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
-            char viz = tab->grelha[newLin][newCol];
-            if (viz == '#') return 0; // não pode ter vizinho riscado
-            if (viz >= 'a' && viz <= 'z') {
-                branco(tab, newLin, newCol, pilha); // só pintar se for minúscula
-                pilha->numJogadasR++; // incrementa o numero de jogadas feitas
+int verificaBranco2(Tabuleiro* tab) {
+    // Verifica se há letras duplicadas ou letras cercadas por #
+    for (int i = 0; i < tab->linhas; i++) {
+        for (int j = 0; j < tab->colunas; j++) {
+            char atual = tab->grelha[i][j];
+            if (atual < 'A' || atual > 'Z') continue; // Ignora se não for letra
+
+            // Verifica duplicatas na mesma linha
+            for (int jj = j + 1; jj < tab->colunas; jj++) {
+                if (tab->grelha[i][jj] == atual) return 1; // ERRO: duplicata
             }
+
+            // Verifica duplicatas na mesma coluna
+            for (int ii = i + 1; ii < tab->linhas; ii++) {
+                if (tab->grelha[ii][j] == atual) return 1; // ERRO: duplicata
+            }
+
+            // Verifica se está cercado por '#'
+            int cima     = (i > 0) ? tab->grelha[i - 1][j] == '#' : 1;
+            int baixo    = (i < tab->linhas - 1) ? tab->grelha[i + 1][j] == '#' : 1;
+            int esquerda = (j > 0) ? tab->grelha[i][j - 1] == '#' : 1;
+            int direita  = (j < tab->colunas - 1) ? tab->grelha[i][j + 1] == '#' : 1;
+            if (cima && baixo && esquerda && direita) return 1; // ERRO: cercado
         }
     }
-    return 1;
+    return 0; // OK: sem duplicatas nem letras cercadas
 }
 
 int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
@@ -432,34 +441,6 @@ int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
     return 1; // Se correu tudo bem
 }
 
-int verificaBranco2(Tabuleiro* tab) {
-    // Verificar se há brancos duplicados
-    for (int i = 0; i < tab->linhas; i++) {
-        for (int j = 0; j < tab->colunas; j++) {
-            char atual = tab->grelha[i][j];
-            if (atual < 'A' || atual > 'Z') continue;
-
-            // Verificar duplicados na mesma linha
-            for (int jj = j + 1; jj < tab->colunas; jj++) {
-                if (tab->grelha[i][jj] == atual) return 0;
-            }
-
-            // Verificar duplicados na mesma coluna
-            for (int ii = i + 1; ii < tab->linhas; ii++) {
-                if (tab->grelha[ii][j] == atual) return 0;
-            }
-
-            // Verificar se está cercado por #
-            int cima    = (i > 0) ? tab->grelha[i - 1][j] == '#' : 1;
-            int baixo   = (i < tab->linhas - 1) ? tab->grelha[i + 1][j] == '#' : 1;
-            int esquerda= (j > 0) ? tab->grelha[i][j - 1] == '#' : 1;
-            int direita = (j < tab->colunas - 1) ? tab->grelha[i][j + 1] == '#' : 1;
-            if (cima && baixo && esquerda && direita) return 0;
-        }
-    }
-    return 1; // Se não houver duplicados ou cercados
-}
-
 void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
     for (int i = in; i < tab->linhas; i++) {
         for (int j = jn; j < tab->colunas; j++) {
@@ -471,7 +452,6 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
 
                 // --- TENTAR RISCAR ---
                 riscar(tab, i, j, pilha);
-                pilha->numJogadasR++; // incrementa o numero de jogadas feitas
                 if (vizinhosBrancos(tab, pilha, i, j) &&
                     riscarDuplicados(tab, pilha) &&
                     verificaBranco2(tab)) {
@@ -490,7 +470,6 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
                 // --- TENTAR BRANCO ---
                 marcador = pilha->topo;
                 branco(tab, i, j, pilha);
-                pilha->numJogadasR++; // incrementa o numero de jogadas feitas
                 if (riscarDuplicados(tab, pilha) &&
                    verificaBranco2(tab)) {
 
