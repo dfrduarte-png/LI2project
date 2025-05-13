@@ -72,14 +72,13 @@ int main() {
             }
         }
         else if (acao == 'R') {// Implementar a função resolver
-            resolver(tab, &pilha, 0, 0, 0);
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
             resolver(tab, &pilha, 0, 0, 0);
             pilha.resolverConcluido = 1;
-            if (!pilha.numJogadasR) printf("O tabuleiro pode ser resolvido!\n");
+            if (!pilha.numJogadasR) printf("O tabuleiro não pode ser resolvido!\n");
         }
         else if (acao == 'd') {
             if (!tab) {
