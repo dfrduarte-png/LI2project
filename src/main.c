@@ -37,6 +37,9 @@ int main() {
             }
             if (tab) {
                 freeTabuleiro(tab);
+                pilha.resolverConcluido = 0;
+                pilha.numJogadasR = 0;
+                pilha.topo = -1;
             }
             Tabuleiro* new_tab = carregar(ficheiro, &pilha);
             if (!new_tab) {
@@ -76,9 +79,11 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            resolver(tab, &pilha, 0, 0, 0);
-            pilha.resolverConcluido = 1;
-            if (!pilha.numJogadasR) printf("O tabuleiro não pode ser resolvido!\n");
+            int marcador = pilha.topo;
+            pilha.resolverConcluido = 0;
+            resolver(tab, &pilha, 0, 0);
+            if (pilha.topo == marcador) printf("O tabuleiro pode ser resolvido!\n");
+            else pilha.resolverConcluido = 1;
         }
         else if (acao == 'd') {
             if (!tab) {

@@ -383,41 +383,48 @@ void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
 }
 
 int verificaBranco2(Tabuleiro* tab) {
-    // Verifica se há letras duplicadas ou letras cercadas por #
+    // Verificar se há brancos duplicados
     for (int i = 0; i < tab->linhas; i++) {
         for (int j = 0; j < tab->colunas; j++) {
             char atual = tab->grelha[i][j];
-            if (atual < 'A' || atual > 'Z') continue; // Ignora se não for letra
+            if (atual < 'A' || atual > 'Z') continue;
 
-            // Verifica duplicatas na mesma linha
+            // Verificar duplicados na mesma linha
             for (int jj = j + 1; jj < tab->colunas; jj++) {
-                if (tab->grelha[i][jj] == atual) return 1; // ERRO: duplicata
+                if (tab->grelha[i][jj] == atual) return 0;
             }
 
-            // Verifica duplicatas na mesma coluna
+            // Verificar duplicados na mesma coluna
             for (int ii = i + 1; ii < tab->linhas; ii++) {
-                if (tab->grelha[ii][j] == atual) return 1; // ERRO: duplicata
+                if (tab->grelha[ii][j] == atual) return 0;
             }
 
-            // Verifica se está cercado por '#'
-            int cima     = (i > 0) ? tab->grelha[i - 1][j] == '#' : 1;
-            int baixo    = (i < tab->linhas - 1) ? tab->grelha[i + 1][j] == '#' : 1;
-            int esquerda = (j > 0) ? tab->grelha[i][j - 1] == '#' : 1;
-            int direita  = (j < tab->colunas - 1) ? tab->grelha[i][j + 1] == '#' : 1;
-            if (cima && baixo && esquerda && direita) return 1; // ERRO: cercado
+            // Verificar se está cercado por #
+            int cima    = (i > 0) ? tab->grelha[i - 1][j] == '#' : 1;
+            int baixo   = (i < tab->linhas - 1) ? tab->grelha[i + 1][j] == '#' : 1;
+            int esquerda= (j > 0) ? tab->grelha[i][j - 1] == '#' : 1;
+            int direita = (j < tab->colunas - 1) ? tab->grelha[i][j + 1] == '#' : 1;
+            if (cima && baixo && esquerda && direita) return 0;
         }
     }
-    return 0; // OK: sem duplicatas nem letras cercadas
+    return 1; // Se não houver duplicados ou cercados
 }
 
 int vizinhosBrancos(Tabuleiro *tab, Pilha *pilha, int lin, int col) {
     int direcoes[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // cima, baixo, esquerda, direita
+    int marcador = pilha->topo;
     for (int i = 0; i < 4; i++) {
         int newLin = lin + direcoes[i][0];
         int newCol = col + direcoes[i][1];
         if (newLin >= 0 && newLin < tab->linhas && newCol >= 0 && newCol < tab->colunas) {
             char viz = tab->grelha[newLin][newCol];
-            if (viz == '#') return 0; // não pode ter vizinho riscado
+            if (viz == '#') {
+                while (pilha->topo > marcador) {
+                    desfazer(tab, pilha, 0);
+                    pilha->numJogadasR--; // decrementa o numero de jogadas feitas
+                }
+                return 0; // não pode ter vizinho riscado
+            }
             if (viz >= 'a' && viz <= 'z') {
                 branco(tab, newLin, newCol, pilha); // só pintar se for minúscula
                 pilha->numJogadasR++; // incrementa o numero de jogadas feitas
@@ -428,6 +435,7 @@ int vizinhosBrancos(Tabuleiro *tab, Pilha *pilha, int lin, int col) {
 }
 
 int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
+    int marcador = pilha->topo;
     for (int i = 0; i < tab->linhas; i++) {
         for (int j = 0; j < tab->colunas; j++) {
             char c = tab->grelha[i][j];
@@ -440,7 +448,13 @@ int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
                     if (col != j && tab->grelha[i][col] == original) {
                         riscar(tab, i, col, pilha);
                         pilha->numJogadasR++; // incrementa o numero de jogadas feitas
-                        if (!vizinhosBrancos(tab, pilha, i, col)) return 0;
+                        if (!vizinhosBrancos(tab, pilha, i, col)) {
+                            while (pilha->topo > marcador) {
+                                desfazer(tab, pilha, 0);
+                                pilha->numJogadasR--; // decrementa o numero de jogadas feitas
+                            }
+                            return 0;
+                        }
                     }
                 }
 
@@ -449,7 +463,13 @@ int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
                     if (lin != i && tab->grelha[lin][j] == original) {
                         riscar(tab, lin, j, pilha);
                         pilha->numJogadasR++; // incrementa o numero de jogadas feitas
-                        if (!vizinhosBrancos(tab, pilha, lin, j)) return 0;
+                        if (!vizinhosBrancos(tab, pilha, lin, j)) {
+                            while (pilha->topo > marcador) {
+                                desfazer(tab, pilha, 0);
+                                pilha->numJogadasR--; // decrementa o numero de jogadas feitas
+                            }
+                            return 0;
+                        }
                     }
                 }
             }
@@ -458,7 +478,7 @@ int riscarDuplicados(Tabuleiro *tab, Pilha *pilha) {
     return 1; // Se correu tudo bem
 }
 
-void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
+void resolver(Tabuleiro* tab, Pilha* pilha, int in, int jn) {
     for (int i = in; i < tab->linhas; i++) {
         for (int j = jn; j < tab->colunas; j++) {
             char c = tab->grelha[i][j];
@@ -467,35 +487,37 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int vprintar, int in, int jn) {
             if (c >= 'a' && c <= 'z') {
                 int marcador = pilha->topo;
 
-                // --- TENTAR RISCAR ---
-                riscar(tab, i, j, pilha);
-                if (vizinhosBrancos(tab, pilha, i, j) &&
-                    riscarDuplicados(tab, pilha) &&
-                    verificaBranco2(tab)) {
+                // --- TENTAR BRANCO ---
+                marcador = pilha->topo;
+                branco(tab, i, j, pilha);
+                pilha->numJogadasR++; // incrementa o numero de jogadas feitas
+                if (riscarDuplicados(tab, pilha) &&
+                   verificaBranco2(tab)) {
 
-                    resolver(tab, pilha, vprintar, i, j); // tenta resolver a seguir
+                    resolver(tab, pilha, i, j); // tenta resolver a seguir
 
-                    if (!verifica(tab, vprintar)) return; // encontrou solução
+                    if (!verifica(tab, 0)) return;
                 }
 
-                // desfaz tentativa de riscar
+                // desfaz tentativa de branco
                 while (pilha->topo > marcador) {
                     desfazer(tab, pilha, 0);
                     pilha->numJogadasR--; // decrementa o numero de jogadas feitas
                 }
 
-                // --- TENTAR BRANCO ---
-                marcador = pilha->topo;
-                branco(tab, i, j, pilha);
-                if (riscarDuplicados(tab, pilha) &&
-                   verificaBranco2(tab)) {
+                // --- TENTAR RISCAR ---
+                riscar(tab, i, j, pilha);
+                pilha->numJogadasR++; // incrementa o numero de jogadas feitas
+                if (vizinhosBrancos(tab, pilha, i, j) &&
+                    riscarDuplicados(tab, pilha) &&
+                    verificaBranco2(tab)) {
 
-                    resolver(tab, pilha, vprintar, i, j); // tenta resolver a seguir
+                    resolver(tab, pilha, i, j); // tenta resolver a seguir
 
-                    if (!verifica(tab, vprintar)) return;
+                    if (!verifica(tab, 0)) return; // encontrou solução
                 }
 
-                // desfaz tentativa de branco
+                // desfaz tentativa de riscar
                 while (pilha->topo > marcador) {
                     desfazer(tab, pilha, 0);
                     pilha->numJogadasR--; // decrementa o numero de jogadas feitas
