@@ -166,7 +166,7 @@ int verificarRisca(Tabuleiro* tab, int lin, int col, int vprintar) {
 void dfs(Tabuleiro* tab, int lin, int col, int visitado[tab->linhas][tab->colunas]) {
     if (lin < 0 || lin >= tab->linhas || col < 0 || col >= tab->colunas) return;
     if (visitado[lin][col]) return;
-    if (tab->grelha[lin][col] < 'A' || tab->grelha[lin][col] > 'Z') return; // Não é branco
+    if (tab->grelha[lin][col] == '#') return; // Não é branco nem normal
 
     visitado[lin][col] = 1;
 
@@ -323,6 +323,7 @@ void desfazer(Tabuleiro* tab, Pilha* pilha, int vprintar) {
             pilha->numJogadasR--; // Decrementa o contador
         }
         printf("Todas as jogadas feitas pela função resolver foram desfeitas.\n");
+        pilha->resolverConcluido = 0; // Reseta o estado da função resolver
     } else {
         // Desfaz apenas a última jogada
         Jogada ultimaJogada = pilha->jogadas[pilha->topo--];
@@ -486,13 +487,14 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int in, int jn) {
             // Se for uma letra por decidir (minúscula)
             if (c >= 'a' && c <= 'z') {
                 int marcador = pilha->topo;
-
+                
                 // --- TENTAR BRANCO ---
                 marcador = pilha->topo;
                 branco(tab, i, j, pilha);
                 pilha->numJogadasR++; // incrementa o numero de jogadas feitas
                 if (riscarDuplicados(tab, pilha) &&
-                   verificaBranco2(tab)) {
+                   verificaBranco2(tab) &&
+                   !verificaConectividade(tab, 0)) {
 
                     resolver(tab, pilha, i, j); // tenta resolver a seguir
 
@@ -510,7 +512,8 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int in, int jn) {
                 pilha->numJogadasR++; // incrementa o numero de jogadas feitas
                 if (vizinhosBrancos(tab, pilha, i, j) &&
                     riscarDuplicados(tab, pilha) &&
-                    verificaBranco2(tab)) {
+                    verificaBranco2(tab) &&
+                    !verificaConectividade(tab, 0)) {
 
                     resolver(tab, pilha, i, j); // tenta resolver a seguir
 

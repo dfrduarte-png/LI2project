@@ -79,10 +79,14 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
+            if (pilha.resolverConcluido) {
+                printf("A função resolver já foi executada!\n");
+                continue;
+            }
             int marcador = pilha.topo;
-            pilha.resolverConcluido = 0;
+            pilha.numJogadasR = 0; // Reseta o número de jogadas feitas pela função resolver
             resolver(tab, &pilha, 0, 0);
-            if (pilha.topo == marcador) printf("O tabuleiro pode ser resolvido!\n");
+            if (pilha.topo == marcador) printf("O tabuleiro não pode ser resolvido!\n");
             else pilha.resolverConcluido = 1;
         }
         else if (acao == 'd') {
