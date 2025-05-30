@@ -1,4 +1,5 @@
 #include "jogo.h"
+#include <errno.h>
 
 Tabuleiro* carregar(const char* ficheiro, Pilha* pilha) {
     FILE* f = fopen(ficheiro, "r");
@@ -269,7 +270,9 @@ void guardar(Tabuleiro* tab, Pilha* pilha, const char* ficheiro) {
     for (int i = 0; i < linhas_a_copiar; i++) {
         linhas[i] = malloc(100 * sizeof(char)); // Aloca memória para cada linha
         if (!fgets(linhas[i], 100, f)) {
-            perror("Erro ao ler o tabuleiro do ficheiro");
+            if (errno != 0) {  // Only print if real error occurred
+                perror("Erro ao ler o tabuleiro do ficheiro");
+            }
             fclose(f);
             for (int j = 0; j <= i; j++) free(linhas[j]); // Libera memória alocada
             free(linhas);
