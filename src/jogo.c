@@ -332,7 +332,7 @@ void desfazer(Tabuleiro* tab, Pilha* pilha, int vprintar) {
     }
 }
 
-void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
+void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont, int vprintar) {
     *cont = 0;
     int linhas = tab->linhas;
     int colunas = tab->colunas;
@@ -372,10 +372,12 @@ void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont) {
 
     // Verifica se o tabuleiro está correto
     int resultado = verifica(tab, 0);
-    if (resultado == 0) {
-        printf("O tabuleiro está correto!\n");
-    } else {
-        printf("O tabuleiro não está correto!\n");
+    if (vprintar) {
+        if (resultado == 0) {
+            printf("O tabuleiro está correto!\n");
+        } else {
+            printf("O tabuleiro não está correto!\n");
+        }
     }
 
     // Atualiza o tabuleiro
@@ -496,6 +498,8 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int in, int jn) {
                    verificaBranco2(tab) &&
                    !verificaConectividade(tab, 0)) {
 
+                    int cont = 0;
+                    ajudar(tab, pilha, &cont, 0); // tenta ajudar
                     resolver(tab, pilha, i, j); // tenta resolver a seguir
 
                     if (!verifica(tab, 0)) return;
@@ -515,6 +519,8 @@ void resolver(Tabuleiro* tab, Pilha* pilha, int in, int jn) {
                     verificaBranco2(tab) &&
                     !verificaConectividade(tab, 0)) {
 
+                    int cont = 0;
+                    ajudar(tab, pilha, &cont, 0); // tenta ajudar
                     resolver(tab, pilha, i, j); // tenta resolver a seguir
 
                     if (!verifica(tab, 0)) return; // encontrou solução

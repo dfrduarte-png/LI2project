@@ -61,7 +61,7 @@ int main() {
                 continue;
             }
             int cont = 0; // Só posto para não dar erro
-            ajudar(tab, &pilha, &cont); // Implementar a função ajudar, o 0 não muda nada
+            ajudar(tab, &pilha, &cont, 1); // Implementar a função ajudar, o 0 não muda nada
         }
         
         else if (acao == 'A') { 
@@ -71,7 +71,7 @@ int main() {
             }
             int cont = 1;
             while (cont) {
-                ajudar(tab, &pilha, &cont);
+                ajudar(tab, &pilha, &cont, 1);
             }
         }
         else if (acao == 'R') {// Implementar a função resolver
