@@ -14,8 +14,14 @@ jogo: $(OBJS)
 
 testar: CFLAGS += $(GCOV_FLAGS)
 testar: $(TEST_OBJS)
+	# Clean previous coverage data
+	rm -f $(SRC)/*.gcda
+	# Build test executable
 	$(CC) $(CFLAGS) $(LDFLAGS) -lcunit -o testar $(TEST_OBJS)
+	# Run tests
 	./testar
-	gcov $(SRC)/*.c
+	# Generate coverage reports only for relevant files
+	gcov -o $(SRC) $(SRC)/jogo.c $(SRC)/testar.c
+
 clean:
-	rm -f *.o jogo testar *.gcda *.gcno *.gcov
+	rm -f jogo testar $(SRC)/*.o $(SRC)/*.gcda $(SRC)/*.gcno *.gcov
