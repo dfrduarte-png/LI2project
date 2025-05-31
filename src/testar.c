@@ -46,6 +46,33 @@ void test_carregar(void) {
     // Libera a memória alocada para o tabuleiro e pilha
     freeTabuleiro(tab);
     freePilha(&pilha);
+
+    remove("tabuleiro.txt");  // Remove o ficheiro de teste
+}
+
+void test_carregar_invalido(void) {
+    Pilha pilha;
+    inicializarPilha(&pilha, 10);
+    
+    // Create test file with INVALID dimensions
+    FILE* file = fopen("tabinvalido.txt", "w");
+    if (!file) {
+        CU_FAIL("Failed to create test file");
+        return;
+    }
+    
+    // Write ONLY invalid dimensions (no board data needed)
+    fprintf(file, "-5 6");  // Negative rows, non-square
+    
+    fclose(file);
+    
+    // Test loading
+    Tabuleiro* tab = carregar("tabinvalido.txt", &pilha);
+    CU_ASSERT_PTR_NULL(tab);  // Should return NULL
+    
+    // Cleanup
+    remove("tabinvalido.txt");  // Delete test file
+    freePilha(&pilha);
 }
 
 
@@ -153,11 +180,13 @@ void test_guardar(void){
     FILE* f = fopen("output.txt", "r");
     CU_ASSERT_PTR_NOT_NULL(f);
 
-    fclose(f);
+    if (f) fclose(f);
     
     // Liberação de memória
     freeTabuleiro(tab);
     freePilha(&pilha);
+
+    if (f) remove("output.txt"); // Limpar o arquivo de teste após o teste
 }
 
 
@@ -482,6 +511,9 @@ void test_resolver(void){
 
     // Verificar o resultado esperado
     CU_ASSERT_EQUAL(tab->grelha[0][0], 'A'); // Exemplo de verificação
+    CU_ASSERT_EQUAL(tab->grelha[0][1], 'B'); // Exemplo de verificação
+    CU_ASSERT_EQUAL(tab->grelha[1][0], 'C'); // Exemplo de verificação
+    CU_ASSERT_EQUAL(tab->grelha[1][1], 'D'); // Exemplo de verificação
 
     freeTabuleiro(tab);
 }
@@ -543,6 +575,40 @@ void test_vizinhosbrancos(void) {
     freeTabuleiro(tab);
 }
 
+void test_carregar_tabuleiro_inexistente(void) {
+    Tabuleiro* tab = carregar("nao_existe.txt", NULL);
+    CU_ASSERT_PTR_NULL(tab);
+}
+
+void test_posicoes_extremas_tabuleiro(void) {
+    Tabuleiro* tab = carregar("tab.txt", NULL);
+    Pilha pilha;
+    inicializarPilha(&pilha, 10);
+    // Testar cantos do tabuleiro
+    riscar(tab, 0, 0, &pilha);
+    CU_ASSERT_EQUAL(tab->grelha[0][0], '#');
+    riscar(tab, tab->linhas-1, tab->colunas-1, &pilha);
+    CU_ASSERT_EQUAL(tab->grelha[tab->linhas-1][tab->colunas-1], '#');
+    riscar(tab, 0, tab->colunas-1, &pilha);
+    CU_ASSERT_EQUAL(tab->grelha[0][tab->colunas-1], '#');
+    riscar(tab, tab->linhas-1, 0, &pilha);
+    CU_ASSERT_EQUAL(tab->grelha[tab->linhas-1][0], '#');
+    freeTabuleiro(tab);
+    freePilha(&pilha);
+}
+
+void test_carregar_dados_corrompidos(void) {
+    // Criar arquivo com dados inválidos
+    FILE* f = fopen("corrupt.txt", "w");
+    fputs("A B C\nX Y Z\n", f);
+    fclose(f);
+    
+    Tabuleiro* tab = carregar("corrupt.txt", NULL);
+    CU_ASSERT_PTR_NULL(tab);
+
+    remove("corrupt.txt"); // Limpar arquivo de teste
+}
+
 int main() {
     if (CUE_SUCCESS != CU_initialize_registry())
         return CU_get_error();
@@ -574,6 +640,10 @@ int main() {
     CU_add_test(suite, "test_verificaBranco2", test_verificaBranco2);
     CU_add_test(suite, "test_riscarduplicados", test_riscarduplicados);
     CU_add_test(suite, "test_vizinhosbrancos", test_vizinhosbrancos);
+    CU_add_test(suite, "test_carregar_tabuleiro_inexistente", test_carregar_tabuleiro_inexistente);
+    CU_add_test(suite, "test_posicoes_extremas_tabuleiro", test_posicoes_extremas_tabuleiro);
+    CU_add_test(suite, "test_carregar_dados_corrompidos", test_carregar_dados_corrompidos);
+    CU_add_test(suite, "test_carregar_invalido", test_carregar_invalido);
 
 
     CU_basic_set_mode(CU_BRM_VERBOSE);
