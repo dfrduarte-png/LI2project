@@ -17,7 +17,7 @@ jogo: $(OBJS)
 testar: clean  # Clean before building/running tests
 	$(CC) $(CFLAGS) $(GCOV_FLAGS) -c -o $(SRC)/testar.o $(SRC)/testar.c
 	$(CC) $(CFLAGS) $(GCOV_FLAGS) -c -o $(SRC)/jogo.o $(SRC)/jogo.c
-	$(CC) $(CFLAGS) $(GCOV_FLAGS) $(LDFLAGS) -lcunit -o testar $(TEST_OBJS)
+	$(CC) $(CFLAGS) $(GCOV_FLAGS) $(LDFLAGS) -lcunit  -Wl,--wrap=malloc -Wl,--wrap=free -o testar $(TEST_OBJS)
 	./testar
 	gcov -o $(SRC) $(SRC)/jogo.c $(SRC)/testar.c
 
