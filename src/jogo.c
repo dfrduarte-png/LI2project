@@ -239,7 +239,6 @@ void redimensionarPilha(Pilha* pilha) {
         perror("Erro ao redimensionar a pilha");
         exit(EXIT_FAILURE);
     }
-    printf("Pilha redimensionada para capacidade %d.\n", pilha->capacidade);
 }
 
 void freePilha(Pilha* pilha) {
@@ -348,12 +347,14 @@ void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont, int vprintar) {
                 for (int k = 0; k < colunas; k++) {
                     if (tab->grelha[i][k] == tolower(letraBranca)) {
                         riscar(tab, i, k, pilha);
+                        pilha->numJogadasR++;
                         *cont = 1;
                     }
                 }
                 for (int k = 0; k < linhas; k++) {
                     if (tab->grelha[k][j] == tolower(letraBranca)) {
                         riscar(tab, k, j, pilha);
+                        pilha->numJogadasR++;
                         *cont = 1;
                     }
                 }
@@ -365,10 +366,22 @@ void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont, int vprintar) {
     for (int i = 0; i < linhas; i++) {
         for (int j = 0; j < colunas; j++) {
             if (tab->grelha[i][j] == '#') {
-                if (i > 0 && tab->grelha[i - 1][j] != '#') branco(tab, i - 1, j, pilha); // Pintar de branco acima
-                if (i < linhas - 1 && tab->grelha[i + 1][j] != '#') branco(tab, i + 1, j, pilha); // Pintar de branco abaixo
-                if (j > 0 && tab->grelha[i][j - 1] != '#') branco(tab, i, j - 1, pilha); // Pintar de branco à esquerda
-                if (j < colunas - 1 && tab->grelha[i][j + 1] != '#') branco(tab, i, j + 1, pilha); // Pintar de branco à direita
+                if (i > 0 && tab->grelha[i - 1][j] != '#') {
+                    branco(tab, i - 1, j, pilha); // Pintar de branco acima
+                    pilha->numJogadasR++;
+                }
+                if (i < linhas - 1 && tab->grelha[i + 1][j] != '#') {
+                    branco(tab, i + 1, j, pilha); // Pintar de branco abaixo
+                    pilha->numJogadasR++;
+                }
+                if (j > 0 && tab->grelha[i][j - 1] != '#') {
+                    branco(tab, i, j - 1, pilha); // Pintar de branco à esquerda
+                    pilha->numJogadasR++;
+                }
+                if (j < colunas - 1 && tab->grelha[i][j + 1] != '#') {
+                    branco(tab, i, j + 1, pilha); // Pintar de branco à direita
+                    pilha->numJogadasR++;
+                }
             }
         }
     }
@@ -382,10 +395,6 @@ void ajudar(Tabuleiro* tab, Pilha* pilha, int *cont, int vprintar) {
             printf("O tabuleiro não está correto!\n");
         }
     }
-
-    // Atualiza o tabuleiro
-    // printf("Tabuleiro atualizado:\n");
-    //ler(tab);
 }
 
 int verificaBranco2(Tabuleiro* tab) {
