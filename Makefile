@@ -7,15 +7,19 @@ BIN = bin
 OBJS = $(SRC)/main.o $(SRC)/jogo.o
 TEST_OBJS = $(SRC)/testar.o $(SRC)/jogo.o
 
-all: jogo
+.PHONY: all clean
+
+all: clean jogo  # Clean before building main executable
 
 jogo: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o jogo $(OBJS)
 
-testar: CFLAGS += $(GCOV_FLAGS)
-testar: $(TEST_OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -lcunit -o testar $(TEST_OBJS)
+testar: clean  # Clean before building/running tests
+	$(CC) $(CFLAGS) $(GCOV_FLAGS) -c -o $(SRC)/testar.o $(SRC)/testar.c
+	$(CC) $(CFLAGS) $(GCOV_FLAGS) -c -o $(SRC)/jogo.o $(SRC)/jogo.c
+	$(CC) $(CFLAGS) $(GCOV_FLAGS) $(LDFLAGS) -lcunit -o testar $(TEST_OBJS)
 	./testar
-	gcov $(SRC)/*.c
+	gcov -o $(SRC) $(SRC)/jogo.c $(SRC)/testar.c
+
 clean:
-	rm -f *.o jogo testar *.gcda *.gcno *.gcov
+	rm -f jogo testar $(SRC)/*.o $(SRC)/*.gcda $(SRC)/*.gcno *.gcov

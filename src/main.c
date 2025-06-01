@@ -37,6 +37,9 @@ int main() {
             }
             if (tab) {
                 freeTabuleiro(tab);
+                pilha.resolverConcluido = 0;
+                pilha.numJogadasR = 0;
+                pilha.topo = -1;
             }
             Tabuleiro* new_tab = carregar(ficheiro, &pilha);
             if (!new_tab) {
@@ -58,17 +61,17 @@ int main() {
                 continue;
             }
             int cont = 0; // Só posto para não dar erro
-            ajudar(tab, &pilha, &cont); // Implementar a função ajudar, o 0 não muda nada
+            ajudar(tab, &pilha, &cont, 1); // Implementar a função ajudar, o 0 não muda nada
         }
         
-        else if (acao == 'A') {
+        else if (acao == 'A') { 
             if (!tab) {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
             int cont = 1;
             while (cont) {
-                ajudar(tab, &pilha, &cont);
+                ajudar(tab, &pilha, &cont, 1);
             }
         }
         else if (acao == 'R') {// Implementar a função resolver
@@ -76,9 +79,15 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            pilha.resolverConcluido = 0; // para saber quando devo desfazer um bloco ou nao na funcao desfazer
-            resolver(tab, &pilha, 0, 0, 0);
-            pilha.resolverConcluido = 1;
+            if (pilha.resolverConcluido) {
+                printf("A função resolver já foi executada!\n");
+                continue;
+            }
+            int marcador = pilha.topo;
+            pilha.numJogadasR = 0; // Reseta o número de jogadas feitas pela função resolver
+            resolver(tab, &pilha, 0, 0);
+            if (pilha.topo == marcador) printf("O tabuleiro não pode ser resolvido!\n");
+            else pilha.resolverConcluido = 1;
         }
         else if (acao == 'd') {
             if (!tab) {
