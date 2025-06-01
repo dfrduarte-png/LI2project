@@ -468,7 +468,7 @@ void test_desfazer(void){
     inicializarPilha(&pilha, 10);
 
     empurrarPilha(&pilha, 0, 0, 'a', 'b');
-    desfazer(tab, &pilha);
+    desfazer(tab, &pilha, 0);
     CU_ASSERT_EQUAL(tab->grelha[0][0], 'a');
 
     freeTabuleiro(tab);

@@ -85,7 +85,7 @@ int main() {
                 printf("Tabuleiro não carregado! Tente novamente.\n");
                 continue;
             }
-            desfazer(tab, &pilha);  // Desfaz a última jogada
+            desfazer(tab, &pilha, 1);  // Desfaz a última jogada
         }
         else if (acao == 'b') {
             if (!tab) {
