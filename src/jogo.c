@@ -24,6 +24,12 @@ Tabuleiro* carregar(const char* ficheiro, Pilha* pilha) {
     tab->grelha = malloc((size_t)tab->linhas * sizeof(char*));
     for (int i = 0; i < tab->linhas; i++) {
         tab->grelha[i] = malloc((size_t)tab->colunas * sizeof(char));
+        if (!tab->grelha[i]) {
+            printf("Erro ao alocar memória para a grelha do tabuleiro.\n");
+            fclose(f);
+            freeTabuleiro(tab);
+            return NULL;
+        }
         for (int j = 0; j < tab->colunas; j++) {
             if (fscanf(f, " %c", &tab->grelha[i][j]) != 1) {
                 printf("Erro ao ler o tabuleiro do ficheiro.\n");
@@ -319,7 +325,6 @@ void desfazer(Tabuleiro* tab, Pilha* pilha, int vprintar) {
 
     // Se houver jogadas feitas pela função resolver, desfaz todas elas
     if (pilha->resolverConcluido && pilha->numJogadasR > 0) {
-        printf("Desfazendo todas as jogadas feitas pela função resolver...\n");
         while (pilha->numJogadasR > 0 && pilha->topo >= 0) {
             Jogada ultimaJogada = pilha->jogadas[pilha->topo--];
             tab->grelha[ultimaJogada.lin][ultimaJogada.col] = ultimaJogada.anterior;
