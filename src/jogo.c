@@ -6,14 +6,20 @@ Tabuleiro* carregar(const char* ficheiro, Pilha* pilha) {
         perror("Erro ao abrir ficheiro");
         return NULL;
     }
-    Tabuleiro* tab = malloc((size_t)sizeof(Tabuleiro));
-    if (!fscanf(f, "%d %d", &tab->linhas, &tab->colunas)) {
+
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    if (!tab) {
+        fclose(f);
+        return NULL;
+    }
+
+    if (fscanf(f, "%d %d", &tab->linhas, &tab->colunas) != 2) {
         printf("Erro ao ler o tamanho do tabuleiro\n");
         fclose(f);
         free(tab);
         return NULL;
     }
-    else if (tab->linhas <= 0 || tab->colunas <= 0 || tab->linhas != tab->colunas) {
+    if (tab->linhas <= 0 || tab->colunas <= 0 || tab->linhas != tab->colunas) {
         printf("Tamanho inválido do tabuleiro\n");
         fclose(f);
         free(tab);
@@ -21,25 +27,46 @@ Tabuleiro* carregar(const char* ficheiro, Pilha* pilha) {
     }
 
     tab->grelha = malloc((size_t)tab->linhas * sizeof(char*));
+    if (!tab->grelha) {
+        printf("Erro ao alocar memória para a grelha do tabuleiro.\n");
+        fclose(f);
+        free(tab);
+        return NULL;
+    }
+
     for (int i = 0; i < tab->linhas; i++) {
         tab->grelha[i] = malloc((size_t)tab->colunas * sizeof(char));
+        if (!tab->grelha[i]) {
+            printf("Erro ao alocar memória para a grelha do tabuleiro.\n");
+
+            for (int k = 0; k < i; k++) {
+                free(tab->grelha[k]);
+            }
+            free(tab->grelha);
+            free(tab);
+            fclose(f);
+            return NULL;
+        }
+
         for (int j = 0; j < tab->colunas; j++) {
             if (fscanf(f, " %c", &tab->grelha[i][j]) != 1) {
                 printf("Erro ao ler o tabuleiro do ficheiro.\n");
+                for (int k = 0; k <= i; k++) {
+                    free(tab->grelha[k]);
+                }
+                free(tab->grelha);
+                free(tab);
                 fclose(f);
-                freeTabuleiro(tab);
                 return NULL;
             }
         }
     }
 
-    // Ignorar separador "--"
     char linhaBuffer[100];
     while (fgets(linhaBuffer, sizeof(linhaBuffer), f)) {
         if (linhaBuffer[0] == '-' && linhaBuffer[1] == '-') break;
     }
 
-    // Ler jogadas
     char tipo, coluna;
     int linha;
     while (fscanf(f, " %c %c %d", &tipo, &coluna, &linha) == 3) {
@@ -48,9 +75,12 @@ Tabuleiro* carregar(const char* ficheiro, Pilha* pilha) {
         if (lin >= 0 && lin < tab->linhas && col >= 0 && col < tab->colunas) {
             char anterior = tab->grelha[lin][col];
             empurrarPilha(pilha, lin, col, anterior, tipo);
-            tab->grelha[lin][col] = (tipo == 'b') ? (char)toupper((unsigned char)anterior) : '#';
+            tab->grelha[lin][col] = (tipo == 'b')
+                                    ? (char)toupper((unsigned char)anterior)
+                                    : '#';
         }
     }
+
     fclose(f);
     return tab;
 }

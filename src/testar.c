@@ -609,6 +609,330 @@ void test_carregar_dados_corrompidos(void) {
     remove("corrupt.txt"); // Limpar arquivo de teste
 }
 
+static int malloc_counter = 0;
+static int fail_at = 0;
+
+void * __real_malloc(size_t size);
+void   __real_free(void *ptr);
+
+void * __wrap_malloc(size_t size) {
+    malloc_counter++;
+    if (malloc_counter == fail_at) {
+        return NULL;
+    }
+    return __real_malloc(size);
+}
+
+void __wrap_free(void *ptr) {
+    __real_free(ptr);
+}
+
+static const char *TMP_FILENAME = "tmp_tab.txt";
+
+static void write_minimal_board(const char *fname) {
+    FILE *f = fopen(fname, "w");
+    if (!f) {
+        fprintf(stderr, "Unable to create %s\n", fname);
+        exit(1);
+    }
+    fprintf(f, "3 3\n");
+    fprintf(f, "abc\n");
+    fprintf(f, "def\n");
+    fprintf(f, "ghi\n");
+    fprintf(f, "--\n");
+    fclose(f);
+}
+
+static void test_carregar_fail_tabuleiro(void) {
+    write_minimal_board(TMP_FILENAME);
+
+    Pilha pilha;
+    inicializarPilha(&pilha, 10);
+
+    malloc_counter = 0;
+    fail_at = 1;
+
+    Tabuleiro *t = carregar(TMP_FILENAME, &pilha);
+    CU_ASSERT_PTR_NULL(t);
+
+    freePilha(&pilha);
+}
+
+static void test_carregar_fail_grelha_ptr_array(void) {
+    write_minimal_board(TMP_FILENAME);
+
+    Pilha pilha;
+    inicializarPilha(&pilha, 10);
+
+    malloc_counter = 0;
+    fail_at = 2;
+
+    Tabuleiro *t = carregar(TMP_FILENAME, &pilha);
+    CU_ASSERT_PTR_NULL(t);
+
+    freePilha(&pilha);
+}
+
+
+static void test_carregar_fail_first_row(void) {
+    write_minimal_board(TMP_FILENAME);
+
+    Pilha pilha;
+    inicializarPilha(&pilha, 10);
+
+    malloc_counter = 0;
+    fail_at = 3;
+
+    Tabuleiro *t = carregar(TMP_FILENAME, &pilha);
+    CU_ASSERT_PTR_NULL(t);
+
+    freePilha(&pilha);
+}
+
+
+static void test_carregar_success_path(void) {
+    write_minimal_board(TMP_FILENAME);
+
+    Pilha pilha;
+    inicializarPilha(&pilha, 10);
+
+    malloc_counter = 0;
+    fail_at = 0;
+
+    Tabuleiro *t = carregar(TMP_FILENAME, &pilha);
+    CU_ASSERT_PTR_NOT_NULL(t);
+
+    if (t) {
+        CU_ASSERT_EQUAL(t->linhas, 3);
+        CU_ASSERT_EQUAL(t->colunas, 3);
+
+        CU_ASSERT(t->grelha != NULL);
+        if (t->grelha) {
+            CU_ASSERT(t->grelha[0] != NULL);
+            CU_ASSERT(t->grelha[1] != NULL);
+            CU_ASSERT(t->grelha[2] != NULL);
+            if (t->grelha[0] && t->grelha[1] && t->grelha[2]) {
+                CU_ASSERT_EQUAL(t->grelha[0][0], 'a');
+                CU_ASSERT_EQUAL(t->grelha[0][1], 'b');
+                CU_ASSERT_EQUAL(t->grelha[0][2], 'c');
+                CU_ASSERT_EQUAL(t->grelha[1][0], 'd');
+                CU_ASSERT_EQUAL(t->grelha[1][1], 'e');
+                CU_ASSERT_EQUAL(t->grelha[1][2], 'f');
+                CU_ASSERT_EQUAL(t->grelha[2][0], 'g');
+                CU_ASSERT_EQUAL(t->grelha[2][1], 'h');
+                CU_ASSERT_EQUAL(t->grelha[2][2], 'i');
+            }
+        }
+
+        freeTabuleiro(t);
+    }
+
+    freePilha(&pilha);
+}
+
+static void test_carregar_fail_read_incomplete_grid(void) {
+    /* Create a file that ends in the middle of the grid read: */
+    const char *fname = "tmp_tab_incomplete.txt";
+    FILE *f = fopen(fname, "w");
+    if (!f) {
+        fprintf(stderr, "Unable to create %s\n", fname);
+        exit(1);
+    }
+    /* Header says 3×3, but we only supply 2 characters total: */
+    fprintf(f, "3 3\n");
+    fprintf(f, "ab");   /* No newline, no more file data */
+    fclose(f);
+
+    Pilha pilha;
+    inicializarPilha(&pilha, 10);
+
+    /* Do not force any malloc to fail; we want the fscanf to fail instead. */
+    malloc_counter = 0;
+    fail_at = 0;
+
+    Tabuleiro *t = carregar(fname, &pilha);
+    CU_ASSERT_PTR_NULL(t);
+
+    freePilha(&pilha);
+    remove(fname);
+}
+
+static void test_carregar_with_moves_updates_grid_and_stack(void) {
+    const char *fname = "tmp_tab_with_moves.txt";
+    FILE *f = fopen(fname, "w");
+    if (!f) {
+        fprintf(stderr, "Unable to create %s\n", fname);
+        exit(1);
+    }
+    fprintf(f, "3 3\n");
+    fprintf(f, "abc\n");
+    fprintf(f, "def\n");
+    fprintf(f, "ghi\n");
+    fprintf(f, "--\n");
+    fprintf(f, "b a 1\n");
+    fprintf(f, "r c 3\n");
+    fclose(f);
+
+    Pilha pilha;
+    inicializarPilha(&pilha, 10);
+    malloc_counter = 0;
+    fail_at = 0;
+
+    Tabuleiro *t = carregar(fname, &pilha);
+    CU_ASSERT_PTR_NOT_NULL(t);
+    if (t) {
+        /* Check grid[0][0] became 'A' (branco on 'a',1) */
+        CU_ASSERT_EQUAL(t->grelha[0][0], 'A');
+        /* Check grid[2][2] became '#' (riscar on 'c',3) */
+        CU_ASSERT_EQUAL(t->grelha[2][2], '#');
+        freeTabuleiro(t);
+    }
+
+    freePilha(&pilha);
+    remove(fname);
+}
+
+static void test_carregar_fail_second_row(void) {
+    write_minimal_board(TMP_FILENAME);
+
+    Pilha pilha;
+    inicializarPilha(&pilha, 10);
+
+    malloc_counter = 0;
+    fail_at = 4;
+
+    Tabuleiro *t = carregar(TMP_FILENAME, &pilha);
+    CU_ASSERT_PTR_NULL(t);
+
+    freePilha(&pilha);
+}
+
+void test_branco_pos_invalida(void) {
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    tab->linhas = 1;
+    tab->colunas = 1;
+    tab->grelha = malloc(sizeof(char*));
+    tab->grelha[0] = malloc(sizeof(char));
+    tab->grelha[0][0] = 'a';
+
+    Pilha pilha;
+    inicializarPilha(&pilha, 10);
+
+    // Testar branco em posição inválida
+    branco(tab, -1, -1, &pilha); // Posição inválida
+    CU_ASSERT_EQUAL(tab->grelha[0][0], 'a'); // Não deve alterar
+
+    freeTabuleiro(tab);
+    freePilha(&pilha);
+}
+
+void test_riscar_pos_invalida(void) {
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    tab->linhas = 1;
+    tab->colunas = 1;
+    tab->grelha = malloc(sizeof(char*));
+    tab->grelha[0] = malloc(sizeof(char));
+    tab->grelha[0][0] = 'a';
+
+    Pilha pilha;
+    inicializarPilha(&pilha, 10);
+
+    // Testar riscar em posição inválida
+    riscar(tab, -1, -1, &pilha); // Posição inválida
+    CU_ASSERT_EQUAL(tab->grelha[0][0], 'a'); // Não deve alterar
+
+    freeTabuleiro(tab);
+    freePilha(&pilha);
+}
+
+void test_verificarBranco_cercado(void) {
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    tab->linhas = 3;
+    tab->colunas = 3;
+    tab->grelha = malloc(3 * sizeof(char*));
+    for (int i = 0; i < 3; i++) {
+        tab->grelha[i] = malloc(3 * sizeof(char));
+        for (int j = 0; j < 3; j++) {
+            tab->grelha[i][j] = '#'; // Preencher com letras brancas
+        }
+    }
+    tab->grelha[1][1] = 'A'; // Casa branca (1,1)
+
+    // Testar se a função verificaBranco retorna 1 para uma casa cercada
+    int resultado = verificarBranco(tab, 1, 1, 0); // Casa (1,1) cercada por '#'
+    CU_ASSERT_EQUAL(resultado, 1); // Deve retornar 1 pois a casa está cercada
+
+    freeTabuleiro(tab);
+}
+
+void test_verificarBranco_iguais_horizontais(void) {
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    tab->linhas = 3;
+    tab->colunas = 3;
+    tab->grelha = malloc(3 * sizeof(char*));
+    for (int i = 0; i < 3; i++) {
+        tab->grelha[i] = malloc(3 * sizeof(char));
+        for (int j = 0; j < 3; j++) {
+            tab->grelha[i][j] = 'b'; // Preencher com letras
+        }
+    }
+    for (int j = 0; j < 3; j++) {
+        tab->grelha[0][j] = 'A'; // Preencher com letras brancas
+    }
+
+    // Testar se a função verificaBranco retorna 1 para casas brancas iguais horizontais
+    int resultado = verificarBranco(tab, 0, 0, 1); // Casa (0,0) cercada por 'A' horizontalmente
+    CU_ASSERT_EQUAL(resultado, 1); // Deve retornar 1 pois a casa está cercada por casas brancas iguais
+
+    freeTabuleiro(tab);
+}
+
+void test_verificarBranco_iguais_verticais(void) {
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    tab->linhas = 3;
+    tab->colunas = 3;
+    tab->grelha = malloc(3 * sizeof(char*));
+    for (int i = 0; i < 3; i++) {
+        tab->grelha[i] = malloc(3 * sizeof(char));
+        for (int j = 0; j < 3; j++) {
+            tab->grelha[i][j] = 'b'; // Preencher com letras
+        }
+    }
+    for (int j = 0; j < 3; j++) {
+        tab->grelha[j][0] = 'A'; // Preencher com letras brancas
+    }
+
+    // Testar se a função verificaBranco retorna 1 para casas brancas iguais verticalmente
+    int resultado = verificarBranco(tab, 0, 0, 1); // Casa (0,0) cercada por 'A' horizontalmente
+    CU_ASSERT_EQUAL(resultado, 1); // Deve retornar 1 pois a casa está cercada por casas brancas iguais
+
+    freeTabuleiro(tab);
+}
+
+void test_caminhoDesconectado(void) {
+    Tabuleiro* tab = malloc(sizeof(Tabuleiro));
+    tab->linhas = 3;
+    tab->colunas = 3;
+    tab->grelha = malloc(3 * sizeof(char*));
+    for (int i = 0; i < 3; i++) {
+        tab->grelha[i] = malloc(3 * sizeof(char));
+        for (int j = 0; j < 3; j++) {
+            tab->grelha[i][j] = 'b';
+        }
+    }
+
+    // Primeiro cenário: casas brancas desconectadas
+    tab->grelha[0][0] = 'A'; // Casa branca 1
+    tab->grelha[1][2] = '#'; // Casa riscada
+    tab->grelha[2][1] = '#'; // Casa riscada
+    tab->grelha[2][2] = 'B'; // Casa branca 2, isolada
+
+    int resultado = verificaConectividade(tab, 1);
+    CU_ASSERT_EQUAL(resultado, 1); // Deve retornar 0 (conectado)
+
+    freeTabuleiro(tab);
+}
+
 int main() {
     if (CUE_SUCCESS != CU_initialize_registry())
         return CU_get_error();
@@ -644,6 +968,19 @@ int main() {
     CU_add_test(suite, "test_posicoes_extremas_tabuleiro", test_posicoes_extremas_tabuleiro);
     CU_add_test(suite, "test_carregar_dados_corrompidos", test_carregar_dados_corrompidos);
     CU_add_test(suite, "test_carregar_invalido", test_carregar_invalido);
+    CU_add_test(suite, "test_carregar_fail_tabuleiro", test_carregar_fail_tabuleiro);
+    CU_add_test(suite, "test_carregar_fail_grelha_ptr_array", test_carregar_fail_grelha_ptr_array);
+    CU_add_test(suite, "test_carregar_fail_first_row", test_carregar_fail_first_row);
+    CU_add_test(suite, "test_carregar_success_path", test_carregar_success_path);
+    CU_add_test(suite, "test_carregar_fail_read_incomplete_grid", test_carregar_fail_read_incomplete_grid);
+    CU_add_test(suite, "test_carregar_with_moves_updates_grid_and_stack", test_carregar_with_moves_updates_grid_and_stack);
+    CU_add_test(suite, "test_carregar_fail_second_row", test_carregar_fail_second_row);
+    CU_add_test(suite, "test_branco_pos_invalida", test_branco_pos_invalida);
+    CU_add_test(suite, "test_riscar_pos_invalida", test_riscar_pos_invalida);
+    CU_add_test(suite, "test_verificarBranco_cercado", test_verificarBranco_cercado);
+    CU_add_test(suite, "test_verificarBranco_iguais_horizontais", test_verificarBranco_iguais_horizontais);
+    CU_add_test(suite, "test_verificarBranco_iguais_verticais", test_verificarBranco_iguais_verticais);
+    CU_add_test(suite, "test_caminhoDesconectado", test_caminhoDesconectado);
 
 
     CU_basic_set_mode(CU_BRM_VERBOSE);
