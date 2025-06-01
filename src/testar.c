@@ -368,7 +368,7 @@ void test_ajudar(void) {
     int cont = 0;
 
     // Chamar a função a ser testada
-    ajudar(tab, &pilha, &cont, 0); // 0 para não imprimir
+    ajudar(tab, &pilha, &cont);
 
     // Teste 1: Verificar se a letra minúscula foi riscada
     CU_ASSERT_EQUAL(tab->grelha[1][0], '#'); // Letra 'a' deve ser riscada
@@ -507,7 +507,7 @@ void test_resolver(void){
     tab->grelha[1][1] = 'D';
 
     // Chamar a função resolver
-    resolver(tab, NULL, 0, 0); // Passar NULL para a pilha se não for necessário
+    resolver(tab, NULL, 0, 0, 0); // Passar NULL para a pilha se não for necessário
 
     // Verificar o resultado esperado
     CU_ASSERT_EQUAL(tab->grelha[0][0], 'A'); // Exemplo de verificação

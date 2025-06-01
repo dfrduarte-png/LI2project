@@ -63,8 +63,9 @@ Tabuleiro* carregar(const char* ficheiro, Pilha* pilha) {
     }
 
     char linhaBuffer[100];
-    while (fgets(linhaBuffer, sizeof(linhaBuffer), f)) {
-        if (linhaBuffer[0] == '-' && linhaBuffer[1] == '-') break;
+    int ciclo = 1;
+    while (ciclo && fgets(linhaBuffer, sizeof(linhaBuffer), f)) {
+        if (linhaBuffer[0] == '-' && linhaBuffer[1] == '-') ciclo = 0;
     }
 
     char tipo, coluna;
@@ -466,24 +467,25 @@ int verificaBranco2(Tabuleiro* tab) {
     for (int i = 0; i < tab->linhas; i++) {
         for (int j = 0; j < tab->colunas; j++) {
             char atual = tab->grelha[i][j];
-            if (atual < 'A' || atual > 'Z') continue;
+            if (atual >= 'A' || atual <= 'Z') {
 
-            // Verificar duplicados na mesma linha
-            for (int jj = j + 1; jj < tab->colunas; jj++) {
-                if (tab->grelha[i][jj] == atual) return 0;
+                // Verificar duplicados na mesma linha
+                for (int jj = j + 1; jj < tab->colunas; jj++) {
+                    if (tab->grelha[i][jj] == atual) return 0;
+                }
+
+                // Verificar duplicados na mesma coluna
+                for (int ii = i + 1; ii < tab->linhas; ii++) {
+                    if (tab->grelha[ii][j] == atual) return 0;
+                }
+
+                // Verificar se está cercado por #
+                int cima    = (i > 0) ? tab->grelha[i - 1][j] == '#' : 1;
+                int baixo   = (i < tab->linhas - 1) ? tab->grelha[i + 1][j] == '#' : 1;
+                int esquerda= (j > 0) ? tab->grelha[i][j - 1] == '#' : 1;
+                int direita = (j < tab->colunas - 1) ? tab->grelha[i][j + 1] == '#' : 1;
+                if (cima && baixo && esquerda && direita) return 0;
             }
-
-            // Verificar duplicados na mesma coluna
-            for (int ii = i + 1; ii < tab->linhas; ii++) {
-                if (tab->grelha[ii][j] == atual) return 0;
-            }
-
-            // Verificar se está cercado por #
-            int cima    = (i > 0) ? tab->grelha[i - 1][j] == '#' : 1;
-            int baixo   = (i < tab->linhas - 1) ? tab->grelha[i + 1][j] == '#' : 1;
-            int esquerda= (j > 0) ? tab->grelha[i][j - 1] == '#' : 1;
-            int direita = (j < tab->colunas - 1) ? tab->grelha[i][j + 1] == '#' : 1;
-            if (cima && baixo && esquerda && direita) return 0;
         }
     }
     return 1; // Se não houver duplicados ou cercados
