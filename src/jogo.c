@@ -467,8 +467,7 @@ int verificaBranco2(Tabuleiro* tab) {
     for (int i = 0; i < tab->linhas; i++) {
         for (int j = 0; j < tab->colunas; j++) {
             char atual = tab->grelha[i][j];
-            if (atual >= 'A' || atual <= 'Z') {
-
+            if (atual >= 'A' && atual <= 'Z') {
                 // Verificar duplicados na mesma linha
                 for (int jj = j + 1; jj < tab->colunas; jj++) {
                     if (tab->grelha[i][jj] == atual) return 0;
